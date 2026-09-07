@@ -289,11 +289,6 @@ schedule:
   title: "Syntax and BNF/EBNF"
   link: "Activities/liascript-syntaxbnf.md"
   liapage: true
-  deliverables:
-  - dtitle: "Lab: BNF Workshop Handed Out"
-    dlink: "Assignments/BNFWorkshop"
-    points: "15"
-    rubricpath: "_pages/Assignments/lab-bnfworkshop.md"
   readings:
   - rtitle: "Allison, Ch. 6 §6.1: Context-Free Grammars and Derivations"
 - week: "2"
@@ -302,6 +297,10 @@ schedule:
   link: "Activities/liascript-grammars.md"
   liapage: true
   deliverables:
+  - dtitle: "Lab: BNF Workshop Handed Out"
+    dlink: "Assignments/BNFWorkshop"
+    points: "15"
+    rubricpath: "_pages/Assignments/lab-bnfworkshop.md"
   - dtitle: "Programming Assignment: Functional Programming with Scheme Due"
     dlink: "Assignments/Scheme"
     points: "100"
