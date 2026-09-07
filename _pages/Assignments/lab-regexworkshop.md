@@ -54,7 +54,7 @@ tags:
 
 ---
 
-This **lab** turns regular expressions from Tuesday's theory into a tool you can use.  Work it in order.  Parts 1 and 2 are walkthroughs: I show you something, you run it, then you vary it and write down what happened.  Parts 3 and 4 are the two artifacts everything downstream grows from.  The first is the `check()` test harness with your first three passing patterns; the Regular Expressions assignment's Part 1 asks for ten.  The second is the `re.finditer` mini-lexer skeleton.  That assignment's Part 2 completes it, and the Lexer assignment later turns it into a permanent pipeline component.
+This **lab** turns the regular-expression theory from class into a tool you can use.  Work it in order.  Parts 1 and 2 are walkthroughs: I show you something, you run it, then you vary it and write down what happened.  Parts 3 and 4 are the two artifacts everything downstream grows from.  The first is the `check()` test harness with your first three passing patterns; the Regular Expressions assignment's Part 1 asks for ten.  The second is the `re.finditer` mini-lexer skeleton.  That assignment's Part 2 completes it, and the Lexer assignment later turns it into a permanent pipeline component.
 
 Every code block here runs as it stands.  Put it in a file, run it, then change something and run it again.  Reading these blocks without running them is the one way to get nothing out of this lab.
 

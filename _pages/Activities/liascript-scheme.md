@@ -14,7 +14,7 @@ link:   https://cdn.jsdelivr.net/gh/BillJr99/Ursinus-Boilerplate-Assets@main/css
 
 # Functional Programming in Scheme, Part 2
 
-Last session you met the functional paradigm and typed your first few Scheme expressions.  Today we stay in Scheme long enough for it to stop feeling strange.
+In the previous session you met the functional paradigm and typed your first few Scheme expressions.  Today we stay in Scheme long enough for it to stop feeling strange.
 
 Scheme is to programming languages what Latin is to the Romance languages: it exposes the pure, undiluted core that every other language is built from, stripped of the ornamental syntax that usually hides the machinery beneath.  Studying it in a PL course is not about collecting another language.  It is about seeing, perhaps for the first time, that a language can be so minimal that its programs and its data are literally the same thing.  Once you have felt that, you will read every other language differently, including the one your team is going to design.
 
@@ -698,7 +698,7 @@ A cache that lives inside `memoize`'s `let` rather than at top level buys you:
 
 ## 5.  Exercises
 
-Everything you read today is a worked example for the **Functional Programming with Scheme** assignment, handed out Thursday and due the Thursday after.  It asks you to write `czr` with its empty-list case, `reverse`, a recursive `count`, an improved `largest`, an operator-folding function like `oplist`, a `make-counter` closure, and one small program of your own.  Getting a REPL open today is the prerequisite for all of it, so do not leave here without one.
+Everything you read today is a worked example for the **Functional Programming with Scheme** assignment; see the course schedule for the assigned and due dates.  It asks you to write `czr` with its empty-list case, `reverse`, a recursive `count`, an improved `largest`, an operator-folding function like `oplist`, a `make-counter` closure, and one small program of your own.  Getting a REPL open today is the prerequisite for all of it, so do not leave here without one.
 
 Before then, and independent of the assignment:
 

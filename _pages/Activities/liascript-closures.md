@@ -738,7 +738,7 @@ print(f"Closure counter: {clo_counter['value']()}")
 
 ## 5.  Two Ways to Get What the Calculus Lacks
 
-Last week, in *Church Encodings and Combinators*, you derived $\textbf{Y}$ and then $\textbf{Z}$, and used them to make a function call itself with no name anywhere in the term.  `fact-generator` took "the rest of the recursion" as an ordinary parameter, and the combinator supplied it.  Nothing was captured and nothing was mutated.  There was only application and substitution.
+In *Church Encodings and Combinators*, you derived $\textbf{Y}$ and then $\textbf{Z}$, and used them to make a function call itself with no name anywhere in the term.  `fact-generator` took "the rest of the recursion" as an ordinary parameter, and the combinator supplied it.  Nothing was captured and nothing was mutated.  There was only application and substitution.
 
 Today's mechanism is nothing like that.  A closure gets its power from holding on to a *binding*, and `set!` gets its power from writing to that binding.  The counter remembers because the frame outlived the call that made it, and because somebody was allowed to change what the frame holds.
 
