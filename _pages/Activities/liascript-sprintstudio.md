@@ -14,7 +14,7 @@ link:   https://cdn.jsdelivr.net/gh/BillJr99/Ursinus-Boilerplate-Assets@main/css
 
 # Sprint Studio and Gallery Walk
 
-This deck serves two class sessions: Tuesday, December 1 (Sprint Studio: Sprints 1-2 and Gallery Walk) and Thursday, December 3 (Sprint Studio: Sprint 3 and Release Hardening).
+This deck serves two class sessions: *Sprint Studio: Sprints 1-2 and Gallery Walk*, then *Sprint Studio: Sprint 3 and Release Hardening*.
 
 Building a programming language in a semester takes the same discipline that shipping any complex software takes.  You have to know exactly where you stand, not where you feel like you stand.  Sprint studio days replace "mostly working" with numbers, and the gallery walk replaces private uncertainty with structured peer review.  Together they help teams find their blind spots before Demo Day instead of during it.
 
@@ -45,9 +45,9 @@ Project roles (rotated by sprint) are in effect: Coordinator, Builder(s), Evalua
 
 ---
 
-## Tuesday: Sprints 1-2 and Gallery Walk
+## Session 1: Sprints 1-2 and Gallery Walk
 
-On Tuesday, work through sections 1 through 4 below: the stand-up, build time, the gallery walk, Model 3 (feedback triage), and the triage session.
+In the first session, work through sections 1 through 4 below: the stand-up, build time, the gallery walk, Model 3 (feedback triage), and the triage session.
 
 ---
 
@@ -248,9 +248,9 @@ Cluster the cards and sort every item into exactly one bucket: Fix before Demo D
 
 ---
 
-## Thursday: Sprint 3 and Release Hardening
+## Session 2: Sprint 3 and Release Hardening
 
-On Thursday, run the stand-up and build time from sections 1 and 2 again, then work through section 5 below: the Demo Day release checklist.
+In the second session, run the stand-up and build time from sections 1 and 2 again, then work through section 5 below: the Demo Day release checklist.
 
 ---
 

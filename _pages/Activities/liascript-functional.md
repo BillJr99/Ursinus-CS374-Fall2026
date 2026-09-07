@@ -768,7 +768,7 @@ Everything above was Python written in a functional *style*.  Here is the same r
 
 ```python
 # Define sumlist using a lambda and recursion.  This is the Scheme
-# definition from the last session, transliterated one symbol at a time:
+# definition from the Scheme session, transliterated one symbol at a time:
 #
 #   (define sumlist (lambda (L) (if (null? (cdr L)) (car L) (+ (car L) (sumlist (cdr L))))))
 #
