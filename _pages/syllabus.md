@@ -301,10 +301,6 @@ schedule:
     dlink: "Assignments/BNFWorkshop"
     points: "15"
     rubricpath: "_pages/Assignments/lab-bnfworkshop.md"
-  - dtitle: "Programming Assignment: Functional Programming with Scheme Due"
-    dlink: "Assignments/Scheme"
-    points: "100"
-    rubricpath: "_pages/Assignments/asmt-scheme.md"
   readings:
   - rtitle: "Allison, Ch. 9 §9.3: The Chomsky Hierarchy"
   - rtitle: "Allison, Ch. 6 §6.1: Context-Free Grammars and Derivations"
@@ -316,6 +312,11 @@ schedule:
   readings:
   - rtitle: "Continues Day 1.  Bring the grammar you drafted; we build on it."
     rlink: false
+  deliverables:
+  - dtitle: "Programming Assignment: Functional Programming with Scheme Due"
+    dlink: "Assignments/Scheme"
+    points: "100"
+    rubricpath: "_pages/Assignments/asmt-scheme.md"
 - week: "3"
   date: "1"
   title: "Derivations, Parse Trees, Ambiguity, and Precedence"
