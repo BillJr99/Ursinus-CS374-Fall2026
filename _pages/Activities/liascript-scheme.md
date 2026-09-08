@@ -26,6 +26,8 @@ By the end of this activity, you will be able to:
 - Define functions with `define` and `lambda`, and explain why `define` binds a name rather than assigning to a variable
 - Write recursive functions over lists using `car`, `cdr`, `cons`, and a `null?` base case, since Scheme has no loop
 - Pass functions as values and receive them as parameters, using `map`, `apply`, and functions you write yourself
+- Name a value once with `let` instead of recomputing it, and read the binding-list syntax that requires
+- Build and search an association list with `assq`, and say why `assq` and `assoc` sometimes disagree
 - Explain what a closure captures, and compare a closure with an object
 - Build an object out of a closure by dispatching on a message, and capture a table rather than a number to memoize a function
 
@@ -382,6 +384,102 @@ There are two functions here.  The outer one is named `plusminus` and takes `a` 
 
 ---
 
+## Model 5.5: `let`, Association Lists, and `assq` vs. `assoc`
+
+You have already seen `let` twice without stopping on it: `largest2` in Model 2 used it to avoid a doubled recursive call, and the "Watch out!" glossary entry called it "the tool for 'I need this value more than once.'"  Before Model 6 hands you a closure whose entire body is a `let`, it is worth slowing down on the syntax itself, and on the lookup table you will build with it here and reuse for the rest of this deck.
+
+**The shape of `let`.**  `(let ((name expression)) body)` computes `expression` once, binds it to `name`, and then evaluates `body` with that binding visible.
+
+```scheme
+(let ((x (+ 2 3)))
+  (* x x))                   ; 25
+```
+
+Build that from the inside out if the nesting looks unfamiliar: `(x (+ 2 3))` is one binding pair; `((x (+ 2 3)))` is a *list* of binding pairs, even though there is only one; and the whole form wraps a body around that list. You can bind more than one name in the same `let` by adding more pairs, and each binding is computed from the environment *outside* the `let`, not from the other bindings beside it:
+
+```scheme
+(let ((a 3)
+      (b 4))
+  (+ (* a a) (* b b)))       ; 25
+```
+
+> **Watch out!**  A common typo is `(let (x (+ 2 3)) ...)`, missing one pair of parentheses. `let` always wants a *list* of bindings, so even a single binding needs its own extra parentheses around the pair. If Scheme complains that something is not a procedure, or that a binding list looks malformed, this is almost always why.
+
+**Association lists.**  An association list, or *alist*, is Scheme's simplest lookup table: a list where every element is a `cons` pair, `(key . value)`.
+
+```scheme
+(define ops (list (cons '+ +) (cons '- -) (cons '* *) (cons '/ /)))
+```
+
+`(cons '+ +)` pairs the symbol `'+` with the actual addition procedure; `car` of that pair gets the symbol back, `cdr` gets the procedure back. `ops` is a list of four such pairs, built from exactly the `list`, `cons`, `car`, and `cdr` you already know from Model 1; nothing new is happening in the data structure, only in how it is arranged.
+
+**Searching with `assq`, and where `assoc` differs.**  Scheme gives you `assq` to search an alist directly: `(assq key alist)` walks the list for a pair whose `car` is `eq?` to `key`, and returns that whole pair, or `#f` if nothing matches.
+
+```scheme
+(assq '+ ops)                ; (+ . #[compound-procedure +])
+(assq '* ops)                ; (* . #[compound-procedure *])
+(assq 'sqrt ops)              ; #f
+```
+
+`assq` compares keys with `eq?`, which is a pointer/identity comparison. That is exactly right for symbols like `'+`, since the reader interns every symbol it reads, so two occurrences of `'+` are the same object. It is the wrong tool the moment your keys are structured data. **`assoc`**, which you will meet again in Model 8's `memoize`, is `assq`'s sibling: it compares keys with `equal?` instead, which checks structural equality rather than identity.
+
+```scheme
+(define points (list (cons '(0 . 0) "origin") (cons '(1 . 1) "diagonal")))
+
+(assq  '(0 . 0) points)       ; #f  -- eq? sees two DIFFERENT pairs, even though they print the same
+(assoc '(0 . 0) points)       ; ((0 . 0) . "origin")  -- equal? compares structure, not identity
+```
+
+That is the whole rule: **use `assq` when your keys are symbols** (operator names, message names, variable names, anything the reader interns), because it is cheap and it is exactly what symbol comparison means. **Use `assoc` when your keys are lists, strings, or other structured data** that might be `equal?` without being the literal same object in memory. Model 8's cache keys happen to be plain numbers, where `eq?` and `equal?` usually agree, but it uses `assoc` anyway as the safe default for a general-purpose cache; you will use `assq` below because your keys are symbols on purpose.
+
+Once you have found a pair, `cdr` still pulls the value out, and a `let` is the natural way to search only once even when you need the result in more than one branch:
+
+```scheme
+(define lookup
+  (lambda (sym)
+    (let ((found (assq sym ops)))
+      (if found
+          (cdr found)
+          (error "not found:" sym)))))
+
+(lookup '*)                   ; #[compound-procedure *]
+(lookup 'sqrt)                 ; error: not found: sqrt
+```
+
+Notice the shape: `(assq sym ops)` is used twice inside `lookup`, once in the `if` test and once inside `(cdr found)`, so it is computed once, named `found` with `let`, and reused, exactly the move `largest2` made and exactly the move `memoize` makes again in Model 8.
+
+### Try It Yourself
+
+```scheme
+; TODO 1: bind x to (* 6 7) with let, and use x twice in the body:
+;         once to display it, once to compare it against 42 with =.
+
+; TODO 2: build a two-entry alist pairing 'red and 'blue with the
+;         strings "stop" and "go".  Then call assq for 'red and
+;         confirm you get the pair back; call it for a symbol that
+;         is not in the list and confirm you get #f.
+
+; TODO 3: using ops from above, write (lookup '/) and confirm it
+;         returns the division procedure; then call (lookup '%) and
+;         read the error message lookup produces.
+```
+@LIA.eval(`["main.scm"]`, `none`, `guile --no-auto-compile main.scm`)
+
+### Reading the Code
+
+- `let` trades a repeated computation for a single computation plus a name. It costs nothing and it is the difference between `largest` and `largest2`, and between a `lookup` that searches once and one that searches twice.
+- An alist is not a new kind of data; it is `cons`, `car`, and `cdr` arranged so each element carries a key and a value together.
+- `assq` and `assoc` answer the same question, "is this key already in the table," with two different notions of "the same key." Getting that choice backward, `assq` on structured keys, is a bug that silently returns `#f` instead of the pair you expected, because `eq?` says two equal-looking lists are different objects.
+
+### Critical Thinking Questions
+
+18a. Trace `(let ((a 3) (b 4)) (+ a b))` by hand: what gets bound to `a`, what gets bound to `b`, and in what order are the two expressions in the bindings list evaluated?
+18b. Write `(assq '(0 . 0) points)` and `(assoc '(0 . 0) points)` from the `points` example above, predict each result before running it, then explain in one sentence why they disagree.
+18c. `lookup` above calls `(error "not found:" sym)` when `assq` returns `#f`. Rewrite `lookup` so that instead of erroring, a missing symbol returns `#f` itself. What has to change, and what does the caller now have to check that it did not have to check before?
+18d. Suppose `ops` used **strings** instead of symbols as keys, `(cons "+" +)` instead of `(cons '+ +)`. Would `assq` still find `"+"` reliably? Would `assoc`? Explain the difference in terms of what `eq?` and `equal?` each compare.
+
+---
+
 ## Model 6: `make-counter` and Closures
 
 ```scheme
@@ -487,7 +585,8 @@ Question 21 asked what a closure's return value even *is* once there is more tha
 ### Reading the Code
 
 - `assoc` walks the list looking for a pair whose `car` is `x`, and hands back that whole pair, or `#f` if there is no such pair.  `(cdr hit)` is therefore the cached answer.
-- Naming the lookup with `let` means the cache is searched once instead of twice.  That is the same move `largest2` made in Model 2, and it is worth noticing that the fix looks identical in a completely different setting.
+- This is `assoc`, not `assq`, and Model 5.5 is why: `assoc` compares with `equal?` rather than `eq?`.  `slow-square`'s keys happen to be plain numbers, where the two usually agree, but a general-purpose memoizer cannot assume its caller will only ever pass numbers or symbols.  The moment someone memoizes a function of a list or a string argument, `assq` would silently miss every cache hit, since two `equal?` lists are rarely `eq?` to each other.  `assoc` is the safe default here for exactly the reason `assq` was the right choice for `ops` in Model 5.5: `ops`'s keys are symbols, chosen once and interned by the reader, so `eq?` was guaranteed to work and `assq` was the cheaper, equally correct tool.
+- Naming the lookup with `let` means the cache is searched once instead of twice.  That is the same move `largest2` made in Model 2 and `lookup` made in Model 5.5, and it is worth noticing that the fix looks identical in three completely different settings.
 - The cache is captured, not global.  Two calls to `memoize` build two independent caches, exactly as two calls to `make-counter` built two independent counters, and nothing else in the program can reach either one.
 - `set!` earns its keep here for the second time today.  A memo table you cannot update is an empty list forever.
 
@@ -658,6 +757,15 @@ Scheme's One Syntax Rule is that every compound form is `(operator operand ...)`
 
 ---
 
+Your alist has symbols as keys, like `'+` and `'-`.  You should search it with:
+
+[(X)] `assq`, because `eq?` correctly compares interned symbols and is cheaper than `equal?`
+[( )] `assoc`, because symbols always need structural comparison
+[( )] Either one, since they always return the same answer
+[( )] Neither; alists can only be searched with `car` and `cdr` by hand
+
+---
+
 A closure is:
 
 [(X)] A function value together with the environment it was created in
@@ -698,7 +806,7 @@ A cache that lives inside `memoize`'s `let` rather than at top level buys you:
 
 ## 5.  Exercises
 
-Everything you read today is a worked example for the **Functional Programming with Scheme** assignment; see the course schedule for the assigned and due dates.  It asks you to write `czr` with its empty-list case, `reverse`, a recursive `count`, an improved `largest`, an operator-folding function like `oplist`, a `make-counter` closure, and one small program of your own.  Getting a REPL open today is the prerequisite for all of it, so do not leave here without one.
+Everything you read today is a worked example for the **Functional Programming with Scheme** assignment; see the course schedule for the assigned and due dates.  It asks you to write `czr` with its empty-list case, `reverse`, a recursive `count`, an improved `largest`, an operator-folding function like `oplist`, a `make-counter` closure, and an expression evaluator that uses `let` to name a lookup once and `assq` to resolve an operator symbol to a procedure, the same pattern Model 5.5's `lookup` and Model 7's dispatcher both use. Getting a REPL open today is the prerequisite for all of it, so do not leave here without one.
 
 Before then, and independent of the assignment:
 
@@ -706,6 +814,7 @@ Before then, and independent of the assignment:
 2.  Write `reverse` using only `car`, `cdr`, and `cons`.  Then count how many `cons` calls it makes for a list of length `n`, and say whether you are happy with that.
 3.  Take the projectile expression and factor it into a named function of `v0`, `t`, and `a`.  Then use `map` to compute the distance at `t` values `'(1 2 3 4 5)`.
 4.  Give `make-account` a fourth message, `'history`, that returns every amount deposited or withdrawn so far, most recent first.  Then explain in one sentence why `acc` and `acc2` do not share a history, using the word *frame*.
+5.  Build a small alist mapping the symbols `'north`, `'south`, `'east`, `'west` to the strings `"N"`, `"S"`, `"E"`, `"W"`.  Search it with `assq`.  Then change the keys to two-element lists like `'(grid 1)` instead of bare symbols, and explain why `assq` now fails where `assoc` would not.
 
 ## Reflection Prompt
 
