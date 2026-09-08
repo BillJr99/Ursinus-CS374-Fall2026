@@ -63,7 +63,7 @@ This **lab** is the Parser assignment's Part 1, done early and with a partner.  
 
 ## Part 0: Before You Start - Derivations, Ambiguity, and Precedence (10%)
 
-Do this part first, before the rest of the lab, and ideally before the Derivations, Parse Trees, Ambiguity, and Precedence session.  You may do it alone even though the rest of this lab is pair work.
+Do this part first, before the rest of the lab.  You may do it alone even though the rest of this lab is pair work.
 
 A grammar is ambiguous when one string has two different parse trees.  Precedence says which operator binds tighter; associativity says how a chain of the same operator groups.  Ambiguity stops being subtle the moment you have drawn it twice.  Draw both trees, then rewrite the grammar until only one drawing survives.  That rewrite is the whole technique, and doing it once by hand teaches more than reading three descriptions of it.
 
@@ -71,7 +71,7 @@ A grammar is ambiguous when one string has two different parse trees.  Precedenc
 2.  Rewrite the grammar to encode precedence and associativity so the ambiguity is gone.  Mark the place where encoding precedence made a rule harder to read.  That cost is real, and Part 3 will ask you to defend paying it.
 3.  Take `2 - 3 - 4` and draw the parse tree that makes subtraction left-associative, then the one that makes it right-associative.  Which does your favorite language use?  Confirm it in a REPL rather than guessing.
 
-If the rewrite fell apart on you, bring it anyway.  Where it fell apart is what the session is for.
+If the rewrite fell apart on you, bring it anyway.  Where it fell apart is what the discussion is for.
 
 ---
 

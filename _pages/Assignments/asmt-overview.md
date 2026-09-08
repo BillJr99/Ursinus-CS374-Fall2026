@@ -69,7 +69,7 @@ One pointer before you begin.  Several assignments this semester offer **directi
 
 ## Part 0: Before You Start — Evaluating Languages and Paradigms (10 points)
 
-Do this one **before the Programming Paradigms and Evaluating Languages session**, not after.  It takes about fifteen minutes and a pencil, and it is the only part of this assignment that has nothing to do with your toolchain.
+Do this one **first**, before the rest of the assignment.  It takes about fifteen minutes and a pencil, and it is the only part of this assignment that has nothing to do with your toolchain.
 
 Readability and writability are easy words to nod at and hard to use well.  They only get sharp when you point them at code you have actually written, in languages you have actually argued about.
 
@@ -77,7 +77,7 @@ Readability and writability are easy words to nod at and hard to use well.  They
 
 **2. A snippet across paradigms.**  Take about five lines of code in any language and classify the paradigm it primarily represents (imperative, object-oriented, functional, declarative).  Then rewrite it in a *different* paradigm, and name what the translation cost you: lines, clarity, performance, or something you could no longer express at all.
 
-If you cannot finish the translation, that is a real answer and it earns full credit — as long as you say precisely where it broke and why. An argument you could not finish sets the session's agenda better than a clean page does.
+If you cannot finish the translation, that is a real answer and it earns full credit — as long as you say precisely where it broke and why. An argument you could not finish is more useful to me than a clean page.
 
 **What to bring to class:** the sticking point. The translation that stalled, or the design choice you could not call good or bad. That is what we start from.
 

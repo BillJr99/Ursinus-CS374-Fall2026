@@ -56,7 +56,7 @@ This **lab** builds the core of the Interpreter assignment's Part 4: a small sta
 
 ## Part 0: Before You Start - Type Systems (10%)
 
-Do this part before you write the checker, and ideally before the Type Systems session.  Plan on about fifteen minutes with pencil and paper.
+Do this part before you write the checker.  Plan on about fifteen minutes with pencil and paper.
 
 The point of Part 0 is to arrive with an example.  Everyone has an opinion about static typing; an example is what makes the argument worth having.
 

@@ -71,7 +71,7 @@ See the course schedule for the assigned and due dates.  Derivation trees and am
 
 ## Part 0: Before You Start - Syntax, BNF/EBNF, and Grammars (10%)
 
-Do this part before the Syntax and BNF/EBNF session, not after.  Fifteen minutes and a pencil will do it.  You may do this part alone even though the rest of this lab is pair work.
+Do this part first, before the rest of the lab.  Fifteen minutes and a pencil will do it.  You may do this part alone even though the rest of this lab is pair work.
 
 You can follow a grammar on a page without being able to write one.  Writing even a tiny grammar forces the decisions the reading makes look obvious: what counts as a terminal (a symbol that appears in the string itself), where the recursion goes, and what the notation is buying you.
 

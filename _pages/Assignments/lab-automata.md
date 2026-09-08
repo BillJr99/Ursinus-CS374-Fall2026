@@ -66,7 +66,7 @@ The simulators are short programs, and you can check them against the worked tra
 
 ## Part 0: Before You Start - Regular Expressions and Finite Automata (10%)
 
-Do this part on paper before you write any simulator code, and ideally before the Finite Automata class session.  You may do it alone even though the rest of this lab is pair work.
+Do this part on paper before you write any simulator code.  You may do it alone even though the rest of this lab is pair work.
 
 A regular expression and a finite automaton are two ways to describe the same set of strings.  Building both for one language of your own is the fastest way to see that they agree.
 
@@ -107,7 +107,7 @@ Run `python simulator.py 0110` (accept) and `python simulator.py 101` (reject). 
 
 ### Suggested Pacing
 
-I hand out this lab after the class sessions on regular expressions and finite automata; see the course schedule for the assigned and due dates.  One focused session with your partner covers Parts 1 and 2.  The paper constructions fit in a second short sitting:
+This lab follows the class material on regular expressions and finite automata; see the course schedule for the assigned and due dates.  One focused session with your partner covers Parts 1 and 2.  The paper constructions fit in a second short sitting:
 
 | Checkpoint | You should have |
 |------------|----------------|
