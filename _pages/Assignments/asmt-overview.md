@@ -14,7 +14,7 @@ info:
     - To turn the reading's evaluation criteria into judgments you can defend about languages you already use
     - To classify a snippet's paradigm and name what it costs to translate it into another
     - To verify a working Python development environment for the semester's build
-    - To demonstrate baseline command-line, git, and Python-environment fluency by navigating a shell, committing to a repository, and creating a reproducible environment with uv
+    - To demonstrate baseline command-line, git, and Python-environment fluency by navigating a shell, authenticating to GitHub with an SSH key, committing to a repository, and creating a reproducible environment with uv
     - To reflect on your language background as a baseline for the course
     - To run the provided starter script that exercises the libraries used throughout the semester
   rubric:
@@ -29,7 +29,7 @@ info:
       preemerging: Little or no evidence that the environment was attempted
       beginning: Some components verified, but the transcript is missing or incomplete, or only one or two of the three verification steps are completed
       progressing: Python environment verified with a complete transcript including version information; the starter script ran but with a minor failure (missing library, wrong Python version) documented with a hypothesis and fix attempt, or the command-line and git checkpoint is incomplete
-      proficient: Python 3.10 or later verified; the starter script produces the expected banner; editor/IDE identified; all three verification steps produce transcript evidence; the command-line and git checkpoint (Part 1.5) is complete, showing shell navigation and search, a git commit pushed to a remote, and a uv environment; any failure is documented with error text, hypothesis, and resolution
+      proficient: Python 3.10 or later verified; the starter script produces the expected banner; editor/IDE identified; all three verification steps produce transcript evidence; the command-line and git checkpoint (Part 1.5) is complete, showing shell navigation and search, an SSH key registered with GitHub and verified with `ssh -T`, a git commit pushed to a remote over SSH, and a uv environment; any failure is documented with error text, hypothesis, and resolution
     - weight: 36
       description: Language Autobiography
       preemerging: The autobiography is missing or does not address any of the four prompts
@@ -52,6 +52,8 @@ info:
       rlink: "../Tutorials/DevEnvironment"
     - rtitle: "Setup (Part 1.5): Shell Skills for Language Development, the step-by-step tutorial article this assignment's shell work follows"
       rlink: "../Tutorials/ShellForLanguageDev"
+    - rtitle: "GitHub: Connecting to GitHub with SSH (generate a key, add it to your account, and test it)"
+      rlink: "https://docs.github.com/en/authentication/connecting-to-github-with-ssh"
 
 tags:
   - intro
@@ -212,8 +214,38 @@ You will build one language across six assignments, each importing the previous 
 Complete each step and capture the terminal output:
 
 1.  **Navigate and search.**  Create a course directory, enter it, list it, and run one search: `mkdir -p ~/cs374 && cd ~/cs374 && pwd && ls -la`, then use `grep -n` (or `rg`) to find a token in a file and paste the command.  (`~` means your home folder; it works in macOS Terminal, Linux shells, WSL2, Git Bash, and PowerShell, but *not* in the Windows Command Prompt, where the equivalent is `%USERPROFILE%`.  Run these from PowerShell or WSL2 on Windows.)  Searching text is the daily reality of lexer and parser work, the same regular expressions you will use in the Regex assignment.  ([regex101](https://regex101.com/) is your friend there.)
-2.  **Version control.**  Create a git repository, commit a file, and push to a remote (your GitHub Classroom repo or a throwaway GitHub repo): `git init`; add a file; `git add`; `git commit -m "first commit"`; `git remote add origin <url>`; `git push -u origin main`.  Paste `git log --oneline`.  Your team will live in git during the capstone, so start now.
-3.  **Reproducible Python with uv.**  Install [uv](https://docs.astral.sh/uv/), the fast modern Python environment manager we standardize on this term, and create a project environment: `uv venv`, then `uv run python --version`, then `uv add pytest` (you will write test suites all semester).  Paste the output.  There is no course project here yet, so `uv add` may stop on a missing `pyproject.toml` (and a bare `pytest` would say `no tests ran`); that is fine for this checkpoint, and `uv init` before `uv add` clears it if you want the install to complete.  What I am checking is that the tools are installed and on your PATH, so the output that fails this step is `uv: command not found` or `pytest: command not found`, not a complaint about a missing project.  (If you cannot install uv, fall back to `python -m venv` + `pip`, and note the fallback in your submission.)
+2.  **Authenticate to GitHub with an SSH key.**  You will push to GitHub all semester, and GitHub has not accepted account passwords over HTTPS for years, so settle authentication now rather than discovering it at your first `git push`.  Use a key you already have, or create one.
+
+    Check first, because you may already have one: run `ls -al ~/.ssh` and look for a pair such as `id_ed25519` and `id_ed25519.pub`.  If a pair is there and you know it is registered with GitHub, jump to the test below.
+
+    **Create a key.**  Ed25519 is the current default; use `ssh-keygen -t rsa -b 4096` instead only on a system too old to support it.
+
+    ```bash
+    ssh-keygen -t ed25519 -C "your_email@example.com"
+    ```
+
+    Accept the default path (`~/.ssh/id_ed25519`).  A passphrase is optional and worth setting; if you set one, load the key into the agent so you are not retyping it every push: `eval "$(ssh-agent -s)"`, then `ssh-add ~/.ssh/id_ed25519`.
+
+    **Add the public key to GitHub.**  Print it with `cat ~/.ssh/id_ed25519.pub` and copy the entire line, then on GitHub open **Settings -> SSH and GPG keys -> New SSH key**, title it so you can tell which machine it belongs to, and paste.  Paste the `.pub` file and nothing else: the file *without* `.pub` is your private key, and it never leaves your machine, never goes in a repository, and never gets pasted into a web form.
+
+    **Test it, and paste this output into your submission:**
+
+    ```bash
+    ssh -T git@github.com
+    ```
+
+    The first connection asks you to confirm GitHub's host fingerprint; answering `yes` is expected.  Success looks like `Hi YOURUSERNAME! You've successfully authenticated, but GitHub does not provide shell access.`  That is the success message, not an error: GitHub is telling you the key works and that SSH to GitHub is only ever used for git, never for a login shell.
+
+    From here on, use the SSH remote form, `git@github.com:YOURUSERNAME/REPO.git`, rather than the `https://` URL.  If you already cloned over HTTPS, switch the existing remote rather than re-cloning:
+
+    ```bash
+    git remote set-url origin git@github.com:YOURUSERNAME/REPO.git
+    ```
+
+    (Route A students: this key lives on your **host** machine, which is where you just made it.  Whether to expose it to the container or use a repository-scoped token inside the container instead is a separate decision, and Step 5 of the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) walks through both.  Either way, create and register the key here.)
+
+3.  **Version control.**  Create a git repository, commit a file, and push to a remote (your GitHub Classroom repo or a throwaway GitHub repo): `git init`; add a file; `git add`; `git commit -m "first commit"`; `git remote add origin git@github.com:YOURUSERNAME/REPO.git`; `git push -u origin main`.  Use the SSH remote you just tested; the push should not prompt you for a username or password.  Paste `git log --oneline`.  Your team will live in git during the capstone, so start now.
+4.  **Reproducible Python with uv.**  Install [uv](https://docs.astral.sh/uv/), the fast modern Python environment manager we standardize on this term, and create a project environment: `uv venv`, then `uv run python --version`, then `uv add pytest` (you will write test suites all semester).  Paste the output.  There is no course project here yet, so `uv add` may stop on a missing `pyproject.toml` (and a bare `pytest` would say `no tests ran`); that is fine for this checkpoint, and `uv init` before `uv add` clears it if you want the install to complete.  What I am checking is that the tools are installed and on your PATH, so the output that fails this step is `uv: command not found` or `pytest: command not found`, not a complaint about a missing project.  (If you cannot install uv, fall back to `python -m venv` + `pip`, and note the fallback in your submission.)
 
 ### Command-Line Survival: reference (use as needed)
 
@@ -225,7 +257,8 @@ Complete each step and capture the terminal output:
 ### Part 1.5 Checklist
 
 - [ ] A shell transcript showing directory creation, navigation, and a `grep`/`rg` search
-- [ ] A `git log --oneline` transcript showing at least one commit pushed to a remote
+- [ ] The output of `ssh -T git@github.com`, showing your GitHub username
+- [ ] A `git log --oneline` transcript showing at least one commit pushed to a remote over SSH
 - [ ] A `uv` (or documented fallback) transcript creating an environment and adding `pytest`
 
 ---
@@ -259,7 +292,7 @@ Pose one question about how programming languages work that you hope this course
 Submit a **single PDF** (preferred) or Markdown file containing:
 1.  Part 0: the two language judgments and the paradigm translation, under a `Part 0` heading.
 2.  The verification transcript for all three environment steps.
-3.  The command-line and git checkpoint transcript (Part 1.5: navigation/search, git commit/push, uv environment).
+3.  The command-line and git checkpoint transcript (Part 1.5: navigation/search, the `ssh -T git@github.com` result, git commit/push, uv environment).
 4.  The language autobiography (all four prompts, approximately one page).
 
 Please also answer the following questions in your submission:
