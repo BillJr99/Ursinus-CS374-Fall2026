@@ -67,7 +67,7 @@ Five terms come up throughout, so here they are in one place:
 
 ## Part 0: Before You Start - Beta Reduction and Church Encodings (10%)
 
-Do this part before the Lambda Calculus I session.  Use pencil and paper, and write every step down.
+Do this part first, before the rest of the lab.  Use pencil and paper, and write every step down.
 
 Beta reduction is a rewriting rule.  You learn it by applying it slowly and recording each step.  Two reductions will do: one that reaches a normal form, and one that never will.  The second is why the lambda calculus is worth a unit of this course.
 

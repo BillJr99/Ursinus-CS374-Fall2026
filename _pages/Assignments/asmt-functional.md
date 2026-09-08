@@ -289,7 +289,7 @@ Convert from a Python list to a linked list, implemented via `my_reduce` from Pa
 
 *Files: `closures.py`, `generators.py`.*
 
-> **Scheduling note:** the Closures class session falls early in this assignment's window (see the course schedule), early enough for Direction A students to lean on it.  Read ahead in the session activity if you want to start sooner.
+> **Scheduling note:** the Closures class material falls early in this assignment's window (see the course schedule), early enough for Direction A students to lean on it.  Read ahead in that activity if you want to start sooner.
 
 ### A.1: Closures and Function Factories
 

@@ -59,7 +59,7 @@ This assignment turns the class tokenizer into a **component**: the first perman
 
 ## Part 0: Before You Start (Tokens and Scanning, 10 points)
 
-Do this part before the Tokens and Scanning session and before you write any lexer code.  It takes about twenty minutes on paper.
+Do this part first, before you write any lexer code.  It takes about twenty minutes on paper.
 
 A scanner (the program that splits source text into tokens) is easy to write for input that behaves and interesting to write for input that does not.  The awkward cases below are the ones this assignment turns on, so form an opinion about them before you implement anything.
 

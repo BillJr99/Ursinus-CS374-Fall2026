@@ -61,7 +61,7 @@ See the course schedule for the assigned and due dates.
 
 ## Part 0: Before You Start - Recursive Descent Parsing (10%)
 
-Do this part on paper before you write `parse_primary`, and ideally before the Recursive Descent Parsing session.  You may do it alone even though the rest of this lab is pair work.
+Do this part on paper before you write `parse_primary`.  You may do it alone even though the rest of this lab is pair work.
 
 Tracing one function on three tokens shows you exactly where lookahead lives.  Lookahead is the token the parser inspects without consuming, so that it can decide which rule applies.
 

@@ -16,7 +16,7 @@ info:
     - To compose functions and pass them as values, including building a fold that takes its operator as a parameter
     - To write a closure and explain what it captured
     - To read and write let, association lists, and assq before you need them in the evaluator
-    - To write a recursive evaluator over a nested-list expression tree, the same structure the parser you write in October produces
+    - To write a recursive evaluator over a nested-list expression tree, the same structure the parser you write later in this course produces
   rubric:
     - weight: 10
       description: "Part 0: The Functional Rewrite (Goal 1)"
@@ -68,9 +68,9 @@ tags:
   - paradigms
 ---
 
-This assignment is the written half of the three sessions we just spent in the functional paradigm. Everything in it was worked at the board or in the activity decks, so nothing here should be a surprise; what is new is that you write it yourself, with a real interpreter telling you when you are wrong.
+This assignment is the written half of our work in the functional paradigm. Everything in it was worked at the board or in the activity decks, so nothing here should be a surprise; what is new is that you write it yourself, with a real interpreter telling you when you are wrong.
 
-Work it in order. Part 0 is a short warmup in a language you already know, and you should do it before the Functional Programming and Higher-Order Functions session rather than after. Part 1 gets Scheme running and walks four examples with you. Parts 2 and 3 are exercises built directly on those examples. Before Part 4, there is a short primer on four forms the evaluator needs that we have not yet used as heavily in class: `let`, association lists, `assq`, and a second look at `map` and `apply`. Part 4 is the expression evaluator itself, and it is the part I most want to read.
+Work it in order. Part 0 is a short warmup in a language you already know, and you should do it before you start Part 1. Part 1 gets Scheme running and walks four examples with you. Parts 2 and 3 are exercises built directly on those examples. Before Part 4, there is a short primer on four forms the evaluator needs that we have not yet used as heavily in class: `let`, association lists, `assq`, and a second look at `map` and `apply`. Part 4 is the expression evaluator itself, and it is the part I most want to read.
 
 **This is individual work.** Talk to each other about ideas and error messages as much as you like; the code and the write-up are yours.
 
@@ -416,7 +416,7 @@ So `(* (+ 2 3) 4)` is this list:
                         2   3
 ```
 
-That picture on the right is a **syntax tree**, and it is worth knowing now that you will meet it again. In October the Parser assignment's entire job is to build that same tree out of the flat text `(2 + 3) * 4`. Scheme hands it to you for free, because Scheme's source code *is* the tree. That is the trade the language made, and it is why the evaluator fits in fifteen lines here and does not there.
+That picture on the right is a **syntax tree**, and it is worth knowing now that you will meet it again. Later in this course, the Parser assignment's entire job is to build that same tree out of the flat text `(2 + 3) * 4`. Scheme hands it to you for free, because Scheme's source code *is* the tree. That is the trade the language made, and it is why the evaluator fits in fifteen lines here and does not there.
 
 ### The shape of the solution
 
@@ -515,7 +515,7 @@ What should `(evaluate '(+ 1 (& 2 3)))` do? Your evaluator must **detect the unk
 Pick **one** and make it work:
 
 - **Any number of arguments.** Make `(evaluate '(+ 1 2 3 4))` return `10`. If you built Step 3 with `apply`, check whether this already works, and if it does, say why in one sentence rather than changing code. Hint: `apply` spreads however many elements are in the list you give it, whether that is two or five.
-- **Variables.** Give `evaluate` a second parameter, an association list of bindings, so that `(evaluate '(+ x 1) '((x . 5)))` returns `6`. Look symbols up with `assq`, the same way `lookup-op` does, and decide what happens when a variable is not bound. Be warned that you are building an *environment* here, the same structure the Interpreter assignment builds in November, and the same one the Environments and Scope lab makes you get right. Your recursive call to `evaluate` will need to pass the same `env` along every time, which means the one-argument function you hand to `map` will need to be a `lambda` that closes over `env`, the same closure idea from `make-counter` in Part 3.
+- **Variables.** Give `evaluate` a second parameter, an association list of bindings, so that `(evaluate '(+ x 1) '((x . 5)))` returns `6`. Look symbols up with `assq`, the same way `lookup-op` does, and decide what happens when a variable is not bound. Be warned that you are building an *environment* here, the same structure the Interpreter assignment builds later, and the same one the Environments and Scope lab makes you get right. Your recursive call to `evaluate` will need to pass the same `env` along every time, which means the one-argument function you hand to `map` will need to be a `lambda` that closes over `env`, the same closure idea from `make-counter` in Part 3.
 
 ### What to write up
 
@@ -547,7 +547,7 @@ Submit a ZIP containing `part0.md` (both loop versions, their output, and your r
 
 - Which was harder: getting Scheme installed, or getting your first recursion to terminate? What does your answer suggest about where the real cost of a new language sits?
 - Name one thing that was genuinely easier here than it would have been in Python, and one thing that was genuinely harder.
-- Your `evaluate` walks a syntax tree in about fifteen lines. In October you will write a parser whose only job is to *build* that tree from flat text. Before you write it: how much code do you think that will take, and what exactly is the parser doing that Scheme did for you here? I will ask you to look back at your answer.
+- Your `evaluate` walks a syntax tree in about fifteen lines. Later in this course you will write a parser whose only job is to *build* that tree from flat text. Before you write it: how much code do you think that will take, and what exactly is the parser doing that Scheme did for you here? I will ask you to look back at your answer.
 - Of `let`, `assq`, `map`, and `apply`, which one took the longest to feel natural, and what finally made it click?
 - AI disclosure: list any generative-AI tools you used, for what, and how you verified the results (or state 'none').
 - Approximately how many hours it took you to finish this (I will not judge you for this at all; I am simply using it to gauge if the assignments are too easy or hard)?

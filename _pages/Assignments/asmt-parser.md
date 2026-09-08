@@ -73,14 +73,14 @@ In this assignment you build the parser, the second permanent component of your 
 
 ## Part 0: Before You Start - Abstract Syntax Trees (10 points)
 
-Do this part **before you write any parser code**, and ideally before the Abstract Syntax Trees session.  You need pencil and paper and about twenty minutes.
+Do this part **before you write any parser code**.  You need pencil and paper and about twenty minutes.
 
 A parse tree records every grammar rule the parser applied, including the parentheses and every intermediate non-terminal.  An AST keeps only the structure the rest of the language needs.  Choosing what to keep is a design decision: you are choosing what the rest of your language implementation never has to think about again.
 
 1.  Draw the AST, not the parse tree, for `3 + 4 * 5`.  Get the precedence right (the multiplication sits below the addition).  Then say in one sentence what the AST *threw away* that the parse tree kept.
 2.  Design the node types you would use to represent `if`/`else` and function calls in your team's language.  Write them as Python dataclasses or as a `match`/`case` shape.
 
-Bring your node types to class, and mark the one field you added because you were not sure you could do without it.  Part 3 of this assignment builds tooling over these nodes, so a field you cannot justify now is one you will still be maintaining in November.
+Bring your node types to class, and mark the one field you added because you were not sure you could do without it.  Part 3 of this assignment builds tooling over these nodes, so a field you cannot justify now is one you will still be maintaining at the end of the term.
 
 ---
 

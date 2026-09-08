@@ -57,7 +57,7 @@ In this lab you build `Environment`, the class that makes scope real in your int
 
 ## Part 0: Before You Start - Binding and Scope (10%)
 
-Do this part on paper before you write the `Environment` class.  It has two halves, one for each of the two class sessions it prepares you for.  You may do it alone even though the rest of this lab is pair work.
+Do this part on paper before you write the `Environment` class.  It has two halves, one for each of the two topics it prepares you for.  You may do it alone even though the rest of this lab is pair work.
 
 Drawing the environment settles a scope question in about thirty seconds.  Two terms first.  Under lexical scope, a name refers to the binding in the enclosing text of the program.  Under dynamic scope, a name refers to the most recent binding made by any caller that is still running.
 
