@@ -215,6 +215,8 @@ Put these in `recursion.scm`, with a test call after each one.  Every function h
 
 The improvement is not a style preference.  Count the recursive calls each version makes on `'(1 2 3 4 5 6 7 8)`, where the largest element is last, and report both numbers.  Your write-up should explain the difference in terms of what gets recomputed, not in terms of which one looks nicer.
 
+As a hint, if you could add a statement to the lambda that is `(let X y)` where `X` is a variable name and `y` is an expression, what expression would prevent duplicated work?
+
 5.  **The empty-list question**: `sumlist` from Part 1 errors on `'()`.  Fix it so it returns 0, and then argue in two or three sentences whether that was a bug in `sumlist` or a deliberate choice about what summing nothing should mean.  There is a defensible answer either way; I am grading the argument.
 
 ---
