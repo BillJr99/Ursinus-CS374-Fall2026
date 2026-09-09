@@ -14,7 +14,7 @@ info:
     - To turn the reading's evaluation criteria into judgments you can defend about languages you already use
     - To classify a snippet's paradigm and name what it costs to translate it into another
     - To verify a working Python development environment for the semester's build
-    - To demonstrate baseline command-line, git, and Python-environment fluency by navigating a shell, authenticating to GitHub with an SSH key, committing to a repository, and creating a reproducible environment with uv
+    - To demonstrate baseline command-line, git, and Python-environment fluency by navigating a shell, authenticating to GitHub with an SSH key, cloning and committing to a repository, and creating a reproducible environment with uv
     - To reflect on your language background as a baseline for the course
     - To run the provided starter script that exercises the libraries used throughout the semester
   rubric:
@@ -269,18 +269,36 @@ Complete each step and capture the terminal output:
 
     (Route A students: this key lives on your **host** machine, which is where you just made it.  Whether to expose it to the container or use a repository-scoped token inside the container instead is a separate decision, and Step 5 of the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) walks through both.  Either way, create and register the key here.)
 
-3.  **Version control.**  Create a git repository, commit a file, and push it to a remote (your GitHub Classroom repo or a throwaway GitHub repo).  Git versions files, so the repository needs at least one file in it before there is anything to commit; create that file the same way you created `sample.txt` above, with a redirect, an editor, or a copy of something you already have:
+3.  **Version control.**  Get a repository on your machine, commit a file to it, and push that commit back to GitHub.  Which command starts you off depends on where the repository already exists, and this is the distinction worth learning once rather than guessing at every semester: **clone** when the repository is already on GitHub, and `git init` only when it is not.
+
+    **If the repository already exists on GitHub** (your GitHub Classroom repository, or the `cs374-work` repository you created in the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment)), clone it.  Cloning downloads the full repository, sets `origin` to the URL you cloned from, and leaves you in a working copy that is already connected, so there is no `git remote add` afterward.  Copy the address from the green **Code** button on the repository page, choosing the **SSH** tab so you get the `git@github.com:` form the key you just tested authenticates:
+
+    ```bash
+    cd ~/cs374
+    git clone git@github.com:YOURUSERNAME/REPO.git
+    cd REPO
+    git remote -v
+    ```
+
+    `git clone` creates a *new folder* named after the repository, inside whatever directory you run it from, which is why you `cd` into it on the next line.  `git remote -v` should print your SSH URL twice, once for fetch and once for push; that is your evidence the working copy is wired to GitHub.  A repository with no commits yet clones with a warning that it is empty, and that is fine, since the commit below is about to fill it.
+
+    **If you are starting from a folder on your machine instead**, with no repository on GitHub yet, create the repository on GitHub first (**+ > New repository**, no README, which keeps the histories from conflicting), then `git init` locally and attach that remote by hand:
 
     ```bash
     git init
+    git remote add origin git@github.com:YOURUSERNAME/REPO.git
+    ```
+
+    **Either way, the commit is the same.**  Git versions files, so the repository needs at least one file in it before there is anything to commit; create that file the way you created `sample.txt` above, with a redirect, an editor, or a copy of something you already have:
+
+    ```bash
     printf '# CS374 scratch repository\n' > README.md
     git add README.md
     git commit -m "first commit"
-    git remote add origin git@github.com:YOURUSERNAME/REPO.git
     git push -u origin main
     ```
 
-    Use the SSH remote you just tested; the push should not prompt you for a username or password.  Two things commonly go sideways here: `git commit` without `-m` drops you into an editor, and `:q!` leaves it if that editor turns out to be `vim`; and `git push` complains if your default branch is not named `main`, which `git branch -M main` fixes.  Paste `git log --oneline`.  Your team will live in git during the capstone, so start now.
+    Use the SSH remote you tested in step 2; the push should not prompt you for a username or password.  Three things commonly go sideways here: `git commit` without `-m` drops you into an editor, and `:q!` leaves it if that editor turns out to be `vim`; `git push` complains if your default branch is not named `main`, which `git branch -M main` fixes; and a `git clone` that asks for a password means you copied the HTTPS address rather than the SSH one, so `git remote set-url origin git@github.com:YOURUSERNAME/REPO.git` puts it right without re-cloning.  Paste `git log --oneline`.  Your team will live in git during the capstone, so start now.
 4.  **Reproducible Python with uv.**  Install [uv](https://docs.astral.sh/uv/), the fast modern Python environment manager we standardize on this term, and create a project environment: `uv venv`, then `uv run python --version`, then `uv add pytest` (you will write test suites all semester).  Paste the output.  There is no course project here yet, so `uv add` may stop on a missing `pyproject.toml` (and a bare `pytest` would say `no tests ran`); that is fine for this checkpoint, and `uv init` before `uv add` clears it if you want the install to complete.  What I am checking is that the tools are installed and on your PATH, so the output that fails this step is `uv: command not found` or `pytest: command not found`, not a complaint about a missing project.  (If you cannot install uv, fall back to `python -m venv` + `pip`, and note the fallback in your submission.)
 
 ### Command-Line Survival: reference (use as needed)
