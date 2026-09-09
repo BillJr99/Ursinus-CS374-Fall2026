@@ -76,7 +76,7 @@ Work it in order. Part 0 is a short warmup in a language you already know, and y
 
 ---
 
-## Part 0: Before You Start — The Functional Rewrite (10 points)
+## Part 0: Before You Start - The Functional Rewrite (10 points)
 
 Do this one first, in **Python or whatever language you reach for by default**, not in Scheme. It takes about twenty minutes, and its whole purpose is to make you notice your own habits before a new language starts rearranging them.
 
@@ -100,7 +100,7 @@ If your loop refuses to translate cleanly, that is the best possible outcome her
 
 You need a Scheme prompt. Any of these gives you one, and the first three need no new install at all:
 
-- **The course dev container**: if you set up the [course container]({{ site.baseurl }}/Tutorials/DevEnvironment) in the Overview assignment, a Scheme is already installed and you are done: run `guile` for a REPL, or `guile your_file.scm` to run a file. `mit-scheme` is in there too, on the CPU architectures Debian builds it for. Report whichever one you use, and its version, in the write-up.
+- **The course dev container**: if you built the [course container]({{ site.baseurl }}/Tutorials/DevEnvironment) in the Overview assignment, Scheme is already installed. Run `guile` for a REPL, or `guile your_file.scm` to run a file. `mit-scheme` is in there too, on the CPU architectures Debian builds it for. Report whichever one you use, and its version, in the write-up.
 - **[try.scheme.org](https://try.scheme.org)**: a full Scheme REPL in a browser tab. Nothing to set up, and the fastest way to be typing in thirty seconds.
 - **The course's own runner**: the [Scheme warmup exercise]({{ site.baseurl }}/Modules/Scheme/Warmup/Exercise) runs Scheme directly in the page and checks your answer. Do that one first; it takes two minutes and confirms your browser is not the problem.
 - **A Python Scheme, no package manager needed**: `git clone https://github.com/BillJr99/scheme-interpreter.git` gives you a `scheme.py` you run as `python scheme.py <your scheme file>`.
@@ -214,7 +214,7 @@ Put these in `recursion.scm`, with a test call after each one. Every function he
 
 Look closely at that second branch: `(largest (cdr L))` appears **twice**, once in the `if` test and once again if the test fails. Scheme does not remember the answer from the first call; it walks all the way to the end of the list and back a second time, from scratch, just to get a value it already computed once. The improvement is not a style preference. Count the recursive calls each version makes on `'(1 2 3 4 5 6 7 8)`, where the largest element is last, and report both numbers. Your write-up should explain the difference in terms of what gets recomputed, not in terms of which one looks nicer.
 
-As a hint, if you could add a statement to the lambda that is `(let ((X y)) ...)`, where `X` is a variable name and `y` is an expression, what expression would you bind to `X` so that it only gets computed once? The primer below, right before Part 4, introduces `let` if you have not used it much yet; skim it now if this hint does not click.
+Here is the hint. Add a `(let ((X y)) ...)` to the lambda, where `X` is a name and `y` is an expression. Which expression should you bind to `X` so that Scheme computes it only once? The primer before Part 4 introduces `let`. Skim it now if this hint does not land.
 
 5. **The empty-list question**: `sumlist` from Part 1 errors on `'()`. Fix it so it returns 0, and then argue in two or three sentences whether that was a bug in `sumlist` or a deliberate choice about what summing nothing should mean. There is a defensible answer either way; I am grading the argument.
 
@@ -269,11 +269,11 @@ That `(let ((count 0)) ...)` at the top of `make-counter` is the same `let` the 
 
 ## Tools You'll Need First: `let`, Association Lists, `assq`, and a Second Look at `map` and `apply`
 
-Part 4 assembles an evaluator out of four ingredients: `let` to name a value once, an association list to store lookups, `assq` to search that list, and `map`/`apply` to spread work across a list. We used `map` and `apply` once already in Part 1's Example 4, and `let` once already in `make-counter` above, but this section slows each one down, gives it a worked example, and gives you a one-line practice step to run at your REPL before you meet it again, wired together, in the evaluator. **These practice steps are ungraded**, the same as the Scheme warmup exercise in Part 1; nothing here goes in a deliverable, but running each one is the fastest way to make sure Part 4 does not stall on syntax you have not typed yet.
+Part 4 assembles an evaluator out of four ingredients: `let` to name a value once, an association list to store lookups, `assq` to search that list, and `map`/`apply` to spread work across a list. You have already used `map` and `apply` once, in Part 1's Example 4, and `let` once, in `make-counter`. This section slows each one down. Each gets a worked example and a one-line practice step to run at your REPL before you meet all four wired together in the evaluator. **These practice steps are ungraded**, like the Scheme warmup exercise in Part 1. Nothing here goes in a deliverable. Run them anyway: they are the fastest way to keep Part 4 from stalling on syntax you have not typed yet.
 
 ### `let`: naming a value once
 
-Every expression you have written so far names things only two ways: as a function parameter, or with a top-level `define`. `let` gives you a third way, a name that exists only for the extent of one expression, which is exactly what you need when a value is used more than once inside a function body and you do not want to compute it twice.
+Every expression you have written so far names things only two ways: as a function parameter, or with a top-level `define`. `let` gives you a third way: a name that exists only for the extent of one expression. Use it when a function body needs the same value more than once and you do not want to compute it twice.
 
 The shape is `(let ((name expression)) body)`. It evaluates `expression` once, binds it to `name`, and then evaluates `body` with that binding visible.
 
@@ -282,7 +282,7 @@ The shape is `(let ((name expression)) body)`. It evaluates `expression` once, b
   (* x x))                   ; 25
 ```
 
-Read that as: compute `(+ 2 3)`, call the result `x`, then compute `(* x x)` using that `x`. The parentheses nest more deeply than you are used to, so build it from the inside out: `(x (+ 2 3))` is one binding pair, `((x (+ 2 3)))` is a list of one binding pair, and the whole `let` wraps that list around a body.
+Read that as: compute `(+ 2 3)`, call the result `x`, then compute `(* x x)` using that `x`. The parentheses nest more deeply than you are used to, so build them from the inside out. `(x (+ 2 3))` is one binding pair. `((x (+ 2 3)))` is a list holding that one pair. The `let` then wraps that list around a body.
 
 You can bind more than one name in the same `let` by adding more pairs:
 
@@ -292,7 +292,7 @@ You can bind more than one name in the same `let` by adding more pairs:
   (+ (* a a) (* b b)))       ; 25
 ```
 
-Both `a` and `b` are computed from the *outside* environment, not from each other; if you need one binding to depend on another, that is `let*`, which we are not using here, so keep every binding in a single `let` independent of the others in this assignment.
+Scheme computes both `a` and `b` from the *outside* environment, not from each other. A binding that depends on another binding needs `let*`, which this assignment does not use. Keep every binding in a single `let` independent of the others.
 
 > **Watch out!** A common typo is writing `(let (x (+ 2 3)) ...)` with one pair of parentheses missing. `let` always wants a *list of bindings*, so even a single binding needs its own extra parentheses: `((x (+ 2 3)))`, not `(x (+ 2 3))`. If Scheme complains that `x` is not a procedure, this is almost always why.
 
@@ -326,7 +326,7 @@ Notice that `assq` gives you back the **pair**, not just the value; you still ne
 (cdr (assq '+ ops))          ; #<procedure:+>
 ```
 
-That is the whole trick Way B below (and the evaluator's variable extension, if you choose it) relies on: look up a symbol with `assq`, then `cdr` the result to get the value that symbol was paired with. If the symbol is not in the list, `assq` returns `#f`, and your code needs to decide what to do about that. A common pattern is:
+Way B below relies on exactly that trick, as does the evaluator's variable extension if you choose it. Look up a symbol with `assq`, then `cdr` the result to get the value that symbol was paired with. If the symbol is not in the list, `assq` returns `#f`, and your code needs to decide what to do about that. A common pattern is:
 
 ```scheme
 (let ((found (assq '* ops)))
@@ -337,7 +337,7 @@ That is the whole trick Way B below (and the evaluator's variable extension, if 
 
 That `let` is doing exactly the job from the section above: `(assq '* ops)` only gets called once, its result is named `found`, and both the `if` test and the `error` branch reuse that name instead of calling `assq` a second time.
 
-**`assq` versus `assoc`, and why this assignment uses `assq`.** Scheme actually gives you two searching functions, `assq` and `assoc`, and they differ in exactly one way: `assq` compares keys with `eq?`, an identity comparison, while `assoc` compares keys with `equal?`, a structural comparison. For symbol keys like `'+`, `'-`, or a variable name like `'x`, the two never disagree, because the reader interns every symbol it reads, so two occurrences of `'+` are already the same object in memory; `assq` is the correct and cheaper tool whenever your keys are symbols. `assoc` earns its keep once your keys are lists, strings, or other structured data, where two values can be `equal?` (same contents) without being `eq?` (same object):
+**`assq` versus `assoc`, and why this assignment uses `assq`.** Scheme gives you two searching functions, and they differ in one way. `assq` compares keys with `eq?`, an identity comparison. `assoc` compares keys with `equal?`, a structural comparison. For symbol keys such as `'+`, `'-`, or `'x`, the two never disagree. The reader interns every symbol it reads, so two occurrences of `'+` are already the same object in memory. Whenever your keys are symbols, `assq` is the correct and cheaper tool. `assoc` earns its keep once your keys are lists, strings, or other structured data, where two values can be `equal?` (same contents) without being `eq?` (same object):
 
 ```scheme
 (define points (list (cons '(0 . 0) "origin")))
@@ -346,21 +346,21 @@ That `let` is doing exactly the job from the section above: `(assq '* ops)` only
 (assoc '(0 . 0) points)      ; ((0 . 0) . "origin")  -- equal? compares structure
 ```
 
-Every lookup table you build in this assignment, both `ops` here and the variable bindings in Part 4's optional extension, uses symbol keys, so `assq` is the right and sufficient choice throughout; you should not need `assoc` anywhere in this assignment, but it is worth knowing the difference exists so a future lookup table with list or string keys does not silently miss every match the way `assq` would.
+Every lookup table in this assignment uses symbol keys, both `ops` here and the variable bindings in Part 4's optional extension. `assq` is therefore sufficient throughout, and you should not need `assoc` anywhere. Learn the difference anyway. A future lookup table keyed by lists or strings will silently miss every match under `assq`.
 
 **Practice (ungraded):** using the `'red`/`'blue` alist you built above, call `assq` for `'red` and confirm you get the pair back, then call it for a key that is not in the list and confirm you get `#f`.
 
 ### `map`, once more
 
-You have already seen `map` twice, once in Part 1's Example 4 and once in the `plusminus`/projectile work in Part 3. The one habit worth locking in before Part 4: `map`'s first argument is always a *function*, never a function call. `(map square '(1 2 3))` passes the function `square` itself into `map`, which then calls it once per element; `(map (square 1) '(1 2 3))` would try to call `square` first, get back a number, and then try to use that number as if it were a function, which fails.
+You have already seen `map` twice, once in Part 1's Example 4 and once in the `plusminus`/projectile work in Part 3. The one habit worth locking in before Part 4: `map`'s first argument is always a *function*, never a function call. `(map square '(1 2 3))` passes the function `square` itself into `map`, which calls it once per element. `(map (square 1) '(1 2 3))` calls `square` first, gets back a number, and then tries to use that number as a function. That fails.
 
 ```scheme
 (map square '(1 2 3))        ; (1 4 9)
 ```
 
-`map` always returns a list the same length as its input, with each element replaced by the function's result on that element. When the elements of that input list are themselves further expressions, `map` will call your function once per expression, and if that function happens to be one that can handle a nested expression itself, the nesting gets handled automatically, one layer at a time. That is the exact role `map` plays in Part 4's Step 2.
+`map` always returns a list the same length as its input, with each element replaced by the function's result on that element. When those elements are themselves expressions, `map` calls your function once per expression. A function that can handle a nested expression therefore handles the nesting automatically, one layer at a time. That is the role `map` plays in Part 4's Stage 4.
 
-**Practice (ungraded):** call `(map square '(2 (+ 1 2) 4))` and read the error carefully; `square` only knows how to multiply a number by itself, so it cannot handle the middle element, which is a list, not a number. Keep that error in mind; Part 4's evaluator is built specifically so that the function you `map` over a list of sub-expressions knows how to handle *both* numbers and nested lists, which is why `evaluate` mapping over itself will not hit this error the way `square` just did.
+**Practice (ungraded):** call `(map square '(2 (+ 1 2) 4))` and read the error carefully. `square` only multiplies a number by itself, so it cannot handle the middle element, which is a list. Keep that error in mind. Part 4's evaluator handles *both* numbers and nested lists, which is why mapping `evaluate` over sub-expressions avoids the error that `square` just hit.
 
 ### `apply`, once more
 
@@ -392,7 +392,7 @@ Here is a small, complete example that uses all four forms from this section at 
 (apply (lookup '*) (map square '(2 3 4)))   ; (* 4 9 16) = 576
 ```
 
-Walk that last line from the inside out: `map` squares each element of `'(2 3 4)`, giving `(4 9 16)`; `lookup` searches `ops` with `assq` for the symbol `'*`, using a `let` so `assq` is only called once, and returns the multiplication procedure; `apply` then calls that procedure with the three squared numbers spread out as arguments. That is, in miniature, exactly the three-step shape Part 4 asks you to build, just with a fixed operator and a fixed list instead of a nested expression tree.
+Walk that last line from the inside out. `map` squares each element of `'(2 3 4)`, giving `(4 9 16)`. `lookup` searches `ops` with `assq` for the symbol `'*`, using a `let` so `assq` runs once, and returns the multiplication procedure. `apply` then calls that procedure with the three squared numbers spread out as arguments. That is, in miniature, the shape Part 4 builds across its four stages, with a fixed operator and a fixed list in place of a nested expression tree.
 
 **Practice (ungraded):** run the block above as written, then change `'*` to `'+` and confirm the result changes to `29`. If both run correctly, you have every piece Part 4 needs.
 
@@ -400,7 +400,7 @@ Walk that last line from the inside out: `map` squares each element of `'(2 3 4)
 
 ## Part 4: An Expression Evaluator (22 points)
 
-Write this one in `evaluate.scm`. It is about fifteen lines, and it is the oldest program in this language's history: John McCarthy's 1960 paper defined Lisp by writing an evaluator for Lisp in Lisp, and every interpreter you have ever used is a descendant of that idea. You are going to write the arithmetic-sized version of it in your first week.
+Write this one in `evaluate.scm`. It runs to about fifteen lines, and it is the oldest program in this language's history. John McCarthy's 1960 paper defined Lisp by writing an evaluator for Lisp in Lisp, and every interpreter you have ever used descends from that idea. You write the arithmetic-sized version of it in your first week.
 
 ### The representation
 
@@ -418,29 +418,48 @@ So `(* (+ 2 3) 4)` is this list:
 
 That picture on the right is a **syntax tree**, and it is worth knowing now that you will meet it again. Later in this course, the Parser assignment's entire job is to build that same tree out of the flat text `(2 + 3) * 4`. Scheme hands it to you for free, because Scheme's source code *is* the tree. That is the trade the language made, and it is why the evaluator fits in fifteen lines here and does not there.
 
-### The shape of the solution
+### Build it in four stages
 
-Every recursion in Part 2 had the same two-case shape, and so does this one:
+Build the evaluator in four stages. Each stage runs, and each stage fails on a case the next stage fixes. Type each one at your REPL and check the output before you go on. When a stage does not produce the output shown, fix it before continuing, because every later stage depends on it.
+
+The finished procedure is short. Getting there in one jump is not the point; watching each stage break is.
+
+**Stage 1: the base case, alone.**
+
+Start with a procedure that handles numbers and nothing else.
 
 ```scheme
 (define evaluate
   (lambda (expr)
     (if (number? expr)
-        expr                     ; base case: a number evaluates to itself
-        ...)))                   ; recursive case: expr is a list
+        expr
+        (error "not a number yet:" expr))))
 ```
 
-The recursive case has three steps. Work them in this order, and notice that each step reaches directly for one of the tools from the primer above.
+Check it:
 
-**Step 1: get the operator — and read this part twice.**
+```scheme
+(evaluate 42)                    ; 42
+(evaluate '(+ 1 2))              ; error: not a number yet: (+ 1 2)
+```
+
+That error is correct. A list is not a number, and Stage 3 is where a list starts to mean something.
+
+**Stage 2: turn the operator symbol into a procedure.**
+
+Read this stage twice. It holds the mistake that costs most students twenty minutes.
 
 ```scheme
 (car '(+ 1 2))                   ; +
 ```
 
-That looks like it gave you addition. It did not. It gave you the **symbol** `+`, which is a name, not the procedure that adds. Try `((car '(+ 1 2)) 1 2)` in your REPL and read the error; this is the single place everyone loses twenty minutes on this assignment, and you may as well lose it on purpose now.
+That looks like it gave you addition. It did not. It gave you the **symbol** `+`, which is a name, not the procedure that adds. Run the next line and read the error:
 
-You need to turn the symbol into the procedure. Two ways, and you should understand both; both were previewed in the primer above.
+```scheme
+((car '(+ 1 2)) 1 2)             ; error: + is not a procedure
+```
+
+You must convert the symbol into the procedure yourself. Two ways work, and you should understand both. Both appeared in the primer above.
 
 ```scheme
 ; Way A: dispatch with cond
@@ -463,34 +482,82 @@ You need to turn the symbol into the procedure. Two ways, and you should underst
           (error "unknown operator:" sym)))))
 ```
 
-Way B is precisely the `ops`/`lookup` pattern from the "putting the four together" example in the primer, with the error message reworded to name the operator. Look at what Way B is: a list whose values *are procedures*. That is Part 3's "functions as values" doing load-bearing work rather than sitting in an exercise. Either way is acceptable; say in your write-up which you chose. If you choose Way B, the `let` inside `lookup-op` is there for the same reason it was in Part 2's `largest`: `(assq sym ops)` is used twice, once in the `if` test and once in the `cdr`, so it is computed once and named, not called twice.
+Way B is the `ops` and `lookup` pattern from the primer, with the error message reworded to name the operator. Look at what Way B is: a list whose values **are procedures**. That is Part 3's functions as values doing load-bearing work rather than sitting in an exercise. Either way is acceptable. Say in your write-up which you chose.
 
-**Step 2: evaluate the operands.** Each operand may itself be a whole expression, so each one needs the same treatment, which is to say, `evaluate` calls itself:
+If you choose Way B, the `let` inside `lookup-op` is there for the reason it was in Part 2's `largest`. The expression `(assq sym ops)` is used twice, once in the `if` test and once in the `cdr`, so you compute it once and name it.
+
+Check whichever version you wrote, on its own, before you wire it into anything:
 
 ```scheme
-(map evaluate (cdr expr))        ; ((+ 2 3) 4)  =>  (5 4)
+(lookup-op '+)                   ; #<procedure:+>
+((lookup-op '+) 1 2)             ; 3
+(lookup-op '&)                   ; error: unknown operator: &
 ```
 
-This is the same `map` from Part 1's Example 4 and from the primer above, except the function you are passing it is `evaluate` itself, the very function you are in the middle of writing. Compare this against the practice step in the primer where `(map square '(2 (+ 1 2) 4))` failed: `square` did not know what to do with a list. `evaluate` is written specifically so that it *does* know what to do with a list, because that is exactly its recursive case, which is why mapping `evaluate` over a mix of numbers and sub-expressions works where mapping `square` did not.
+The second line is the payoff. You now hold the procedure itself, so you can call it.
 
-**Step 3: apply.** You now hold a procedure and a list of numbers, which is exactly what `apply` takes:
+**Stage 3: flat expressions only.**
+
+Now let `evaluate` handle a list, on the assumption that every operand is already a number. Replace the `error` branch from Stage 1 with two steps: look up the operator, then apply it to the operands with `apply`.
+
+Recall from the primer what `apply` does. It takes a procedure and a list, and calls the procedure with the list's elements spread out as separate arguments:
 
 ```scheme
 (apply + '(5 4))                 ; 9
 ```
 
-This is the same `apply` from the primer's `(apply * '(2 3 4))` practice step, just with the procedure coming from `lookup-op` instead of being written literally.
-
-Assemble those three steps and you are done:
+Write that version of `evaluate` now, using `lookup-op` on `(car expr)` and `apply` on `(cdr expr)`. Then check it:
 
 ```scheme
-(define evaluate
-  (lambda (expr)
-    (if (number? expr)
-        expr
-        (apply (lookup-op (car expr))
-               (map evaluate (cdr expr))))))
+(evaluate '(+ 1 2))              ; 3
+(evaluate '(* 2 3 4))            ; 24
+(evaluate '(* (+ 2 3) 4))        ; error
 ```
+
+The first two work. The third fails, and the error is the whole lesson of Stage 4. The operand `(+ 2 3)` is a list, and `*` wants numbers. You handed multiplication a list.
+
+**Stage 4: recursion, in one change.**
+
+The operands are not always numbers. Some are whole expressions, and an expression is exactly the thing `evaluate` knows how to reduce to a number. So evaluate each operand before applying the operator, by mapping `evaluate` over them:
+
+```scheme
+(map evaluate (cdr expr))        ; on (* (+ 2 3) 4), the cdr is ((+ 2 3) 4) => (5 4)
+```
+
+Make that one change to the operand list in your Stage 3 procedure. Then check:
+
+```scheme
+(evaluate '(* (+ 2 3) 4))        ; 20
+```
+
+Compare this against the primer's practice step where `(map square '(2 (+ 1 2) 4))` failed. `square` did not know what to do with a list. `evaluate` does know, because handling a list is its recursive case, so mapping `evaluate` over a mix of numbers and sub-expressions works where mapping `square` did not.
+
+### Assembling the final procedure
+
+If Stage 4 runs, you are done; the procedure in your editor is the answer. If you are stuck, assemble it from the three pieces you already tested rather than looking for a finished version to copy:
+
+1. **The outer shape is Stage 1**, unchanged: a `lambda` taking `expr`, with an `if` on `(number? expr)` whose true branch returns `expr` itself.
+2. **The false branch is a call to `apply`**, which takes exactly two arguments here.
+3. **The first argument to `apply`** is Stage 2 applied to the operator: `lookup-op` called on `(car expr)`.
+4. **The second argument to `apply`** is Stage 4's operand list: `map` called with `evaluate` and `(cdr expr)`.
+
+Nothing else belongs in the procedure. If yours has a `cond` with more than two branches, or a helper you did not test in a stage above, you have added something the four stages did not ask for. Count the lines when you are finished; the write-up asks for the number.
+
+### Optional and ungraded: trace it by hand
+
+This step is optional. Nothing here is submitted or graded, in the same way the primer's practice steps are not. Do it if the recursion still feels like magic, because filling the table in is usually the moment it stops.
+
+Trace `(evaluate '(* (+ 2 3) 4))` by hand. Each row is one call to `evaluate`. Fill in what that call receives, which branch of the `if` it takes, and what it returns. The first row is done for you.
+
+| Call | `expr` received | Branch taken | Returns |
+|---|---|---|---|
+| 1 | `(* (+ 2 3) 4)` | list, so the recursive branch | |
+| 2 | `(+ 2 3)` | | |
+| 3 | `2` | | |
+| 4 | `3` | | |
+| 5 | `4` | | |
+
+Two questions to answer for yourself once the table is full. Which rows return without making any further call, and what do those rows have in common? Which row cannot return until other rows have returned, and why?
 
 ### Required test cases
 
@@ -508,14 +575,14 @@ Then add **one edge case you chose deliberately**, and say in your write-up why 
 
 ### Required: the unknown operator
 
-What should `(evaluate '(+ 1 (& 2 3)))` do? Your evaluator must **detect the unknown operator and report it**, naming the offending symbol, rather than crashing with whatever Scheme says by default. `error` is the procedure you want, and `lookup-op`'s `else` branch (Way A) or its `if found ... (error ...)` branch (Way B) is where that detection lives. This is your first error message as a language implementer, and the standard it has to meet is the one you will be held to in the Lexer and Parser assignments: say what was wrong, and say which thing was wrong.
+What should `(evaluate '(+ 1 (& 2 3)))` do? Your evaluator must **detect the unknown operator and report it**, naming the offending symbol, rather than crashing with whatever Scheme says by default. `error` is the procedure you want, and `lookup-op`'s `else` branch (Way A) or its `if found ... (error ...)` branch (Way B) is where that detection lives. This is your first error message as a language implementer. It must meet the standard you will be held to in the Lexer and Parser assignments: say what was wrong, and say which thing was wrong.
 
 ### Required: one extension, your choice of two
 
 Pick **one** and make it work:
 
 - **Any number of arguments.** Make `(evaluate '(+ 1 2 3 4))` return `10`. If you built Step 3 with `apply`, check whether this already works, and if it does, say why in one sentence rather than changing code. Hint: `apply` spreads however many elements are in the list you give it, whether that is two or five.
-- **Variables.** Give `evaluate` a second parameter, an association list of bindings, so that `(evaluate '(+ x 1) '((x . 5)))` returns `6`. Look symbols up with `assq`, the same way `lookup-op` does, and decide what happens when a variable is not bound. Be warned that you are building an *environment* here, the same structure the Interpreter assignment builds later, and the same one the Environments and Scope lab makes you get right. Your recursive call to `evaluate` will need to pass the same `env` along every time, which means the one-argument function you hand to `map` will need to be a `lambda` that closes over `env`, the same closure idea from `make-counter` in Part 3.
+- **Variables.** Give `evaluate` a second parameter, an association list of bindings, so that `(evaluate '(+ x 1) '((x . 5)))` returns `6`. Look symbols up with `assq`, the same way `lookup-op` does, and decide what happens when a variable is not bound. Note what you are building: an *environment*, the same structure the Interpreter assignment builds later and the Environments and Scope lab makes you get right. Every recursive call to `evaluate` must pass the same `env` along. The one-argument function you hand to `map` must therefore be a `lambda` that closes over `env`, the closure idea from `make-counter` in Part 3.
 
 ### What to write up
 
