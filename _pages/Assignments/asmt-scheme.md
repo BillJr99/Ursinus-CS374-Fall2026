@@ -501,12 +501,24 @@ This is the same `apply` from the primer's `(apply * '(2 3 4))` practice step, w
 
 ### Assembling the three steps
 
-The three steps compose into one procedure. Write it yourself rather than looking for a finished version to copy. If you are stuck, build it from the pieces you already tested:
+The three steps compose into one procedure. Write it yourself rather than looking for a finished version to copy. Nothing below is new material; it is a method for putting together the three pieces you have already run.
 
-1. **The outer shape** is the two-case skeleton above: a `lambda` taking `expr`, with an `if` on `(number? expr)` whose true branch returns `expr` itself.
-2. **The false branch is a call to `apply`**, which takes exactly two arguments here.
-3. **The first argument to `apply`** is Step 1 applied to the operator: `lookup-op` called on `(car expr)`.
-4. **The second argument to `apply`** is Step 2's operand list: `map` called with `evaluate` and `(cdr expr)`.
+**Build it against a real value first.** The hardest part of assembly is that `expr` is a parameter, so you cannot see what it holds while you are writing the body. Remove that problem. At your REPL, bind `expr` to a test expression and build each piece against it, watching each one produce the right answer before you commit to it:
+
+```scheme
+(define expr '(* (+ 2 3) 4))     ; a scratch binding, only while you build
+```
+
+Now every fragment you write is something you can run.
+
+**Work out the two arguments separately.** The recursive branch is a single call to `apply`, and `apply` takes exactly two arguments here. Build each one alone, at the REPL, against that scratch binding:
+
+- **The first argument is a procedure.** You wrote the expression that produces it in Step 1's checkpoint, where you called `lookup-op` on a quoted symbol. Write the same call, but pass the operator out of `expr` rather than a symbol you typed. Step 1 says which accessor gets the operator. Run it: the result must print as a procedure, not as a symbol. If you see `*` rather than something that says procedure, you passed the symbol through without converting it.
+- **The second argument is a list of numbers.** You wrote this one in Step 2, complete. Run it against the scratch binding: it must return `(5 4)`. Two numbers, no remaining lists. If a sub-expression is still there unevaluated, the function you mapped is wrong.
+
+**Substitute, then generalize.** Put the two working fragments into the `apply` call in that order. Then replace the `...` in the skeleton with that call. The `if` keeps both branches: the true branch still returns `expr` itself, and this new call becomes the false branch. Finally, delete the scratch `define` of `expr`, because the parameter now supplies it.
+
+**Check the parentheses by counting closers.** Assembly errors in this procedure are almost always parenthesis errors rather than logic errors, and Scheme reports them far from where you made them. Work outward from the innermost form. The `apply` call closes before the `if` closes, the `if` closes before the `lambda` closes, and the `lambda` closes before the `define` closes. Four closing parentheses end the procedure, one for each of those forms. If Scheme complains about an unexpected end of input, you are short one. If it complains about an extra close paren, you have one too many.
 
 Nothing else belongs in the procedure. A `cond` with more than two branches, or a helper you did not test in a step above, means you have added something the three steps did not ask for.
 
@@ -518,7 +530,16 @@ Nothing else belongs in the procedure. A `cond` with more than two branches, or 
 (evaluate '(* (+ 2 3) 4))        ; 20   <- one level of nesting
 ```
 
-Work them in that order. When the first two pass and the third fails, the fault is in Step 2: you are handing `apply` a list that still contains an unevaluated expression. Count the lines when you are finished; the write-up asks for the number.
+Work them in that order, because each one tests strictly more than the last. Read a failure this way:
+
+| What fails | Where to look |
+|---|---|
+| The first one | Your base case. The `if` test or the true branch is wrong. |
+| The first passes, the second fails with "not a procedure" | Step 1. You handed `apply` a symbol instead of a procedure. |
+| The first two pass, the third fails | Step 2. You are handing `apply` a list that still contains an unevaluated expression. |
+| All three pass | You are done. |
+
+Count the lines when you are finished; the write-up asks for the number.
 
 ### Optional and ungraded: trace it by hand
 
@@ -556,10 +577,45 @@ What should `(evaluate '(+ 1 (& 2 3)))` do? Your evaluator must **detect the unk
 
 ### Required: one extension, your choice of two
 
-Pick **one** and make it work:
+Pick **one** and make it work. Each description below gives you the reasoning you need. Neither gives you the code.
 
-- **Any number of arguments.** Make `(evaluate '(+ 1 2 3 4))` return `10`. If you built Step 3 with `apply`, check whether this already works, and if it does, say why in one sentence rather than changing code. Hint: `apply` spreads however many elements are in the list you give it, whether that is two or five.
-- **Variables.** Give `evaluate` a second parameter, an association list of bindings, so that `(evaluate '(+ x 1) '((x . 5)))` returns `6`. Look symbols up with `assq`, the same way `lookup-op` does, and decide what happens when a variable is not bound. Note what you are building: an *environment*, the same structure the Interpreter assignment builds later and the Environments and Scope lab makes you get right. Every recursive call to `evaluate` must pass the same `env` along. The one-argument function you hand to `map` must therefore be a `lambda` that closes over `env`, the closure idea from `make-counter` in Part 3.
+#### Option A: any number of arguments
+
+**The goal.** `(evaluate '(+ 1 2 3 4))` returns `10`, and `(evaluate '(* 2 3 4 5))` returns `120`.
+
+**Start by testing, not by editing.** Run those two calls against the evaluator you already have. If you built Step 3 with `apply`, they very likely work already, and the extension is then an explanation rather than a change.
+
+**Why it already works, if it does.** Trace the two steps that touch the operand list. `map` returns a list the same length as its input, so a four-operand expression produces four numbers rather than two. `apply` then spreads however many elements that list holds into separate arguments. Neither step hardcodes a count, and neither one checks for two. Scheme's `+` and `*` accept any number of arguments, so the whole path is indifferent to arity. Say this in one sentence in your write-up, naming the two steps, rather than changing working code.
+
+**When it does not already work.** Some students build Step 3 another way: pulling out `(car ...)` and `(cadr ...)` by hand, or folding the operands two at a time. Either approach writes arity two into the evaluator. Find that assumption and remove it. The cleanest repair is to reach the `apply` shape the three steps describe, because `apply` makes arity somebody else's problem.
+
+**Two edge cases worth trying.** Check `(evaluate '(+ 5))`, a single operand, and `(evaluate '(+))`, none at all. Scheme's `+` returns `0` for no arguments and `5` for one, so both should work without special handling. Subtraction and division do not behave the same way with one argument, so try `(evaluate '(- 5))` and say what you get and why. Report whatever you find rather than making it match a guess.
+
+#### Option B: variables
+
+**The goal.** `(evaluate '(+ x 1) '((x . 5)))` returns `6`.
+
+That second argument is an association list, the structure the primer covered. It maps a symbol to a value, exactly as `ops` maps a symbol to a procedure. It has a name: this is an **environment**, the same structure the Interpreter assignment builds later and the Environments and Scope lab makes you get right.
+
+**Change 1: the signature.** `evaluate` takes two parameters now, the expression and the environment. Every existing call site changes to match, including the recursive ones.
+
+**Change 2: a third case.** Your evaluator currently asks one question, "is this a number?", and has a branch for yes and a branch for no. It now needs three outcomes, so a `cond` replaces the `if`:
+
+1. A **number** evaluates to itself, unchanged from before.
+2. A **symbol** is a variable. Look it up in the environment and return the value it is bound to.
+3. Anything else is a **list**, handled the same way as before.
+
+Scheme gives you `symbol?` to test the second case, the way `number?` tests the first.
+
+**Change 3: the lookup.** The variable case is the `assq` pattern from the primer, applied to the environment rather than to `ops`. Search for the symbol, and `cdr` the pair you get back to reach the value. `assq` returns `#f` when the symbol is absent, so decide now what an unbound variable should do and write that decision down. Reporting it with `error`, naming the offending symbol, matches what you already do for an unknown operator, and matches the standard the Lexer and Parser assignments hold you to.
+
+**Change 4: threading the environment.** This is the part that catches people, so work it deliberately. Every recursive call needs the same environment, but `map` calls the function you give it with exactly one argument, the list element. Your `evaluate` now wants two. Those do not fit.
+
+The fix is a closure, the same idea as `make-counter` in Part 3. Instead of handing `map` the name `evaluate`, hand it a one-argument `lambda` whose body calls `evaluate` with that one argument **and** with the environment. The environment is not a parameter of that lambda; it is captured from the surrounding scope, which is what makes this a closure. Write it out and then answer, for your write-up, what exactly got captured and where it lives.
+
+**One subtle trap.** The operator in `(+ x 1)` is the symbol `+`, and symbols are now a case your evaluator handles. Test for the symbol case before separating the operator from the operands, and the evaluator will look up `+` in the environment, fail to find it, and report `+` as unbound. Keep the operator on the `lookup-op` path and the operands on the `evaluate` path. Only operands are evaluated as expressions; the operator is never one.
+
+**Test these.** A bare variable, `(evaluate 'x '((x . 5)))`. A variable inside nesting, `(evaluate '(* x (+ y 1)) '((x . 2) (y . 3)))`. An unbound variable, to confirm your decision from Change 3 fires. And an expression with no variables at all, to confirm you did not break the cases that already worked.
 
 ### What to write up
 
