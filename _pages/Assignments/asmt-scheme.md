@@ -115,7 +115,7 @@ Whichever you pick, get to the point where you can run a file rather than only t
 
 ### The four guided examples
 
-Type each of these, run it, and **capture the transcript**. Then change one thing and run it again. These are the worked examples the exercises build on, so do not skip ahead.
+Type each of these, run it, and **capture the transcript**. Then change one thing and run it again. The exercises build directly on these worked examples.
 
 **Example 1: lists, and `define` as binding.**
 
@@ -447,7 +447,7 @@ That error is correct. A list is not a number, and Stage 3 is where a list start
 
 **Stage 2: turn the operator symbol into a procedure.**
 
-Read this stage twice. It holds the mistake that costs most students twenty minutes.
+This stage holds the mistake that costs most students twenty minutes.
 
 ```scheme
 (car '(+ 1 2))                   ; +
