@@ -11,3 +11,6 @@ Gemfile.lock
 _pages/Quizzes/qti_*
 setformprocessorasmtid.sh
 .claude/
+
+# Session logs stay local; they are not repository content
+logs/
