@@ -45,3 +45,43 @@ table is ungraded by design.
   repository's does, with the comment "Session logs stay local; they are not
   repository content." This log was kept local in both for consistency with
   that standing decision.
+
+---
+
+## 2026-09-09, evening
+
+**Summary.** Closed a prerequisite gap in the Overview assignment. Part 1.5
+asked students to run a `grep` search and to commit a file inside a `~/cs374`
+directory they had just created empty, without ever saying how to create a file
+to search or to commit. Step 1 now shows the file creation (a `printf`
+redirect, an editor such as `nano` or VS Code, or a copy of an existing `.py`
+file), notes that `touch` leaves the file empty so a search over it matches
+nothing, gives the PowerShell equivalents (`Set-Content` and `Select-String`),
+and then runs the search as a separate labeled command. Step 3 replaces the
+bare instruction "add a file" with a complete initialize, create, add, commit,
+remote, push block, plus the two failure modes students actually hit, the
+editor that opens when `-m` is omitted and a default branch that is not named
+`main`. Part 1, Route B, Step 2 now says where to save `warmup_check.py` and
+how to run it, from the terminal or from the VS Code Run button, with the
+`No such file or directory` case explained as a working-directory mismatch.
+
+**Files created or modified.**
+
+- `_pages/Assignments/asmt-overview.md`
+- `logs/session_log.md` (appended, local only)
+
+**External actions taken.** One commit and a push to
+`claude/wonderful-turing-bduyqg`, pre-authorized under R2 for a branch created
+in this session. No pull request was opened.
+
+**Grading impact.** None. Rubric weights, the 100-point total, the Part 1.5
+checklist, and the deliverables list are unchanged; only the instructions for
+reaching those same transcripts changed.
+
+**Open items.**
+
+- The parallel tutorials, `Tutorials/ShellForLanguageDev` and
+  `Tutorials/DevEnvironment`, were not reviewed for the same gap. Worth a check
+  if students still ask.
+- No pull request was opened for `claude/wonderful-turing-bduyqg`; opening and
+  merging it is Bill's call.
