@@ -76,6 +76,22 @@ def blank_raw_blocks(source):
     return RAW_BLOCK.sub(lambda m: " " * len(m.group(0)), source)
 
 
+def liquid_all_defined(text):
+    """True when every Liquid expression in text is one the site actually defines.
+
+    A defined variable inside backticks renders its value, which is what the page
+    wants: `{{ page.info.coursenum }}` publishes as `CS173`. Only Liquid that
+    resolves to nothing is a problem there, and check_liquid already reports that
+    separately as "undefined Liquid".
+    """
+    for match in LIQUID.finditer(text):
+        is_variable = match.group(1) is not None
+        inner = match.group(1) if is_variable else match.group(2)
+        if not (KNOWN_VARS.match(inner) if is_variable else KNOWN_TAGS.match(inner)):
+            return False
+    return not OPENER.search(LIQUID.sub("", text))
+
+
 def check_liquid(findings):
     for path in pages():
         source = open(path, encoding="utf-8", errors="replace").read()
@@ -115,7 +131,7 @@ def check_liquid(findings):
                 ))
             else:
                 for span in INLINE_CODE.finditer(line):
-                    if OPENER.search(span.group(0)):
+                    if OPENER.search(span.group(0)) and not liquid_all_defined(span.group(0)):
                         findings.append((
                             path, number, "Liquid in an inline code span", span.group(0)[:70],
                             "Backticks do not protect Liquid. Wrap it in {% raw %}.",
