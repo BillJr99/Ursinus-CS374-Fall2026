@@ -358,9 +358,9 @@ You have already seen `map` twice, once in Part 1's Example 4 and once in the `p
 (map square '(1 2 3))        ; (1 4 9)
 ```
 
-`map` always returns a list the same length as its input, with each element replaced by the function's result on that element. When those elements are themselves expressions, `map` calls your function once per expression. A function that can handle a nested expression therefore handles the nesting automatically, one layer at a time. That is the role `map` plays in Part 4's Stage 4.
+`map` always returns a list the same length as its input, with each element replaced by the function's result on that element. When those elements are themselves expressions, `map` calls your function once per expression. A function that can handle a nested expression therefore handles the nesting automatically, one layer at a time. That is the role `map` plays in Part 4's Step 2.
 
-**Practice (ungraded):** call `(map square '(2 (+ 1 2) 4))` and read the error carefully. `square` only multiplies a number by itself, so it cannot handle the middle element, which is a list. Keep that error in mind. Part 4's evaluator handles *both* numbers and nested lists, which is why mapping `evaluate` over sub-expressions avoids the error that `square` just hit.
+**Practice (ungraded):** call `(map square '(2 (+ 1 2) 4))` and read the error carefully. `square` only multiplies a number by itself, so it cannot handle the middle element, which is a list. Keep that error in mind. Part 4's evaluator handles *both* numbers and nested lists, which is why Step 2 can map `evaluate` over sub-expressions without hitting the error that `square` just hit.
 
 ### `apply`, once more
 
@@ -392,7 +392,7 @@ Here is a small, complete example that uses all four forms from this section at 
 (apply (lookup '*) (map square '(2 3 4)))   ; (* 4 9 16) = 576
 ```
 
-Walk that last line from the inside out. `map` squares each element of `'(2 3 4)`, giving `(4 9 16)`. `lookup` searches `ops` with `assq` for the symbol `'*`, using a `let` so `assq` runs once, and returns the multiplication procedure. `apply` then calls that procedure with the three squared numbers spread out as arguments. That is, in miniature, the shape Part 4 builds across its four stages, with a fixed operator and a fixed list in place of a nested expression tree.
+Walk that last line from the inside out. `map` squares each element of `'(2 3 4)`, giving `(4 9 16)`. `lookup` searches `ops` with `assq` for the symbol `'*`, using a `let` so `assq` runs once, and returns the multiplication procedure. `apply` then calls that procedure with the three squared numbers spread out as arguments. That is, in miniature, the three-step shape Part 4 asks you to build, with a fixed operator and a fixed list in place of a nested expression tree.
 
 **Practice (ungraded):** run the block above as written, then change `'*` to `'+` and confirm the result changes to `29`. If both run correctly, you have every piece Part 4 needs.
 
@@ -418,48 +418,33 @@ So `(* (+ 2 3) 4)` is this list:
 
 That picture on the right is a **syntax tree**, and it is worth knowing now that you will meet it again. Later in this course, the Parser assignment's entire job is to build that same tree out of the flat text `(2 + 3) * 4`. Scheme hands it to you for free, because Scheme's source code *is* the tree. That is the trade the language made, and it is why the evaluator fits in fifteen lines here and does not there.
 
-### Build it in four stages
+### The shape of the solution
 
-Build the evaluator in four stages. Each stage runs, and each stage fails on a case the next stage fixes. Type each one at your REPL and check the output before you go on. When a stage does not produce the output shown, fix it before continuing, because every later stage depends on it.
-
-The finished procedure is short. Getting there in one jump is not the point; watching each stage break is.
-
-**Stage 1: the base case, alone.**
-
-Start with a procedure that handles numbers and nothing else.
+Every recursion in Part 2 had the same two-case shape, and so does this one:
 
 ```scheme
 (define evaluate
   (lambda (expr)
     (if (number? expr)
-        expr
-        (error "not a number yet:" expr))))
+        expr                     ; base case: a number evaluates to itself
+        ...)))                   ; recursive case: expr is a list
 ```
 
-Check it:
+The recursive case has three steps. Work them in order. Each step reaches for one of the tools from the primer above, and each has a checkpoint you can run before moving on.
 
-```scheme
-(evaluate 42)                    ; 42
-(evaluate '(+ 1 2))              ; error: not a number yet: (+ 1 2)
-```
-
-That error is correct. A list is not a number, and Stage 3 is where a list starts to mean something.
-
-**Stage 2: turn the operator symbol into a procedure.**
-
-This stage holds the mistake that costs most students twenty minutes.
+**Step 1: get the operator.**
 
 ```scheme
 (car '(+ 1 2))                   ; +
 ```
 
-That looks like it gave you addition. It did not. It gave you the **symbol** `+`, which is a name, not the procedure that adds. Run the next line and read the error:
+That looks like it gave you addition. It did not. It gave you the **symbol** `+`, which is a name rather than the procedure that adds. Run the next line and read the error. This is the single place most students lose twenty minutes, so lose it deliberately now:
 
 ```scheme
 ((car '(+ 1 2)) 1 2)             ; error: + is not a procedure
 ```
 
-You must convert the symbol into the procedure yourself. Two ways work, and you should understand both. Both appeared in the primer above.
+You must convert the symbol into the procedure yourself. Two ways work, and you should understand both. The primer previewed each one.
 
 ```scheme
 ; Way A: dispatch with cond
@@ -484,9 +469,9 @@ You must convert the symbol into the procedure yourself. Two ways work, and you 
 
 Way B is the `ops` and `lookup` pattern from the primer, with the error message reworded to name the operator. Look at what Way B is: a list whose values **are procedures**. That is Part 3's functions as values doing load-bearing work rather than sitting in an exercise. Either way is acceptable. Say in your write-up which you chose.
 
-If you choose Way B, the `let` inside `lookup-op` is there for the reason it was in Part 2's `largest`. The expression `(assq sym ops)` is used twice, once in the `if` test and once in the `cdr`, so you compute it once and name it.
+If you choose Way B, the `let` inside `lookup-op` serves the same purpose it served in Part 2's `largest`. The expression `(assq sym ops)` is used twice, once in the `if` test and once in the `cdr`, so you compute it once and name it.
 
-Check whichever version you wrote, on its own, before you wire it into anything:
+**Checkpoint.** Test `lookup-op` on its own before wiring it into anything:
 
 ```scheme
 (lookup-op '+)                   ; #<procedure:+>
@@ -494,58 +479,50 @@ Check whichever version you wrote, on its own, before you wire it into anything:
 (lookup-op '&)                   ; error: unknown operator: &
 ```
 
-The second line is the payoff. You now hold the procedure itself, so you can call it.
+The second line is the payoff. You now hold the procedure itself, so you can call it. The third line is the unknown-operator requirement below, already satisfied.
 
-**Stage 3: flat expressions only.**
-
-Now let `evaluate` handle a list, on the assumption that every operand is already a number. Replace the `error` branch from Stage 1 with two steps: look up the operator, then apply it to the operands with `apply`.
-
-Recall from the primer what `apply` does. It takes a procedure and a list, and calls the procedure with the list's elements spread out as separate arguments:
-
-```scheme
-(apply + '(5 4))                 ; 9
-```
-
-Write that version of `evaluate` now, using `lookup-op` on `(car expr)` and `apply` on `(cdr expr)`. Then check it:
-
-```scheme
-(evaluate '(+ 1 2))              ; 3
-(evaluate '(* 2 3 4))            ; 24
-(evaluate '(* (+ 2 3) 4))        ; error
-```
-
-The first two work. The third fails, and the error is the whole lesson of Stage 4. The operand `(+ 2 3)` is a list, and `*` wants numbers. You handed multiplication a list.
-
-**Stage 4: recursion, in one change.**
-
-The operands are not always numbers. Some are whole expressions, and an expression is exactly the thing `evaluate` knows how to reduce to a number. So evaluate each operand before applying the operator, by mapping `evaluate` over them:
+**Step 2: evaluate the operands.** Each operand may itself be a whole expression, so each one needs the same treatment. That means `evaluate` calls itself:
 
 ```scheme
 (map evaluate (cdr expr))        ; on (* (+ 2 3) 4), the cdr is ((+ 2 3) 4) => (5 4)
 ```
 
-Make that one change to the operand list in your Stage 3 procedure. Then check:
+This is the same `map` from Part 1's Example 4 and from the primer, except that the function you pass it is `evaluate` itself, the procedure you are in the middle of writing.
+
+Compare this against the primer's practice step, where `(map square '(2 (+ 1 2) 4))` failed. `square` did not know what to do with a list. `evaluate` does know, because handling a list is its recursive case. That is why mapping `evaluate` over a mix of numbers and sub-expressions works where mapping `square` did not.
+
+**Step 3: apply.** You now hold two things: a procedure, from Step 1, and a list of numbers, from Step 2. Those are exactly what `apply` takes.
 
 ```scheme
-(evaluate '(* (+ 2 3) 4))        ; 20
+(apply + '(5 4))                 ; 9
 ```
 
-Compare this against the primer's practice step where `(map square '(2 (+ 1 2) 4))` failed. `square` did not know what to do with a list. `evaluate` does know, because handling a list is its recursive case, so mapping `evaluate` over a mix of numbers and sub-expressions works where mapping `square` did not.
+This is the same `apply` from the primer's `(apply * '(2 3 4))` practice step, with the procedure coming from `lookup-op` instead of being written literally.
 
-### Assembling the final procedure
+### Assembling the three steps
 
-If Stage 4 runs, you are done; the procedure in your editor is the answer. If you are stuck, assemble it from the three pieces you already tested rather than looking for a finished version to copy:
+The three steps compose into one procedure. Write it yourself rather than looking for a finished version to copy. If you are stuck, build it from the pieces you already tested:
 
-1. **The outer shape is Stage 1**, unchanged: a `lambda` taking `expr`, with an `if` on `(number? expr)` whose true branch returns `expr` itself.
+1. **The outer shape** is the two-case skeleton above: a `lambda` taking `expr`, with an `if` on `(number? expr)` whose true branch returns `expr` itself.
 2. **The false branch is a call to `apply`**, which takes exactly two arguments here.
-3. **The first argument to `apply`** is Stage 2 applied to the operator: `lookup-op` called on `(car expr)`.
-4. **The second argument to `apply`** is Stage 4's operand list: `map` called with `evaluate` and `(cdr expr)`.
+3. **The first argument to `apply`** is Step 1 applied to the operator: `lookup-op` called on `(car expr)`.
+4. **The second argument to `apply`** is Step 2's operand list: `map` called with `evaluate` and `(cdr expr)`.
 
-Nothing else belongs in the procedure. If yours has a `cond` with more than two branches, or a helper you did not test in a stage above, you have added something the four stages did not ask for. Count the lines when you are finished; the write-up asks for the number.
+Nothing else belongs in the procedure. A `cond` with more than two branches, or a helper you did not test in a step above, means you have added something the three steps did not ask for.
+
+**Checkpoint.** Your assembled procedure must produce these:
+
+```scheme
+(evaluate 42)                    ; 42   <- the base case alone
+(evaluate '(+ 1 2))              ; 3    <- flat, one operator
+(evaluate '(* (+ 2 3) 4))        ; 20   <- one level of nesting
+```
+
+Work them in that order. When the first two pass and the third fails, the fault is in Step 2: you are handing `apply` a list that still contains an unevaluated expression. Count the lines when you are finished; the write-up asks for the number.
 
 ### Optional and ungraded: trace it by hand
 
-This step is optional. Nothing here is submitted or graded, in the same way the primer's practice steps are not. Do it if the recursion still feels like magic, because filling the table in is usually the moment it stops.
+This step is optional. You submit none of it, in the same way the primer's practice steps are not submitted. Do it if the recursion still feels like magic, because filling the table in is usually the moment it stops.
 
 Trace `(evaluate '(* (+ 2 3) 4))` by hand. Each row is one call to `evaluate`. Fill in what that call receives, which branch of the `if` it takes, and what it returns. The first row is done for you.
 
@@ -557,7 +534,7 @@ Trace `(evaluate '(* (+ 2 3) 4))` by hand. Each row is one call to `evaluate`. F
 | 4 | `3` | | |
 | 5 | `4` | | |
 
-Two questions to answer for yourself once the table is full. Which rows return without making any further call, and what do those rows have in common? Which row cannot return until other rows have returned, and why?
+Answer two questions for yourself once the table is full. Which rows return without making any further call, and what do those rows have in common? Which row cannot return until other rows have returned, and why?
 
 ### Required test cases
 
