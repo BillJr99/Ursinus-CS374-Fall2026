@@ -192,6 +192,15 @@ else:
     print("  Document each failure verbatim and bring it to class.")
 ```
 
+**Save it and run it.**  Python runs files, so the snippet above has to land in one.  Open your `~/cs374` folder in VS Code (**File > Open Folder**), create a file with **File > New File**, paste the script, and save it as `warmup_check.py` in that folder; from the terminal alone, `nano warmup_check.py` (paste, Ctrl+O to write, Ctrl+X to exit) does the same thing.  Then run it from the directory the file lives in:
+
+```bash
+cd ~/cs374
+python3 warmup_check.py
+```
+
+On Windows in PowerShell the command is `python warmup_check.py`, since Windows Python installs as `python`.  VS Code's Run button (the triangle in the top right, with the Python extension installed) runs the same command in its integrated terminal, and either transcript is fine for your submission.  If the shell answers `can't open file ... No such file or directory`, you are running from a different directory than the one you saved into; `ls` (or `dir`) will show you which.
+
 **Step 3: Identify your editor or IDE.**
 
 State which editor or IDE you will use for the semester and confirm that you can:
@@ -213,7 +222,23 @@ You will build one language across six assignments, each importing the previous 
 
 Complete each step and capture the terminal output:
 
-1.  **Navigate and search.**  Create a course directory, enter it, list it, and run one search: `mkdir -p ~/cs374 && cd ~/cs374 && pwd && ls -la`, then use `grep -n` (or `rg`) to find a token in a file and paste the command.  (`~` means your home folder; it works in macOS Terminal, Linux shells, WSL2, Git Bash, and PowerShell, but *not* in the Windows Command Prompt, where the equivalent is `%USERPROFILE%`.  Run these from PowerShell or WSL2 on Windows.)  Searching text is the daily reality of lexer and parser work, the same regular expressions you will use in the Regex assignment.  ([regex101](https://regex101.com/) is your friend there.)
+1.  **Navigate and search.**  Create a course directory, enter it, and list it: `mkdir -p ~/cs374 && cd ~/cs374 && pwd && ls -la`.  That directory is empty at this point, so make a file for the search to find before you search.  Redirecting a couple of lines into a file is the quickest way, though typing them into an editor (`nano sample.txt`, or a new file saved from VS Code) or copying in a `.py` file you already have works just as well:
+
+    ```bash
+    printf 'let x = 1;\nlet y = x + 2;\nprint y;\n' > sample.txt
+    cat sample.txt
+    ```
+
+    Note that `touch sample.txt` creates the file but leaves it empty, and a search over an empty file matches nothing, so put a line or two inside it.  (In native PowerShell, the equivalent is `Set-Content sample.txt "let x = 1;"`, since `printf` and `grep` are Unix shell tools; `Select-String` is the PowerShell search command.  Running these from WSL2 or Git Bash keeps the commands as written.)
+
+    Now run one search with `grep -n` (or `rg`), and paste the command and its output:
+
+    ```bash
+    grep -n "let" sample.txt
+    ```
+
+    (`~` means your home folder; it works in macOS Terminal, Linux shells, WSL2, Git Bash, and PowerShell, but *not* in the Windows Command Prompt, where the equivalent is `%USERPROFILE%`.  Run these from PowerShell or WSL2 on Windows.)  Searching text is the daily reality of lexer and parser work, the same regular expressions you will use in the Regex assignment.  ([regex101](https://regex101.com/) is your friend there.)
+
 2.  **Authenticate to GitHub with an SSH key.**  You will push to GitHub all semester, and GitHub has not accepted account passwords over HTTPS for years, so settle authentication now rather than discovering it at your first `git push`.  Use a key you already have, or create one.
 
     Check first, because you may already have one: run `ls -al ~/.ssh` and look for a pair such as `id_ed25519` and `id_ed25519.pub`.  If a pair is there and you know it is registered with GitHub, jump to the test below.
@@ -244,7 +269,18 @@ Complete each step and capture the terminal output:
 
     (Route A students: this key lives on your **host** machine, which is where you just made it.  Whether to expose it to the container or use a repository-scoped token inside the container instead is a separate decision, and Step 5 of the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) walks through both.  Either way, create and register the key here.)
 
-3.  **Version control.**  Create a git repository, commit a file, and push to a remote (your GitHub Classroom repo or a throwaway GitHub repo): `git init`; add a file; `git add`; `git commit -m "first commit"`; `git remote add origin git@github.com:YOURUSERNAME/REPO.git`; `git push -u origin main`.  Use the SSH remote you just tested; the push should not prompt you for a username or password.  Paste `git log --oneline`.  Your team will live in git during the capstone, so start now.
+3.  **Version control.**  Create a git repository, commit a file, and push it to a remote (your GitHub Classroom repo or a throwaway GitHub repo).  Git versions files, so the repository needs at least one file in it before there is anything to commit; create that file the same way you created `sample.txt` above, with a redirect, an editor, or a copy of something you already have:
+
+    ```bash
+    git init
+    printf '# CS374 scratch repository\n' > README.md
+    git add README.md
+    git commit -m "first commit"
+    git remote add origin git@github.com:YOURUSERNAME/REPO.git
+    git push -u origin main
+    ```
+
+    Use the SSH remote you just tested; the push should not prompt you for a username or password.  Two things commonly go sideways here: `git commit` without `-m` drops you into an editor, and `:q!` leaves it if that editor turns out to be `vim`; and `git push` complains if your default branch is not named `main`, which `git branch -M main` fixes.  Paste `git log --oneline`.  Your team will live in git during the capstone, so start now.
 4.  **Reproducible Python with uv.**  Install [uv](https://docs.astral.sh/uv/), the fast modern Python environment manager we standardize on this term, and create a project environment: `uv venv`, then `uv run python --version`, then `uv add pytest` (you will write test suites all semester).  Paste the output.  There is no course project here yet, so `uv add` may stop on a missing `pyproject.toml` (and a bare `pytest` would say `no tests ran`); that is fine for this checkpoint, and `uv init` before `uv add` clears it if you want the install to complete.  What I am checking is that the tools are installed and on your PATH, so the output that fails this step is `uv: command not found` or `pytest: command not found`, not a complaint about a missing project.  (If you cannot install uv, fall back to `python -m venv` + `pip`, and note the fallback in your submission.)
 
 ### Command-Line Survival: reference (use as needed)
