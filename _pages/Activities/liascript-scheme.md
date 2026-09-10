@@ -152,11 +152,24 @@ Two ways to say the same thing, and then a function that calls itself:
 (square (pow 5 3))           ; 15625
 ```
 
+The same shape, on the most famous recursion there is:
+
+```scheme
+(define factorial
+  (lambda (n)
+    (if (= n 0)
+        1
+        (* n (factorial (- n 1))))))
+
+(factorial 5)                ; 120
+```
+
 ### Reading the Code
 
 - `(define add +)` is not a typo.  `+` is a *value*, the addition function, and `define` gives it a second name.  Nothing in Scheme distinguishes "a variable holding a number" from "a variable holding a function," and that single fact is what the rest of today is built on.
 - `square` is written the long way on purpose: `(define (square n) (* n n))` is shorthand for exactly what you see.  Reading the long form first makes `lambda` feel ordinary rather than exotic.
 - `pow` has the shape every recursion in this course will have: a base case that answers directly, and a recursive case that does a little work and asks a smaller version of itself.
+- `factorial` has that identical shape, and putting the two side by side is the point: `pow` multiplies by a *fixed* `n` each time and counts `k` down, while `factorial` multiplies by the counter itself.  Change what the recursive case multiplies by and you change the function; the skeleton does not move.
 
 > **Watch out!**  `define` in Scheme is not assignment in the imperative sense.  `(define x 5)` introduces a name binding in the current environment; it does not create a mutable box you update in a loop.  If you catch yourself wanting to write `(set! x (+ x 1))`, stop and ask how to pass the updated value forward as a function argument instead.
 
@@ -167,6 +180,8 @@ Two ways to say the same thing, and then a function that calls itself:
 3.  How are function parameters handled in Scheme?  Are they passed by value or by reference?
 4.  What is a function in Scheme?  How is it represented?
 5.  Rewrite `pow` using the shorthand `(define (pow n k) ...)` form.  Does anything about its meaning change?
+6a.  `factorial` stops at `(= n 0)` and `pow` stops at `(= k 0)`.  What does each return at its base case, and why is `1` the right answer for both rather than `0`?
+6b.  Trace `(factorial 5)` far enough to write down the multiplication that actually happens once the recursion bottoms out.  In what order do the multiplications occur, and is that the order you would have written by hand?
 
 ---
 
@@ -285,6 +300,20 @@ You have already seen `(define add +)`.  Once functions are ordinary values, thr
 (y 5 6 7)                    ; 37
 ```
 
+The same equation with the multiplication pulled out into a function of its own:
+
+```scheme
+(define mul
+  (lambda (m x)
+    (* m x)))
+
+(define y
+  (lambda (m x b)
+    (+ (mul x m) b)))
+
+(y 5 6 7)                    ; 37
+```
+
 ```scheme
 (define v0 3)
 (define t 5)
@@ -309,11 +338,38 @@ You have already seen `(define add +)`.  Once functions are ordinary values, thr
 (czr '(1 2 3 4))             ; 4
 ```
 
+`czr` gives you the *last* item.  The natural companion gives you everything *but* the last item, and it is written without any recursion of its own by borrowing `reverse` twice:
+
+```scheme
+(define cxr
+  (lambda (l)
+    (reverse (cdr (reverse l)))))
+
+(czr '(1 2 3 4 5))           ; 5
+(cxr '(1 2 3 4 5))           ; (1 2 3 4)
+```
+
+`reverse` is built in, but the assignment asks you to write it, so here it is with the same skeleton as `sumlist`:
+
+```scheme
+(define my-reverse
+  (lambda (L)
+    (if (null? (cdr L))
+        (list (car L))
+        (append (reverse (cdr L)) (list (car L))))))
+
+(display (my-reverse (list 1 2 3)))   ; (3 2 1)
+(newline)
+(display (cxr (list 1 2 3)))          ; (1 2)
+```
+
 ### Reading the Code
 
 - `y` is `y = mx + b` with the parentheses moved.  Read it aloud as "add, to the product of x and m, b" and prefix notation stops fighting you.
 - The two projectile lines compute the same number.  The second one substitutes `(square t)` for `(* t t)`, which is the whole idea of composition: a function call is an expression, so it goes anywhere an expression goes.
 - `czr` walks to the end of the list and hands back the last element.  It is not a standard Scheme procedure; it is ours.  Notice it has the same skeleton as `sumlist`, minus the work on the way back up: nothing happens after the recursive call returns.
+- `cxr` is the one to study, because it does its job with *no recursion of its own*.  Reverse the list, drop the new first element (which was the old last), then reverse it back.  Two calls to a function you already have replace a traversal you would otherwise have to write.  That is worth noticing before you write the harder version by hand.
+- `my-reverse` returns `(list (car L))` at the base case, not `(car L)`.  This is the most common bug in the whole assignment: `append` needs two *lists*, so a base case that hands back a bare element makes the whole thing fail one level up, where the error message will not mention the base case at all.
 
 ### Critical Thinking Questions
 
@@ -321,6 +377,8 @@ You have already seen `(define add +)`.  Once functions are ordinary values, thr
 11.  Write a function to count the number of items in a list using a recursive call and a base case, using `czr` as a guide to traversing a list.
 12.  `czr` as written breaks on the empty list.  Bill's own version guards it with `(if (not (pair? l)) l ...)`.  Add that guard, decide what the empty list *should* return, and defend your choice.
 13.  Which of `sumlist`, `largest`, and `czr` are tail-recursive as written, and which are not?  Use your answer to question 8.
+13a.  `cxr` calls `reverse` twice on a list of length $n$.  Roughly how much work is that compared with a single traversal that stops one element short?  Write the version that makes one pass, and say which of the two you would rather read six months from now.
+13b.  `my-reverse` breaks on the empty list for the same reason `czr` does.  Add the guard, and check your answer against what you decided in question 12.
 
 ---
 
@@ -335,6 +393,19 @@ You have already seen `(define add +)`.  Once functions are ordinary values, thr
 (plusminus 6 2)              ; (8 4)
 ```
 
+Here is the same shape doing real work.  The quadratic formula needs the discriminant twice, once for each root, so the inner lambda is applied to it once and both roots read the name:
+
+```scheme
+(define roots
+  (lambda (a b c)
+    ((lambda (discriminant)
+       (list (/ (+ (- b) discriminant) (* 2 a))
+             (/ (- (- b) discriminant) (* 2 a))))
+     (sqrt (- (* b b) (* 4 a c))))))
+
+(roots 1 2 -1)               ; (0.41421356... -2.41421356...)
+```
+
 ### Reading the Code
 
 There are two functions here.  The outer one is named `plusminus` and takes `a` and `b`.  The inner one has no name at all: it is created, applied to `a` and `b`, and thrown away.  Written out, the call is `((lambda (x y) ...) a b)`, which is the One Syntax Rule again, with a function *expression* in the operator position instead of a function *name*.
@@ -343,6 +414,8 @@ There are two functions here.  The outer one is named `plusminus` and takes `a` 
 
 14.  Diagram the binding of the values in the call to `plusminus` to the anonymous lambda function.
 15.  Rewrite `plusminus` without the inner lambda, so it just calls `list` directly.  What did the inner lambda buy, and what would it buy in a version where the inner function were returned instead of called?
+15a.  In `roots`, what would you have to write instead of `discriminant` if the inner lambda were removed, and how many times would `(sqrt (- (* b b) (* 4 a c)))` then be evaluated?
+15b.  **Look ahead.**  `((lambda (discriminant) body) value)` computes a value once, binds a name to it, and evaluates a body with that name visible.  That is exactly the description of `let` you will meet in Model 5.5.  Write `roots` again using `let` instead of the immediately-applied lambda, then compare the two.  They are the same mechanism; one of them just has nicer syntax.
 
 ---
 
@@ -374,6 +447,7 @@ There are two functions here.  The outer one is named `plusminus` and takes `a` 
 
 - `map` takes a *function* as its first argument.  `(map - L1 L2)` subtracts the lists element by element, because `map` here is walking two lists at once.
 - `apply` does the opposite of `map`: it takes one function and one list, and spreads the list out as the function's arguments.  `(apply + '(1 2 3))` is `(+ 1 2 3)`.
+- The third member of the family is `filter`, which keeps the elements a predicate accepts and returns a list, like `map` and unlike `apply`: `(filter odd? '(1 2 3 4 5))` gives `(1 3 5)`.  Guile and the browser REPLs have it; it is not part of the R5RS core the way `map` and `apply` are, so a bare Scheme may want `(use-modules (srfi srfi-1))` first.  The assignment does not let you reach for a built-in fold in place of `oplist` either, which is the point of the next block.
 - `oplist` is `sumlist` with the `+` pulled out into a parameter.  That one change turns a function that sums into a function that does whatever you hand it.  Compare it against `(apply * ...)` on the last line: the built-in and your version agree.
 
 ### Critical Thinking Questions
@@ -381,6 +455,8 @@ There are two functions here.  The outer one is named `plusminus` and takes `a` 
 16.  What is the result of the `map`/`apply` sequence?  What would happen if `map` were applied to only a single list?
 17.  Write a function that accepts a list and an operator as parameters, such as addition.  Apply that operator to the whole list recursively; for example, if the operator is the addition operator, return the sum of the list.  If it is the multiplication operator, return the product of all items in the list.
 18.  `oplist` and `apply` give the same answer here.  Name one case where they would not, and say which one you would rather have in your own language.
+
+   > *Hint: try the empty list.  `(apply + '())` is `0`, because `+` accepts zero arguments and has an identity.  `(oplist + '())` evaluates `(cdr '())` and errors, because the base case tests `(null? (cdr L))` and never asks whether `L` itself is empty.  That is the same one-`cdr`-too-far bug question 12 raised for `czr`, and the assignment asks you to fix it there.*
 
 ---
 
@@ -444,7 +520,11 @@ Once you have found a pair, `cdr` still pulls the value out, and a `let` is the 
 
 (lookup '*)                   ; #[compound-procedure *]
 (lookup 'sqrt)                 ; error: not found: sqrt
+
+((lookup '*) 6 7)              ; 42
 ```
+
+That last line is worth reading slowly, because the doubled parentheses are what confuse people about functions that return functions.  `(lookup '*)` is evaluated first and produces the multiplication *procedure*; that procedure then sits in the operator position of `((lookup '*) 6 7)`, which is the One Syntax Rule with a function *expression* where a function *name* usually goes, exactly as in `plusminus` and `roots`.  An evaluator for arithmetic expressions is that one line in a loop.
 
 Notice the shape: `(assq sym ops)` is used twice inside `lookup`, once in the `if` test and once inside `(cdr found)`, so it is computed once, named `found` with `let`, and reused, exactly the move `largest2` made and exactly the move `memoize` makes again in Model 8.
 
@@ -477,6 +557,54 @@ Notice the shape: `(assq sym ops)` is used twice inside `lookup`, once in the `i
 18b. Write `(assq '(0 . 0) points)` and `(assoc '(0 . 0) points)` from the `points` example above, predict each result before running it, then explain in one sentence why they disagree.
 18c. `lookup` above calls `(error "not found:" sym)` when `assq` returns `#f`. Rewrite `lookup` so that instead of erroring, a missing symbol returns `#f` itself. What has to change, and what does the caller now have to check that it did not have to check before?
 18d. Suppose `ops` used **strings** instead of symbols as keys, `(cons "+" +)` instead of `(cons '+ +)`. Would `assq` still find `"+"` reliably? Would `assoc`? Explain the difference in terms of what `eq?` and `equal?` each compare.
+
+---
+
+## Model 5.6: Convolution, Two Ways
+
+Everything so far now pays off on one small problem.  A **convolution** of two equal-length lists multiplies the first list against the *reverse* of the second and sums the products.  It is the arithmetic under a digital filter, under polynomial multiplication, and under the sliding window of a convolutional neural network, so it is worth meeting once in six lines.
+
+The recursive route uses `czr` and `cxr` from Model 3: take the first of `x` with the *last* of `y`, then recur on the rest of `x` and everything-but-the-last of `y`, walking the two lists toward each other from opposite ends.
+
+```scheme
+(define convolution
+  (lambda (x y)
+    (if (null? x)
+        0
+        (+ (* (car x) (czr y))
+           (convolution (cdr x) (cxr y))))))
+
+(convolution '(1 2 2 3 3) '(1 2 3 4 5))   ; 28
+```
+
+The combinator route builds it out of `map` and `apply` instead.  A dot product is exactly "multiply elementwise, then sum," which is one `map` and one `apply`:
+
+```scheme
+(define dot
+  (lambda (x y)
+    (apply + (map * x y))))
+
+(define convolution2
+  (lambda (x y)
+    (dot x (reverse y))))
+
+(dot '(1 2 2 3 3) '(5 4 3 2 1))           ; 28
+(convolution2 '(1 2 2 3 3) '(1 2 3 4 5))  ; 28
+```
+
+### Reading the Code
+
+- The two routes compute the same number and read nothing alike.  `convolution` says *how* to walk the lists; `dot` and `convolution2` say *what* the answer is and let `map`, `apply`, and `reverse` do the walking.  That is the declarative-versus-imperative split from *Evaluating Languages*, inside one file, on one problem.
+- `(map * x y)` walks two lists at once, which is the two-list `map` from Model 5 doing real work rather than demonstrating itself.
+- `convolution` never calls `reverse`.  It gets the reversal for free by consuming `y` from the back with `czr` and `cxr` while consuming `x` from the front with `car` and `cdr`.
+- The base case is `0`, not `'()`, because the function returns a *number*.  A base case has to return the same kind of thing the recursive case returns, and forgetting that is the same mistake as `my-reverse` returning `(car L)` instead of `(list (car L))`.
+
+### Critical Thinking Questions
+
+18e.  `convolution` calls `cxr` at every level, and `cxr` calls `reverse` twice.  Count the total work for lists of length $n$ and compare it with `convolution2`, which reverses once.  Which would you ship?
+18f.  `dot` has no explicit base case and no `if`.  Where did the base case go?
+18g.  Neither version checks that `x` and `y` are the same length.  Predict what each one does when they are not, then run it.  Do they fail the same way, and is either failure one you would want in a language you designed?
+18h.  Rewrite `convolution` using `oplist` from Model 5 in place of the `+`.  What has to be true of the operator you pass for the result to still mean anything?
 
 ---
 
@@ -582,6 +710,20 @@ Question 21 asked what a closure's return value even *is* once there is more tha
 (fast-square 4)              ; prints nothing at all, returns 16
 ```
 
+Memoizing `slow-square` saves nothing worth having, because squaring was never expensive.  The function where it pays is the one that recomputes the *same subresult* over and over:
+
+```scheme
+(define fib-fast
+  (memoize (lambda (n)
+             (if (< n 2)
+                 n
+                 (+ (fib-fast (- n 1)) (fib-fast (- n 2)))))))
+
+(fib-fast 25)                ; 75025
+```
+
+Look hard at the body: it calls `fib-fast`, **not itself**.  That is the one subtle line in this model.
+
 ### Reading the Code
 
 - `assoc` walks the list looking for a pair whose `car` is `x`, and hands back that whole pair, or `#f` if there is no such pair.  `(cdr hit)` is therefore the cached answer.
@@ -589,6 +731,7 @@ Question 21 asked what a closure's return value even *is* once there is more tha
 - Naming the lookup with `let` means the cache is searched once instead of twice.  That is the same move `largest2` made in Model 2 and `lookup` made in Model 5.5, and it is worth noticing that the fix looks identical in three completely different settings.
 - The cache is captured, not global.  Two calls to `memoize` build two independent caches, exactly as two calls to `make-counter` built two independent counters, and nothing else in the program can reach either one.
 - `set!` earns its keep here for the second time today.  A memo table you cannot update is an empty list forever.
+- **The recursive call has to go through the wrapper.**  `fib-fast`'s body names `fib-fast`, so every recursive call re-enters the memoized procedure and meets the cache.  Had the body called an inner, unmemoized copy of itself, only the outermost call would ever be cached, every recursive call would miss, and the running time would not move at all.  The cache has to sit *between* every call, not merely around the first one.  This is the mistake to expect when you memoize something of your own.
 
 > **Watch out!**  An association list searches in $O(n)$, so this is a teaching cache rather than a production one.  MIT Scheme spells the real thing `(make-equal-hash-table)`, `(hash-table/get cache x #f)`, and `(hash-table/put! cache x result)`; Racket spells it `make-hash`; R7RS does not standardize hash tables at all, which is why the portable version above uses `assoc`.  Write the association list when you want the code to run in any Scheme, and reach for your dialect's hash table when the cache gets big.  The hash-table version also acquires a bug that this one does not have, and that bug is question 27.
 
@@ -598,6 +741,54 @@ Question 21 asked what a closure's return value even *is* once there is more tha
 27.  Suppose you rewrite the cache with a hash table and test for a hit using `(hash-table/get cache x #f)`.  Now memoize a predicate, a function that legitimately returns `#f` sometimes.  What goes wrong, how often does it go wrong, and how would you fix it without giving up the hash table?
 28.  Memoizing `slow-square` saves nothing worth having.  Name a function you could write with what you know today whose running time memoization would drag from exponential down to linear, and say exactly which repeated work disappears.
 29.  A memoized function mutates on every cache miss, so it is not referentially transparent on the inside.  Is it still referentially transparent on the *outside*?  Defend your answer, because your team's language will have to take a position on this in December.
+
+## Code Cell: The Answer to Question 28, Counted
+
+Question 28 asks you to name a function memoization drags from exponential down to linear.  Fibonacci is that function, and this cell counts the calls rather than asserting the improvement.  Predict both numbers before you run it.
+
+```python
+# Both Fibonaccis, instrumented, so the improvement is a count and not a claim.
+calls = {}
+
+def counted(name, f):
+    calls[name] = 0
+    def wrapped(n):
+        calls[name] += 1
+        return f(n)
+    return wrapped
+
+def memoize(f):
+    cache = {}                      # the captured state: a table, not a number
+    def wrapped(x):
+        if x not in cache:
+            cache[x] = f(x)
+        return cache[x]
+    return wrapped
+
+def fib_slow(n):
+    return n if n < 2 else slow(n - 1) + slow(n - 2)
+
+slow = counted("slow", fib_slow)
+
+def fib_fast(n):
+    return n if n < 2 else fast(n - 1) + fast(n - 2)
+
+# counted() first, then memoize(), so the counter sees only real evaluations
+fast = memoize(counted("fast", fib_fast))
+
+print("fib(25) naive    :", slow(25), "in", calls["slow"], "calls")
+print("fib(25) memoized :", fast(25), "in", calls["fast"], "calls")
+
+# fib(25) naive    : 75025 in 242785 calls
+# fib(25) memoized : 75025 in 26 calls
+```
+
+### Reading the Code
+
+- **Why exactly 26.**  The memoized version evaluates the underlying function once for each distinct input from 0 through 25 inclusive, which is 26 evaluations.  Every other call is a cache hit and never reaches the counter.
+- The naive count is $2 \cdot \mathrm{fib}(n{+}1) - 1$, which for $n = 25$ is $2 \cdot 121393 - 1 = 242785$.  You can derive that on paper before running anything.
+- Both `fib_fast` and `fib_slow` name a *module-level* function in their recursive call rather than themselves, for the same reason the Scheme version names `fib-fast`: the wrapper has to be in the path of every call.
+- Put this beside `largest` and `largest2` from Model 2.  **Both are the same disease, recomputing a subresult you already had, and `let` and `memoize` are the small and the large cure.**  One names a value so it is computed once inside a single call; the other keeps a table so it is computed once across all calls.
 
 ---
 

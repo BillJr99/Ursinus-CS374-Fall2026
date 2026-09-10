@@ -109,6 +109,85 @@ For CTQ 3: `4-2` cannot be derived.  The only rule that produces a `-` is `<sign
 
 ---
 
+## Model 1.5: The Language You Already Know
+
+You have spent three sessions inside a language whose programs are already trees.  Before we go further into notation, write that language down.  **State Scheme's syntax rule precisely enough that a machine could check it.**  Say it in English first, as a team, then put the notation beside it.
+
+```
+<expr>  ::= <atom> | <list>
+<list>  ::= ( <exprs> )
+<exprs> ::= <expr> <exprs> | <empty>
+<atom>  ::= <number> | <symbol>
+```
+
+**Four productions describe every legal Scheme program ever written.**  That sentence is the reason this model exists; sit with it for a moment before moving on.
+
+Every term from Section 1 has a referent here, so name them against what is on the board.  The **terminals** are `(`, `)`, and the numbers and symbols themselves.  The **nonterminals** are `<expr>`, `<list>`, `<exprs>`, and `<atom>`.  Each line is a **production**, `<expr>` is the **start symbol**, and `<exprs>` mentions itself, which is how BNF says "as many as you like."
+
+### Derivation 1: `(+ 1 (* 2 3))`
+
+Leftmost, one rule per line, exactly as in Model 1:
+
+```
+<expr>
+=> <list>                              [<expr> ::= <list>]
+=> ( <exprs> )                         [<list> ::= ( <exprs> )]
+=> ( <expr> <exprs> )                  [<exprs> ::= <expr> <exprs>]
+=> ( <atom> <exprs> )                  [<expr> ::= <atom>]
+=> ( <symbol> <exprs> )                [<atom> ::= <symbol>]
+=> ( + <exprs> )                       [<symbol> => +]
+=> ( + <expr> <exprs> )                [<exprs> ::= <expr> <exprs>]
+=> ( + <atom> <exprs> )                [<expr> ::= <atom>]
+=> ( + <number> <exprs> )              [<atom> ::= <number>]
+=> ( + 1 <exprs> )                     [<number> => 1]
+=> ( + 1 <expr> <exprs> )              [<exprs> ::= <expr> <exprs>]
+=> ( + 1 <expr> )                      [<exprs> ::= <empty>]
+=> ( + 1 <list> )                      [<expr> ::= <list>]
+=> ( + 1 ( <exprs> ) )                 [<list> ::= ( <exprs> )]
+   ... the same six steps again, one level down ...
+=> ( + 1 ( * 2 3 ) )
+```
+
+**Notice, out loud:** the nesting in the derivation is the nesting in the program.  No step anywhere had to *decide* what binds to what.
+
+### Derivation 2: `3 + 4 * 5`
+
+Now the standard infix arithmetic grammar, which describes the same arithmetic in the notation you learned in school:
+
+```
+<expr>   ::= <expr> + <term> | <expr> - <term> | <term>
+<term>   ::= <term> * <factor> | <factor>
+<factor> ::= ( <expr> ) | <number>
+```
+
+```
+<expr>
+=> <expr> + <term>                     [<expr> ::= <expr> + <term>]
+=> <term> + <term>                     [<expr> ::= <term>]
+=> <factor> + <term>                   [<term> ::= <factor>]
+=> 3 + <term>                          [<factor> ::= <number> => 3]
+=> 3 + <term> * <factor>               [<term> ::= <term> * <factor>]
+=> 3 + <factor> * <factor>             [<term> ::= <factor>]
+=> 3 + 4 * <factor>                    [<factor> ::= <number> => 4]
+=> 3 + 4 * 5                           [<factor> ::= <number> => 5]
+```
+
+### Critical Thinking Questions
+
+4a.  The Scheme grammar has four productions and no notion of precedence anywhere.  The infix grammar needs three nonterminals, `<expr>`, `<term>`, and `<factor>`, arranged in a hierarchy whose only job is to make multiplication bind tighter than addition.  **What is that extra machinery buying, and what is it costing?**
+
+   > *Hint: it buys the ability to write `3 + 4 * 5` and have it mean what a reader of arithmetic expects.  It costs a grammar that encodes a precedence table in its shape.  In four words: parens are the parse tree.*
+
+4b.  Do not let your team conclude that s-expressions are simply better.  State the strongest case for infix: it reads the way people already read arithmetic, and Lisp's uniformity is paid for by everyone counting closing parentheses.  Which of the readability, writability, and reliability criteria does each side win?  Part 3 of the **BNF Workshop** asks you to take a side, so draft it here.
+
+4c.  Using the four-production Scheme grammar, give a string it cannot generate, and justify it from the rules rather than from intuition.
+
+   > *Hint: `(+ 3 4` with no closing parenthesis.  `<list>` is the only production that introduces `)`, and it introduces exactly one for each `(`.  No sequence of rule applications terminates without it.*
+
+> **Coming attractions, not today's business.**  The infix grammar above is where ambiguity, precedence, and associativity live.  We are only foreshadowing them here.  *Derivations, Parse Trees, Ambiguity, and Precedence* takes them apart properly, and the parser you write in October is what turns this derivation into code.
+
+---
+
 ## 2.  EBNF: Conveniences, Not New Power
 
 EBNF does not make grammars more powerful.  Every EBNF grammar can be rewritten in plain BNF.  What EBNF adds is readability: instead of a recursive rule with two alternatives, you write a loop symbol.  Those symbols also map almost one to one onto the code you will write when you implement a parser.
@@ -121,6 +200,21 @@ EBNF adds three shortcuts for the recursion patterns BNF repeats everywhere.  Br
 signed  -> [ sign ] digit { digit }
 sign    -> "+" | "-"
 digit   -> "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+```
+
+Each shortcut stands for a BNF pattern you could always have written by hand, and it is worth seeing the trade explicitly:
+
+| EBNF | Meaning | What it replaces in BNF |
+|---|---|---|
+| `{ x }` | zero or more repetitions of `x` | a recursive rule with an empty alternative |
+| `[ x ]` | optional, zero or one | two alternatives, one with `x` and one without |
+| `( x \| y )` | grouping with alternation | an extra nonterminal holding the alternatives |
+
+Count what just happened to the signed-integer grammar: four rules became three, and the recursive `<digits>` rule disappeared entirely into `{ digit }`.  Here is a second pair, the one you will see most often in language manuals:
+
+```
+BNF :  <ident_list> ::= <ident> | <ident> , <ident_list>
+EBNF:  <ident_list> ::= <ident> { , <ident> }
 ```
 
 The two notations describe exactly the same languages.  EBNF is sugar, and the sugar matters to *you* as an implementer.  When we write the parser, `{ digit }` becomes a `while` loop and `[ sign ]` becomes an `if`.  That translation is so mechanical you will do it without thinking by October.
