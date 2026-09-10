@@ -40,33 +40,46 @@ Work through the numbered steps in order.  Each practice step shows the command 
 
 If Docker cannot run on your machine at all, skip to **Step 9: The Native Fallback**; it is a complete route, and not a consolation prize.
 
+## What each step produces for the Overview assignment
+
+Most of what the Overview assignment asks you to paste comes out of this page.  Capture the output of each proof command as you go, and you will not have to redo any of it.
+
+| Step | The command that proves it | The Overview item it satisfies |
+|---|---|---|
+| 1 | `docker run hello-world` | Your route choice: a working Docker means Route A |
+| 2 | `git remote -v` | Part 1.5, Step 3 (the repository you will push to) |
+| 4 | The `student@...:/workspace$` prompt and the nine toolchain checks | Route A's transcript, and Part 1, Step 1 (`python3 --version`).  Run `warmup_check.py` from this same prompt for Part 1, Step 2 |
+| 6 | `python3 hello.py`, then `git log --oneline` after the push | Part 1.5, Steps 1 and 3 |
+| 9 | The `uv` commands | Part 1.5, Step 4, which runs on your host on both routes |
+
 ---
 
 ## Step 1: Install Docker Desktop
 
-Download and install [Docker Desktop](https://www.docker.com/products/docker-desktop/) for macOS or Windows, or [Docker Engine](https://docs.docker.com/engine/install/) on Linux.  Accept the defaults.
-
-**Windows: install Ubuntu on WSL2 first, then check two Docker settings.**  Docker Desktop on Windows does not run containers on Windows itself; it runs them inside **WSL2**, the Windows Subsystem for Linux.  Installing the Linux side first, and confirming Docker is wired to it, prevents most of the Windows trouble in this tutorial.
-
-1.  Open **PowerShell as Administrator** and install Ubuntu:
-
-    ```powershell
-    wsl --install -d Ubuntu
-    ```
-
-    Reboot if it asks.  Then launch **Ubuntu** from the Start menu and set the UNIX username and password it prompts for; these are new, and separate from your Windows account.  (If `wsl --install` is not recognized, your Windows is too old for the one-liner: update Windows, or follow Microsoft's [manual WSL2 install steps](https://learn.microsoft.com/en-us/windows/wsl/install-manual).)
-
-2.  Install Docker Desktop, start it, then open its **Settings** (the gear icon) and verify both of these:
-    - **General**: **Use the WSL 2 based engine** is checked.
-    - **Resources -> WSL Integration**: integration with your default distro is enabled, and the **Ubuntu** toggle is switched **on**.  Click **Apply & Restart**.
-
-That second setting is the one students most often miss, and its symptom is confusing: Docker Desktop looks perfectly healthy in its own window, but `docker` is not a command inside Ubuntu.
-
-Do the rest of this tutorial from the **Ubuntu** terminal.  It is the smoothest route on Windows by a wide margin: `~` means what it says, paths are ordinary Linux paths, and a repository kept in your WSL2 home directory bind-mounts far faster than one on the Windows side.
+If Docker cannot run on your machine at all (unsupported hardware, an administrator lock, or too little disk), go to **Step 9: The Native Fallback** now rather than at the end; nothing before Step 9 is wasted.
 
 **Disk note:** Docker Desktop plus the course image needs roughly **3-5 GB** of free disk.  If your laptop is tight on space, clear room first; a half-downloaded image is the most confusing failure mode in this tutorial.
 
-Start Docker Desktop (on Linux, ensure the daemon is running and your user is in the `docker` group), then verify from a terminal:
+**1a. Windows only: install Ubuntu on WSL2 first.**  Docker Desktop on Windows does not run containers on Windows itself; it runs them inside **WSL2**, the Windows Subsystem for Linux.  Installing the Linux side first, and confirming Docker is wired to it, prevents most of the Windows trouble in this tutorial.  Open **PowerShell as Administrator** and run:
+
+```powershell
+wsl --install -d Ubuntu
+```
+
+Expected: Windows downloads Ubuntu and may ask to reboot.  Afterward, launch **Ubuntu** from the Start menu and set the UNIX username and password it prompts for; these are new, and separate from your Windows account.  If `wsl --install` is not recognized, your Windows is too old for the one-liner: update Windows, or follow Microsoft's [manual WSL2 install steps](https://learn.microsoft.com/en-us/windows/wsl/install-manual).
+
+Do the rest of this tutorial from the **Ubuntu** terminal.  It is the smoothest route on Windows by a wide margin: `~` means what it says, paths are ordinary Linux paths, and a repository kept in your WSL2 home directory bind-mounts far faster than one on the Windows side.
+
+**1b. Install Docker.**  Download and install [Docker Desktop](https://www.docker.com/products/docker-desktop/) for macOS or Windows, or [Docker Engine](https://docs.docker.com/engine/install/) on Linux.  Accept the defaults, and start it.  On Linux, ensure the daemon is running and your user is in the `docker` group.
+
+**1c. Windows only: check two Docker settings.**  Open Docker Desktop's **Settings** (the gear icon) and verify both of these:
+
+- **General**: **Use the WSL 2 based engine** is checked.
+- **Resources -> WSL Integration**: integration with your default distro is enabled, and the **Ubuntu** toggle is switched **on**.  Click **Apply & Restart**.
+
+That second setting is the one students most often miss, and its symptom is confusing: Docker Desktop looks perfectly healthy in its own window, but `docker` is not a command inside Ubuntu.
+
+**1d. Verify.**  From a terminal (the Ubuntu terminal on Windows):
 
 ```bash
 docker run hello-world
@@ -91,13 +104,7 @@ Your course work lives in a private GitHub repository named `cs374-work`.  This 
 2.  Name: `cs374-work`.  Visibility: **Private**.  Check **Add a README file** (so the repository is cloneable immediately).
 3.  Clone it to your machine.
 
-**First, where to put it, and what `~` means.**  The commands in this tutorial use the Unix shorthand `~` for your home folder.  It resolves in macOS Terminal, Linux shells, WSL2, Git Bash, and PowerShell.  It does **not** resolve in the classic Windows Command Prompt (`cmd.exe`), which will leave you in the wrong directory without printing an error.  On Windows, pick one shell and stay with it:
-
-- **PowerShell** or **Windows Terminal**: `~` works as written, as does `$HOME`.  Your home folder is `C:\Users\YOU`, so `~/cs374-work` is `C:\Users\YOU\cs374-work`.
-- **Command Prompt (`cmd.exe`)**: substitute `%USERPROFILE%` for `~`, and backslashes for forward slashes: `cd %USERPROFILE%`, and later `cd %USERPROFILE%\cs374-work\.devcontainer`.
-- **WSL2 Ubuntu**, the one you installed in Step 1: `~` works as written and your home is `/home/YOU`.  This is the route the tutorial recommends and the one the native fallback in Step 9 assumes; the other two are here for students who skipped WSL2 or prefer a Windows-side shell.
-
-Keep the clone **under your user profile** (or inside your WSL2 home) either way.  Docker Desktop shares those locations with containers by default; a clone on a second drive or a network share is the most common cause of an empty bind mount later.  Everywhere below that you see `~/cs374-work`, read it as whichever form your shell uses.
+**Where to put it.**  Use the **Ubuntu** terminal on Windows (from Step 1a), and the Terminal on macOS or Linux; the commands below then work as written, and `~` is your home folder (`/home/YOU` in Ubuntu, `/Users/YOU` on macOS).  Keep the clone **under your user profile** or inside your WSL2 home, because Docker Desktop shares those locations with containers by default; a clone on a second drive or a network share is the most common cause of an empty bind mount later.  If you use PowerShell instead, `~` still works and your home is `C:\Users\YOU`.  The old Command Prompt does not understand `~` at all; Step 10 says what to type there.
 
 ```bash
 cd ~
@@ -117,7 +124,7 @@ Cloning into 'cs374-work'...
 README.md
 ```
 
-The `.git` directory means this folder is a git repository; the clone already knows its GitHub remote.  Confirm:
+The `.git` directory means this folder is a git repository; the clone already knows its GitHub remote.  The address is HTTPS on purpose: inside the container you will authenticate with a repository-scoped token (Step 5), and that token works over HTTPS.  The SSH key from Part 1.5 of the Overview assignment stays on your host, where it belongs.  Confirm:
 
 ```bash
 git remote -v
@@ -139,7 +146,20 @@ Download the three course container files and place them in a `.devcontainer/` f
 - [devcontainer.json]({{ site.baseurl }}/files/devcontainer/devcontainer.json): VS Code Dev Containers configuration
 - (optional) [README.md]({{ site.baseurl }}/files/devcontainer/README.md): the quickstart version of this tutorial
 
-Your repository should now look like this:
+The commands below fetch all three into the right place.  Run them from your clone:
+
+```bash
+cd ~/cs374-work
+mkdir -p .devcontainer
+cd .devcontainer
+curl -fsSL -o Dockerfile https://raw.githubusercontent.com/BillJr99/Ursinus-CS374-Fall2026/gh-pages/files/devcontainer/Dockerfile
+curl -fsSL -o docker-compose.yml https://raw.githubusercontent.com/BillJr99/Ursinus-CS374-Fall2026/gh-pages/files/devcontainer/docker-compose.yml
+curl -fsSL -o devcontainer.json https://raw.githubusercontent.com/BillJr99/Ursinus-CS374-Fall2026/gh-pages/files/devcontainer/devcontainer.json
+cd ..
+ls -la .devcontainer
+```
+
+Expected: the three files, under exactly those names.  If you saved them from a browser instead, check the names, because browsers sometimes save `Dockerfile` as `Dockerfile.txt`, and Docker will not find it under that name.  Your repository should now look like this:
 
 ```
 cs374-work/
@@ -153,6 +173,13 @@ cs374-work/
 Open the Dockerfile in an editor and *read it*; it is short and every line is commented.  You built Dockerfiles' conceptual vocabulary in your intro courses' shell work; this one is deliberately simple: a base Python image, an `apt-get` layer for the C toolchain and Scheme, a `pip` layer for the Python packages, a short layer that installs `uv`, a non-root `student` user, and `/workspace` as the working directory.
 
 One layer there is worth a second look, because it breaks the usual rule that any failing command fails the build: `mit-scheme` has no Debian package for *every* CPU architecture, so that single install is allowed to fail and print a note instead.  An Apple Silicon Mac may end up with only `guile`, and the image still builds.  This is what it looks like to design a Dockerfile for hardware you do not own.
+
+Commit the container files; they are part of your work:
+
+```bash
+git add .devcontainer
+git commit -m "Add course dev container configuration"
+```
 
 **Keeping these files current.**  What you just downloaded is a *copy*.  It lives in your repository now, and it will sit there unchanged until you replace it; when the course adds a tool to the container mid-semester, your copy does not follow.  This is the honest cost of the arrangement, and it buys you something worth having: your environment cannot change under you in the middle of an assignment.
 
@@ -177,13 +204,6 @@ git add .devcontainer && git commit -m "Refresh course container files"
 ```
 
 Announcements will say when there is something to refresh.  Checking the datestamp is also the first thing to do when a command the tutorial promises you turns up missing.
-
-Commit the container files; they are part of your work:
-
-```bash
-git add .devcontainer
-git commit -m "Add course dev container configuration"
-```
 
 ---
 
@@ -221,7 +241,13 @@ ls -la
 README.md
 ```
 
-**Verify the toolchain.**  Run each of these and capture the output; this transcript is part of the Overview assignment:
+**Verify the toolchain.**  Nine commands, each proving one tool.  Run them one at a time as listed below, or all at once with this block, and capture the output.  **This transcript is part of the Overview assignment**, which asks for it alongside the `warmup_check.py` run on Route A:
+
+```bash
+python3 --version; pytest --version; python3 -c "import hypothesis, ply; print('hypothesis', hypothesis.__version__, '| ply OK')"; flex --version; bison --version | head -1; uv --version; echo $CS374_IMAGE_VERSION; guile --version | head -1; mit-scheme --version
+```
+
+One at a time, with the output to expect from each:
 
 ```bash
 python3 --version
@@ -299,14 +325,7 @@ If they do, your environment is done.  Exit the container with `exit` or Ctrl-D;
 
 ## Step 5: Git Identity and Credentials Inside the Container
 
-The container has `git` but knows nothing about *you*.  Inside the container, set your identity (use the email associated with your GitHub account):
-
-```bash
-git config --global user.name "Your Name"
-git config --global user.email "you@example.com"
-```
-
-Because the container is recreated from the image each time, per-container `--global` config does not persist across `docker compose run` sessions.  The clean fix is to set the config **once per repository** instead, which stores it in `/workspace/.git/config`, on your disk, inside the mount:
+The container has `git` but knows nothing about *you*.  Inside the container, set your identity **once per repository**, using the email associated with your GitHub account:
 
 ```bash
 cd /workspace
@@ -314,36 +333,13 @@ git config user.name "Your Name"
 git config user.email "you@example.com"
 ```
 
+Per-repository config is stored in `/workspace/.git/config`, on your disk, inside the mount, so it survives container teardown.  A `--global` setting would not: the container's home directory is recreated from the image on every `docker compose run --rm`, so anything written there is gone next session.
+
 (The VS Code Dev Containers route copies your host `~/.gitconfig` into the container automatically, so Option A students often find this already done.)
 
-**If git refuses to touch `/workspace` at all.**  Sooner or later a git command in the container answers with this instead of doing anything:
+**If git answers `fatal: detected dubious ownership in repository at '/workspace'`**, run `git config --global --add safe.directory /workspace` inside the container and rerun the command that failed.  Step 10 explains what that line claims and why the claim is a small one in here.
 
-```
-fatal: detected dubious ownership in repository at '/workspace'
-To add an exception for this directory, call:
-
-        git config --global --add safe.directory /workspace
-```
-
-Take git's advice; run exactly that, inside the container:
-
-```bash
-git config --global --add safe.directory /workspace
-```
-
-Then rerun the command that failed and it will work.
-
-The reason is worth understanding, because it is the mount showing through.  `/workspace` is *your host account's* directory, and git compares the repository's owner against the user running the command.  Inside the container that user is `student` (UID 1000 by default), and on a Linux host, or whenever you use the `--user "$(id -u):$(id -g)"` workaround from Step 10, those two numbers do not match.  Git assumes a repository it does not own may have been planted by someone else and stops rather than running hooks or config from it.  Marking `/workspace` **safe** says: I know where this came from, it is my own clone.
-
-Two practical notes.  First, `--global` here means *the container's* `~/.gitconfig`, which is recreated from the image on every `docker compose run --rm`, so expect to run this once per session (the VS Code route keeps one long-lived container, so once is usually enough).  Second, if retyping it gets old, you can mark everything the container can see as safe:
-
-```bash
-git config --global --add safe.directory '*'
-```
-
-That would be a bad idea on your laptop, where it turns off the check for every repository on the machine.  In here it is a much smaller claim than it looks, and for the reason Step 8 spells out: `/workspace` is the *only* directory of yours this container can see, so "every repository visible to me" and "my own clone" are the same set.
-
-Pushing needs credentials.  Two workable choices:
+Pushing needs credentials.  Two workable choices; if you are not sure, take Choice 1:
 
 **Choice 1: HTTPS with a personal access token (PAT).  Recommended default.**
 
@@ -522,21 +518,21 @@ Verify with `mit-scheme --version` or `guile --version`.  The [Scheme assignment
 
 ## Step 10: Troubleshooting
 
-**`Cannot connect to the Docker daemon` / `docker: command not found` after install.**  Docker Desktop is installed but not running (start the app and wait for it to finish launching), or your terminal predates the install (open a new terminal).  On Linux: `sudo systemctl start docker`, and add yourself to the docker group (`sudo usermod -aG docker $USER`, then log out and in).  On Windows, if Docker Desktop is plainly running but Ubuntu says `docker: command not found`, the WSL integration is off: **Settings -> Resources -> WSL Integration**, switch the **Ubuntu** toggle on, **Apply & Restart**, and open a new Ubuntu terminal.  While you are there, confirm **Settings -> General -> Use the WSL 2 based engine** is checked.
+The entries are in step order.  Find the step you are on and work down its entries before you post in the course channel; when you do post, include the exact command and its full output.
 
-Windows: the bind mount is empty or the build cannot find files.  Three classic causes.  (1) Your clone lives on a drive or network share Docker Desktop has not been granted; keep `cs374-work` under your user profile (e.g., `C:\Users\you\cs374-work`) or, better, inside your WSL2 home directory.  (2) You ran `docker compose` from the wrong directory; the `..` in the compose file is relative to `.devcontainer/`, so run it from there.  (3) You typed a `cd ~/cs374-work/...` line into Command Prompt, where `~` is not a home-folder shorthand: `cmd.exe` either errors or lands you somewhere unexpected, and the mount then points at the wrong place.  Use `cd %USERPROFILE%\cs374-work\.devcontainer` there, or run the tutorial's commands from PowerShell, Git Bash, or WSL2, where `~` works as written.  `cd` with no argument prints your current directory in `cmd.exe`, and `pwd` does the same in the others; check it before you build.
+**Step 1: `Cannot connect to the Docker daemon` / `docker: command not found` after install.**  Docker Desktop is installed but not running (start the app and wait for it to finish launching), or your terminal predates the install (open a new terminal).  On Linux: `sudo systemctl start docker`, and add yourself to the docker group (`sudo usermod -aG docker $USER`, then log out and in).  On Windows, if Docker Desktop is plainly running but Ubuntu says `docker: command not found`, the WSL integration is off: **Settings -> Resources -> WSL Integration**, switch the **Ubuntu** toggle on, **Apply & Restart**, and open a new Ubuntu terminal.  While you are there, confirm **Settings -> General -> Use the WSL 2 based engine** is checked.
 
-**`git push` rejected: `Authentication failed` or `Support for password authentication was removed`.**  GitHub does not accept account passwords over HTTPS; you must paste a **personal access token** at the password prompt.  If a token is rejected, check its scope: fine-grained tokens must list `cs374-work` under *Only select repositories* and have **Contents: Read and write**.  Expired tokens fail the same way; generate a new one.
+**Step 2: `cd ~/cs374-work` fails or lands somewhere odd.**  You typed a `~` path into the Windows Command Prompt, where `~` is not a home-folder shorthand: `cmd.exe` either errors or lands you somewhere unexpected.  Use `cd %USERPROFILE%\cs374-work` there (and later `cd %USERPROFILE%\cs374-work\.devcontainer`), or run the tutorial's commands from PowerShell, Git Bash, or WSL2, where `~` works as written.  `cd` with no argument prints your current directory in `cmd.exe`, and `pwd` does the same in the others; check it before you build.
 
-Line endings: files show as modified everywhere, or a script fails with `\r: command not found`.  Windows editors write CRLF line endings; the Linux container expects LF. Fix it once per repo with a `.gitattributes` file containing `* text=auto eol=lf`, then `git add --renormalize .` and commit.  In VS Code, set the status-bar line-ending indicator to `LF` for files you create.
+**Step 3: the build cannot find the Dockerfile.**  Check the file names in `.devcontainer/` with `ls -la`: a browser download often saves `Dockerfile` as `Dockerfile.txt`.  Rename it, and confirm you are running `docker compose` from the `.devcontainer/` folder.
 
-The build fails partway with a network error.  Usually a flaky connection during the big download layers.  Rerun `docker compose build`; completed layers are cached, so it resumes from the failed step.
+**Step 4 (Windows): the bind mount is empty or the build cannot find files.**  Three classic causes.  (1) Your clone lives on a drive or network share Docker Desktop has not been granted; keep `cs374-work` under your user profile (e.g., `C:\Users\you\cs374-work`) or, better, inside your WSL2 home directory.  (2) You ran `docker compose` from the wrong directory; the `..` in the compose file is relative to `.devcontainer/`, so run it from there.  (3) You typed a `cd ~/cs374-work/...` line into Command Prompt; see the Step 2 entry above.
 
-**`permission denied` writing files in `/workspace` (Linux hosts).**  The container's `student` user may not match your host UID. Quick check: `id` inside the container vs. on the host.  If they differ, run the container with your UID: `docker compose run --rm --user "$(id -u):$(id -g)" cs374`.
+**Step 4: the build fails partway with a network error.**  Usually a flaky connection during the big download layers.  Rerun `docker compose build`; completed layers are cached, so it resumes from the failed step.
 
-**`fatal: detected dubious ownership in repository at '/workspace'`.**  The same UID mismatch, seen from git's side; it is the usual surprise on Linux hosts, and the `--user` fix just above brings it on.  Inside the container, run `git config --global --add safe.directory /workspace`, then rerun whatever failed.  Step 5 explains what that line claims and why it is a modest claim in here.  It is written to the container's `~/.gitconfig`, so a `--rm` container will want it again next session.
+**Step 4: `permission denied` writing files in `/workspace` (Linux hosts).**  The container's `student` user may not match your host UID. Quick check: `id` inside the container vs. on the host.  If they differ, run the container with your UID: `docker compose run --rm --user "$(id -u):$(id -g)" cs374`.
 
-**`curl: command not found`, `uv: command not found`, or anything else from Step 4 is missing.**  Your `.devcontainer/` copy predates a course update, so you are rebuilding an older image.  Confirm it with `echo $CS374_IMAGE_VERSION` inside the container and compare against the date in Step 3: an older date, or an empty line, is the diagnosis.  The fix is to re-download the three container files over your copies, rebuild, and re-run the Step 4 checks:
+**Step 4: `curl: command not found`, `uv: command not found`, or anything else from the toolchain check is missing.**  Your `.devcontainer/` copy predates a course update, so you are rebuilding an older image.  Confirm it with `echo $CS374_IMAGE_VERSION` inside the container and compare against the date in Step 3: an older date, or an empty line, is the diagnosis.  The fix is to re-download the three container files over your copies, rebuild, and re-run the Step 4 checks:
 
 ```bash
 cd ~/cs374-work/.devcontainer
@@ -547,7 +543,29 @@ docker compose run --rm cs374
 
 Commit the refreshed files afterwards; they are part of your work.  A plain `docker compose build` is enough (the changed lines invalidate their own layers); reach for `docker compose build --no-cache` only if it somehow is not.
 
-**You wanted to read a script before running it.**  Good instinct, and worth getting right, because the two pipes look alike and do very different things: `curl -LsSf URL | sh` hands the script straight to a shell and runs it sight unseen, while `curl -LsSf URL | less` only *reads* it, and installs nothing.  For actually inspecting one, save it first and then page it, so you run the same bytes you read:
+**Step 4: `mit-scheme: command not found`.**  Expected on CPU architectures Debian does not build MIT/GNU Scheme for, Apple Silicon among them.  Nothing is wrong: the build prints a note and carries on, and `guile` is your Scheme.  Name that route (and its `guile --version` output) in the Scheme assignment's write-up.
+
+**Step 5: `fatal: detected dubious ownership in repository at '/workspace'`.**  Take git's advice; run exactly this, inside the container:
+
+```bash
+git config --global --add safe.directory /workspace
+```
+
+Then rerun the command that failed and it will work.  The reason is worth understanding, because it is the mount showing through.  `/workspace` is *your host account's* directory, and git compares the repository's owner against the user running the command.  Inside the container that user is `student` (UID 1000 by default), and on a Linux host, or whenever you use the `--user "$(id -u):$(id -g)"` workaround from the Step 4 entry above, those two numbers do not match.  Git assumes a repository it does not own may have been planted by someone else and stops rather than running hooks or config from it.  Marking `/workspace` **safe** says: I know where this came from, it is my own clone.
+
+Two practical notes.  First, `--global` here means *the container's* `~/.gitconfig`, which is recreated from the image on every `docker compose run --rm`, so expect to run this once per session (the VS Code route keeps one long-lived container, so once is usually enough).  Second, if retyping it gets old, you can mark everything the container can see as safe:
+
+```bash
+git config --global --add safe.directory '*'
+```
+
+That would be a bad idea on your laptop, where it turns off the check for every repository on the machine.  In here it is a much smaller claim than it looks, and for the reason Step 8 spells out: `/workspace` is the *only* directory of yours this container can see, so "every repository visible to me" and "my own clone" are the same set.
+
+**Step 6: `git push` rejected: `Authentication failed` or `Support for password authentication was removed`.**  GitHub does not accept account passwords over HTTPS; you must paste a **personal access token** at the password prompt.  If a token is rejected, check its scope: fine-grained tokens must list `cs374-work` under *Only select repositories* and have **Contents: Read and write**.  Expired tokens fail the same way; generate a new one.
+
+**Step 6: line endings: files show as modified everywhere, or a script fails with `\r: command not found`.**  Windows editors write CRLF line endings; the Linux container expects LF. Fix it once per repo with a `.gitattributes` file containing `* text=auto eol=lf`, then `git add --renormalize .` and commit.  In VS Code, set the status-bar line-ending indicator to `LF` for files you create.
+
+**Step 9: you wanted to read a script before running it.**  Good instinct, and worth getting right, because the two pipes look alike and do very different things: `curl -LsSf URL | sh` hands the script straight to a shell and runs it sight unseen, while `curl -LsSf URL | less` only *reads* it, and installs nothing.  For actually inspecting one, save it first and then page it, so you run the same bytes you read:
 
 ```bash
 curl -LsSf https://example.com/install.sh -o install.sh
@@ -557,9 +575,7 @@ sh install.sh     # only after you have read it
 
 For `uv` specifically the question does not arise in here: the container already has it, and installing anything at the container prompt does not survive the container anyway (Step 8).
 
-**`mit-scheme: command not found`.**  Expected on CPU architectures Debian does not build MIT/GNU Scheme for, Apple Silicon among them.  Nothing is wrong: the build prints a note and carries on, and `guile` is your Scheme.  Name that route (and its `guile --version` output) in the Scheme assignment's write-up.
-
-Everything is broken and you do not know why.  Nuclear option, in increasing order: exit and rerun (`--rm` gives you a fresh container); `docker compose build --no-cache` (fresh image); fresh `git clone` into a new directory (fresh workspace; this is why you push).  One of these three fixes it, and figuring out *which* tells you where the problem was.
+**Any step: everything is broken and you do not know why.**  Nuclear option, in increasing order: exit and rerun (`--rm` gives you a fresh container); `docker compose build --no-cache` (fresh image); fresh `git clone` into a new directory (fresh workspace; this is why you push).  One of these three fixes it, and figuring out *which* tells you where the problem was.
 
 ---
 
