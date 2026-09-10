@@ -31,18 +31,95 @@ This tutorial teaches the shell skills you need to build, test, and ship your CS
 
 Please work through this at a terminal rather than in a chair.  Each step below ends with a **Try it** box, which is a small concrete thing to run against your own interpreter before you move on.  By the last step you will have an executable interpreter, a test harness that reports PASS/FAIL, a Makefile that standardizes how your language is invoked, and a CI job that fails the build when a test regresses.
 
-**What you need before you start.**  A working interpreter you can run (even one that only prints a token stream is enough to follow along) and a terminal in the [course development environment]({{ site.baseurl }}/Tutorials/DevEnvironment).
+**What you need before you start.**  For Step 0, a terminal and nothing else.  For Steps 1 through 6, a working interpreter you can run (even one that only prints a token stream is enough to follow along) and a terminal in the [course development environment]({{ site.baseurl }}/Tutorials/DevEnvironment).
+
+### If you are here from the Overview assignment
+
+Part 1.5 of the [Overview assignment]({{ site.baseurl }}/Assignments/Overview) needs only **Step 0** of this page: how to open a terminal, move between folders, save a file, and search it with `grep`.  Step 0 needs no interpreter, and its *Try it* box is the Overview's Part 1.5, Step 1.  Come back for Steps 1 through 6 when the first programming assignment gives you an interpreter to test.
 
 **The running example.**  Your interpreter is invoked as `python3 mylang.py <sourcefile>`, your source files use the extension `.ml`, test cases live in `tests/`, and expected outputs live in `expected/`.  Adapt the paths to match your actual layout as you go.
 
 | Step | You will build | Time |
 |---|---|---|
+| 0 | Terminal footing: open a shell, move around, save a file, search it with `grep` | 15 min |
 | 1 | An interpreter you can run directly, with meaningful exit codes | 15 min |
 | 2 | Output captured and diffed against expected results | 15 min |
 | 3 | `test_runner.sh`, a harness that runs every test and reports PASS/FAIL | 30 min |
 | 4 | A `Makefile` so `make test` is the only command anyone needs | 20 min |
 | 5 | A debugging toolkit of shell one-liners | 20 min |
 | 6 | Environment-variable configuration and a CI job | 25 min |
+
+---
+
+## Step 0: Open a Terminal, Move Around, and Save a File
+
+This step needs no interpreter.  It is the terminal footing that Part 1.5 of the Overview assignment checks, and everything after it assumes.
+
+### Open a terminal
+
+| System | How to open it | What the prompt looks like |
+|---|---|---|
+| macOS | Press Cmd+Space, type `Terminal`, press Enter | `you@laptop ~ %` |
+| Windows, PowerShell | Open the Start menu, type `PowerShell`, press Enter (not "Command Prompt") | `PS C:\Users\you>` |
+| Windows, WSL2 Ubuntu | Open the Start menu, type `Ubuntu`, press Enter (Step 1 of the Development Environment tutorial installs it) | `you@laptop:~$` |
+| Linux | Press Ctrl+Alt+T, or open Terminal from the applications menu | `you@laptop:~$` |
+| VS Code, on any system | Press Ctrl+` (backtick), or **View > Terminal**.  It opens in the folder you have open | one of the above |
+| The course container | `docker compose run --rm cs374` from `cs374-work/.devcontainer/`, or **Reopen in Container** in VS Code | `student@a1b2c3d4e5f6:/workspace$` |
+
+The shell we assume is `bash` or `zsh`.  PowerShell accepts many of the same command names (`pwd`, `ls`, `cd`, `cat`, `mkdir`, `rm`, `echo`) as aliases for its own, and the differences that matter are noted as they come up.  Running everything from WSL2 or Git Bash keeps every command on this page as written.
+
+### Find where you are, and move
+
+The terminal always has a current folder, and every relative path is measured from it.  These commands work the same in every shell above, including PowerShell:
+
+```bash
+pwd               # print the folder you are in
+ls                # list what is here (ls -la also shows hidden files; in PowerShell, plain ls)
+cd ~              # go to your home folder
+mkdir -p ~/cs374  # make a folder for this course (in PowerShell: mkdir ~/cs374)
+cd ~/cs374        # go into it
+cd ..             # go up one level
+cd tests          # go into a folder named tests, relative to where you are
+```
+
+`~` is your home folder: `/Users/you` on macOS, `C:\Users\you` in PowerShell, and `/home/you` in WSL2 Ubuntu.  From WSL2, your Windows files are under `/mnt/c/Users/you`.  `~` does *not* work in the old Windows Command Prompt, which is one reason to use PowerShell or Ubuntu instead.  Paths that begin with `/` are absolute; paths without it are relative to the current folder; `.` is the current folder and `..` its parent.  Press **Tab** to complete a name you have started typing, and the up arrow to recall the previous command.
+
+### Save a file from the terminal
+
+When a step says "save this as `sample.txt`," first `cd` into the folder the file belongs in, then use one of these:
+
+- **nano**, on macOS, Linux, WSL2, and inside the course container.  Run `nano sample.txt`, paste the contents (Cmd+V on macOS; right-click or Ctrl+Shift+V in Ubuntu), press **Ctrl+O** then **Enter** to write the file, then **Ctrl+X** to exit.
+- **vim**, present on every Unix system.  Run `vim sample.txt`, press **i** to enter insert mode, paste, press **Esc**, then type `:wq` and press **Enter** to write and quit.  If you get stuck, press **Esc**, type `:q!`, and press **Enter** to leave without saving.
+- **VS Code**, on any system.  From the folder, run `code .` to open it (or **File > Open Folder**), then **File > New File**, paste, and press **Ctrl+S** (Cmd+S on macOS) to save under the name the step gives.  Type the name with its extension and check that the editor did not add `.txt`.
+- **A redirect**, for a line or two.  `printf 'let x = 1;\n' > sample.txt` writes the file without an editor; `>` overwrites and `>>` appends, which Step 2 covers in full.
+- **PowerShell without nano.**  Run `notepad sample.txt`, click **Yes** to create the file, paste, save, and close Notepad.  For a one-line file, `Set-Content sample.txt "let x = 1;"` writes it directly.
+
+Confirm it landed: `ls` must show the name, and `cat sample.txt` must show the contents.  If `ls` does not show it, you saved into a different folder than the one you are in, and `pwd` tells you which one that is.
+
+### Search a file with grep
+
+`grep` prints every line of a file that matches a pattern, and `-n` prefixes each with its line number, which is what you want when the file is source code:
+
+```bash
+grep -n "let" sample.txt          # lines containing let, with line numbers
+grep -rn "def eval_" src/         # the same, recursively through a folder
+grep -c "TODO" interpreter.py     # count matching lines instead of printing them
+```
+
+In PowerShell, `Select-String let sample.txt` does the first of these.  The Appendix at the end of this page covers character classes, anchors, and the one flag (`-E`) that most often trips people up.
+
+---
+
+> **Try it.**  This is the Overview assignment's Part 1.5, Step 1, start to finish:
+>
+> ```bash
+> mkdir -p ~/cs374 && cd ~/cs374 && pwd && ls -la
+> printf 'let x = 1;\nlet y = x + 2;\nprint y;\n' > sample.txt
+> cat sample.txt
+> grep -n "let" sample.txt
+> ```
+>
+> Expected: `pwd` prints a path ending in `cs374`, `cat` prints the three lines, and `grep -n` prints `1:let x = 1;` and `2:let y = x + 2;`.  In PowerShell, `mkdir ~/cs374; cd ~/cs374; pwd; ls`, then `Set-Content sample.txt "let x = 1;","let y = x + 2;","print y;"`, then `Select-String let sample.txt`.  If `grep` prints nothing, `cat` the file first: a search over an empty file matches nothing.
 
 ---
 
@@ -518,7 +595,33 @@ No additional configuration needed; the exit code from the script tells GitHub w
 
 ## Appendix: grep in Depth and Capture Groups
 
-The *Regular Expressions* class session keeps a compact grep primer (the flag table and the BRE-vs-ERE trap) because the Overview assignment grades a grep transcript.  The longer material below moved here: worked grep examples, named groups, and a full log-triage walkthrough that uses capture groups to turn unstructured log lines into structured records.
+The *Regular Expressions* class session keeps a compact grep primer (the flag table and the BRE-vs-ERE trap) because the Overview assignment grades a grep transcript.  The longer material lives here, in the order you need it: grep's character classes and anchors, then a log-triage walkthrough that uses capture groups to turn unstructured log lines into structured records, then the named-group lexer.
+
+### Character classes and anchors behave as you expect
+
+```bash
+grep -nE "^def "        parser.py   # ^ anchors to start of line
+grep -nE "return$"      parser.py   # $ anchors to end of line
+grep -nE "\bnum\b"      lexer.py    # \b is a word boundary: num, not number
+grep -nE "[0-9]+\.[0-9]+" lexer.py   # a float literal; note the escaped dot
+grep -nE "[[:alpha:]_][[:alnum:]_]*" lexer.py   # POSIX class = an identifier
+```
+
+Two portability notes worth knowing now rather than at 2am: `\d` and `\w` are **not** POSIX and may not work in every `grep`; the portable spellings are `[0-9]` and `[[:alnum:]_]`.  And `.` still means "any character," so a literal dot needs escaping: `[0-9]+\.[0-9]+` matches `3.14`, while `[0-9]+.[0-9]+` would also match `3x14`.
+
+**Check yourself.**  You run `grep -n "lexer|parser" src/main.py` and get no output, though the file plainly contains both words.  What went wrong?
+
+<details><summary>Answer</summary>
+
+Plain `grep` uses BRE, where `|` is a literal character; it searched for the string `lexer|parser`.  Use `grep -nE`, or escape it as `lexer\|parser`.
+
+</details>
+
+> **Watch out!** `grep` is line-oriented, so it cannot match a pattern that spans a newline.  When you find yourself wanting that ("find every function whose body contains `raise`") you have left `grep`'s regular-language territory and want a parser.  That is the same boundary the *Regular Expressions* class session draws between regular expressions and context-free grammars, and it shows up in your tools as well as in your theory.
+
+---
+
+Capture groups are what turn a regex from a yes/no detector into a *parser of flat records*: each group carves out one field of the matched text, and named groups label the fields.  Nothing exercises this like log triage: the daily chore of turning thousands of text lines into structured data you can count, filter, and sort.
 
 ### Log Triage: A Capture-Group Walkthrough
 
@@ -592,16 +695,12 @@ The next character is a space, which is not in `[A-Z]`, so the greedy `+` has no
 
 ### Critical Thinking Questions
 
-16.  Both `[A-Z]+` and `.*` are greedy, yet one stops at a space and the other swallows spaces to the end of the line.  State the rule that predicts where any greedy quantifier stops.
-17.  Suppose a rogue line reads `2026-09-18 08:13:00 warning disk usage 92%` (lowercase level).  Trace the pattern against it: which group's sub-pattern fails first, and what does `finditer` do with the line as a whole?  Propose the smallest pattern change that would accept both spellings.
-18. `m.span(g)` gives each field's exact offsets, and `m.groupdict()` gives a dictionary per line.  In two sentences, relate this to your lexer: what plays the role of the token types here, and what plays the role of the token stream?
-19.  The `msg` group's `.*` would happily match an *empty* message (`.*` matches zero characters).  Is that a bug or a feature for log triage?  If your team decides empty messages are invalid, what one-character change enforces the decision?
+1.  Both `[A-Z]+` and `.*` are greedy, yet one stops at a space and the other swallows spaces to the end of the line.  State the rule that predicts where any greedy quantifier stops.
+2.  Suppose a rogue line reads `2026-09-18 08:13:00 warning disk usage 92%` (lowercase level).  Trace the pattern against it: which group's sub-pattern fails first, and what does `finditer` do with the line as a whole?  Propose the smallest pattern change that would accept both spellings.
+3. `m.span(g)` gives each field's exact offsets, and `m.groupdict()` gives a dictionary per line.  In two sentences, relate this to your lexer: what plays the role of the token types here, and what plays the role of the token stream?
+4.  The `msg` group's `.*` would happily match an *empty* message (`.*` matches zero characters).  Is that a bug or a feature for log triage?  If your team decides empty messages are invalid, what one-character change enforces the decision?
 
 ---
-
-This final model has two purposes: to make greedy-versus-reluctant matching concrete so it never surprises you again, and to close the theoretical loop by showing exactly where regular expressions run out of power.  Both lessons point to the same underlying cause: a finite automaton has no stack, so it cannot count or remember how deeply it has nested.
-
-> **Watch out!**  Regular expressions **cannot match balanced (nested) parentheses** in general: for example, the language $$\{(^n)^n \mid n \geq 0\}$$ (equal numbers of open and close parens) is context-free, not regular.  No matter how clever your regex, there exists a depth $$n$$ large enough to fool it.  When you need to match nested structure, you need a parser built from a context-free grammar, exactly what the next unit covers.
 
 ### Named Groups and the Lexer Connection
 
@@ -658,35 +757,13 @@ for tok in lex(src):
 
 ### Critical Thinking Questions
 
-12.  The master pattern joins all specs with `|`.  Why must multi-character operators like `>=` appear before single-character `>`?  What happens to `>=` if you swap their order?
-13.  The `KEYWORD` pattern uses `\b` word boundaries.  What would happen to the identifier `iffy` if keywords were matched without `\b`?
-14.  The `ERROR` catch-all `.` matches any single character not matched by earlier patterns.  Why is this the *last* pattern rather than the first?  What role does it play in error reporting?
-15.  The `SKIP` handler tracks newlines to maintain `line` and `line_start`.  Why is accurate line/column tracking valuable for a language learner using your language?
+5.  The master pattern joins all specs with `|`.  Why must multi-character operators like `>=` appear before single-character `>`?  What happens to `>=` if you swap their order?
+6.  The `KEYWORD` pattern uses `\b` word boundaries.  What would happen to the identifier `iffy` if keywords were matched without `\b`?
+7.  The `ERROR` catch-all `.` matches any single character not matched by earlier patterns.  Why is this the *last* pattern rather than the first?  What role does it play in error reporting?
+8.  The `SKIP` handler tracks newlines to maintain `line` and `line_start`.  Why is accurate line/column tracking valuable for a language learner using your language?
 
 ---
 
-Capture groups are what turn a regex from a yes/no detector into a *parser of flat records*: each group carves out one field of the matched text, and named groups label the fields.  Nothing exercises this like log triage: the daily chore of turning thousands of text lines into structured data you can count, filter, and sort.
+Two lessons to take from this appendix: greedy-versus-reluctant matching, made concrete so it never surprises you again, and the exact place where regular expressions run out of power.  Both point to the same underlying cause: a finite automaton has no stack, so it cannot count or remember how deeply it has nested.
 
-### Character classes and anchors behave as you expect
-
-```bash
-grep -nE "^def "        parser.py   # ^ anchors to start of line
-grep -nE "return$"      parser.py   # $ anchors to end of line
-grep -nE "\bnum\b"      lexer.py    # \b is a word boundary: num, not number
-grep -nE "[0-9]+\.[0-9]+" lexer.py   # a float literal; note the escaped dot
-grep -nE "[[:alpha:]_][[:alnum:]_]*" lexer.py   # POSIX class = an identifier
-```
-
-Two portability notes worth knowing now rather than at 2am: `\d` and `\w` are **not** POSIX and may not work in every `grep`; the portable spellings are `[0-9]` and `[[:alnum:]_]`.  And `.` still means "any character," so a literal dot needs escaping: `[0-9]+\.[0-9]+` matches `3.14`, while `[0-9]+.[0-9]+` would also match `3x14`.
-
-**Check yourself.**  You run `grep -n "lexer|parser" src/main.py` and get no output, though the file plainly contains both words.  What went wrong?
-
-<details><summary>Answer</summary>
-
-Plain `grep` uses BRE, where `|` is a literal character; it searched for the string `lexer|parser`.  Use `grep -nE`, or escape it as `lexer\|parser`.
-
-</details>
-
-> **Watch out!** `grep` is line-oriented, so it cannot match a pattern that spans a newline.  When you find yourself wanting that ("find every function whose body contains `raise`") you have left `grep`'s regular-language territory and want a parser.  That is the same boundary this activity's final section draws between regular expressions and context-free grammars, and it shows up in your tools as well as in your theory.
-
-
+> **Watch out!**  Regular expressions **cannot match balanced (nested) parentheses** in general: for example, the language $$\{(^n)^n \mid n \geq 0\}$$ (equal numbers of open and close parens) is context-free, not regular.  No matter how clever your regex, there exists a depth $$n$$ large enough to fool it.  When you need to match nested structure, you need a parser built from a context-free grammar, which is what the Parser assignment builds.
