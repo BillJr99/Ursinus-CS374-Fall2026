@@ -49,7 +49,7 @@ tags:
 
 ---
 
-In this lab you build the bottom two tiers of a recursive descent parser: `parse_primary` and `parse_unary`.  A recursive descent parser is a parser written as one function per grammar rule, where each function calls the functions for the rules it uses.  These two functions set the pattern every other tier of the Parser assignment repeats: look at `peek()`, decide which rule applies, consume tokens with `advance()` or `expect()`, and return a node.  Finishing them now means the hardest stretch of the Parser assignment starts from working code instead of a blank file.  You do this lab with a partner.
+In this lab you build the bottom two tiers of a recursive descent parser: `parse_primary` and `parse_unary`.  A recursive descent parser is a parser written as one function per grammar rule, where each function calls the functions for the rules it uses.  These two functions set the pattern every other tier of the Parser assignment repeats: look at `peek()`, decide which rule applies, consume tokens with `advance()` or `expect()`, and return a node.  Finishing them now means the hardest stretch of the Parser assignment starts from working code instead of a blank file.  You leave with a `parser_skeleton.py` that parses literals, identifiers, parentheses, and nested negation, a test file that checks tree shapes, and a parse error that says where things went wrong.  You do this lab with a partner.
 
 Use your own Lexer or the released Reference Lexer.  Either one satisfies the interface contract.  This lab is a good first test of whichever one you plan to build the Parser assignment on.
 
@@ -59,39 +59,442 @@ See the course schedule for the assigned and due dates.
 
 ---
 
+## Before You Start
+
+You need:
+
+- Python 3.10 or newer (run `python3 --version` to check).
+- A terminal and an editor such as VS Code.  If either is new to you, work through the [dev environment page]({{ site.baseurl }}/Tutorials/DevEnvironment) and the [shell primer]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) first.
+- A Lexer that exposes `peek()`, `advance()`, and `expect(token_type)`.  Use your own `lexer.py` from the Lexer assignment, or the [reference lexer]({{ site.baseurl }}/files/reference/reference-lexer.zip), which was released with the Parser assignment.  Using the reference costs nothing and does not change your Lexer grade; you only need to declare it with one line in your readme.
+- The two activities listed under Readings above.  Part 0 assumes you have seen a hand trace of recursive descent.
+
+Set up a project folder and put a lexer in it.  Every command in this lab runs from inside this folder.
+
+> **Do this.**
+> 1. Open a terminal and create the folder, then move into it:
+>
+> ```bash
+> mkdir cs374-parser-skeleton
+> cd cs374-parser-skeleton
+> ```
+>
+> 2. Get a lexer into the folder, one of two ways:
+>    - Your own: copy your `lexer.py` (and any file it imports, such as a `tokens.py`) into `cs374-parser-skeleton/`.
+>    - The reference: download `reference-lexer.zip`, move it into `cs374-parser-skeleton/`, then unpack it and copy the two files you need up into the folder:
+>
+> ```bash
+> unzip reference-lexer.zip
+> cp lexer/lexer.py lexer/tokens.py .
+> ```
+>
+> 3. Confirm Python can import the lexer and hand you one token:
+>
+> ```bash
+> python3 -c "from lexer import Lexer; print(Lexer('42').peek())"
+> ```
+
+> **You should see.** One token printed.  With the reference lexer it is exactly the line below; with your own lexer the field names may differ, but you must see a token whose type is your number type and whose line and column are both 1.
+
+```text
+Token(type='INT', value='42', line=1, col=1, decoded=None)
+```
+
+> **If it fails.**
+> - `ModuleNotFoundError: No module named 'lexer'`: you are not inside `cs374-parser-skeleton/`, or the file is not named `lexer.py`.  Run `ls` and check.
+> - `ModuleNotFoundError: No module named 'tokens'`: the reference `lexer.py` imports `tokens.py`; copy both.
+> - `python3: command not found`: on Windows try `python` or `py` instead, and use that spelling for every command in this lab.
+
+> **Time budget.** About three hours: 20 to 30 minutes for Part 0 on paper, about 90 minutes for Part 1, and about an hour for Part 2.  Pairs usually finish faster because one person types while the other reads the grammar.
+
+### Your First 15 Minutes
+
+Get one literal through the parser before you write anything else.  This proves your lexer, your folder, and the peek/decide/consume move all work together.
+
+1. Do Part 0 on paper, or at least the trace of one function.  Ten minutes is enough for a first pass; you can refine it later.
+2. Create `parser_skeleton.py` in `cs374-parser-skeleton/` and paste in the skeleton from Step 1.1.
+3. Fill in only the number case of `parse_primary` (Step 1.2) and run the file.
+4. When you see `Num(value=42, line=1)`, swap driver and navigator and start Step 1.3.
+
+That loop, edit one case, run, read the output, is the whole workflow for Part 1.  Each remaining case is one more branch of the same `if`.
+
+---
+
 ## Part 0: Before You Start - Recursive Descent Parsing (10%)
 
 Do this part on paper before you write `parse_primary`.  You may do it alone even though the rest of this lab is pair work.
 
 Tracing one function on three tokens shows you exactly where lookahead lives.  Lookahead is the token the parser inspects without consuming, so that it can decide which rule applies.
 
-1.  Write the pseudocode for the recursive-descent function of one non-terminal in a small expression grammar.  (A non-terminal is a grammar symbol defined by rules, such as `expression` or `term`.)  Trace it by hand on a three-token input and mark every point where it looks ahead.
-2.  Find a grammar rule that would make naive recursive descent loop forever.  This is left recursion: a rule whose right-hand side begins with the same non-terminal it defines, so the function calls itself before consuming anything.  Rewrite the rule so the function terminates.
+> **Do this.**
+> 1. Write the pseudocode for the recursive-descent function of one non-terminal in a small expression grammar.  (A non-terminal is a grammar symbol defined by rules, such as `expression` or `term`.)  Trace it by hand on a three-token input and mark every point where it looks ahead.
+> 2. Find a grammar rule that would make naive recursive descent loop forever.  This is left recursion: a rule whose right-hand side begins with the same non-terminal it defines, so the function calls itself before consuming anything.  Rewrite the rule so the function terminates.
 
-Bring the trace, with the point marked where you needed more than one token of lookahead.  A trace that broke down partway is still worth bringing.  The peek/decide/consume pattern you build in Part 1 is the fix for wherever it broke.
+> **Bring to class.** The trace, with the point marked where you needed more than one token of lookahead.  A trace that broke down partway is still worth bringing.  The peek/decide/consume pattern you build in Part 1 is the fix for wherever it broke.
 
 ---
 
 ## Part 1: The First Two Tiers (63%)
 
-In `parser_skeleton.py`, first define the AST (abstract syntax tree) node dataclasses you need: `Num`, `Str`, `Bool`, `Var`, `Unary`, plus a `Grouping` node or a pass-through for parentheses.  Match the node names your grammar work uses.  Then implement two functions:
+In `parser_skeleton.py` you first define the AST (abstract syntax tree) node dataclasses you need: `Num`, `Str`, `Bool`, `Var`, `Unary`, plus a `Grouping` node or a pass-through for parentheses.  Match the node names your grammar work uses.  Then you implement two functions:
 
 - `parse_primary` handles number, string, and boolean literals; identifiers; and `( expression )`.  For this lab, a parenthesized expression may recurse into `parse_unary`; the full expression ladder arrives in the Parser assignment.
 - `parse_unary` handles `-` and `not`.  Both are right-associative and nest (`--x`, `not not ok`).  At the bottom it delegates to `parse_primary`.
 
-Both functions consume tokens only through the Lexer's `peek`, `advance`, and `expect`.  The whole ladder depends on that discipline.  Document the pattern in one sentence per function.
+Both functions consume tokens only through the Lexer's `peek`, `advance`, and `expect`.  The whole ladder depends on that discipline: if a parsing function reaches into the token list directly, every tier above it breaks when the lexer changes.  Document the pattern in one sentence per function.
+
+### Step 1.1: Define the AST nodes and the Parser stub
+
+A dataclass is a Python class where you list the fields and Python writes `__init__` and `__repr__` for you.  Each node type below holds exactly what a later stage needs to know about that piece of syntax.
+
+> **Do this.**
+> 1. Create a file named `parser_skeleton.py` in `cs374-parser-skeleton/`.
+> 2. Paste the skeleton below into it.  Read every `# TODO` before you change anything.
+> 3. Decide the one open choice (a `Grouping` node or a pass-through for parentheses) and write your decision in the comment where the TODO asks for it.
+
+The token type names in the comments are the reference lexer's (`INT`, `FLOAT`, `STRING`, `TRUE`, `FALSE`, `IDENT`, `LPAREN`, `RPAREN`, `MINUS`, `NOT`).  If your own lexer uses different names, substitute yours.
+
+```python
+"""parser_skeleton.py: the bottom two tiers of a recursive descent parser.
+
+The pattern, in one sentence per function (fill these in for Step 1.5):
+  parse_primary: TODO
+  parse_unary:   TODO
+"""
+from dataclasses import dataclass
+from typing import Any
+
+from lexer import Lexer   # your own lexer.py, or the reference one
+
+
+# --- AST nodes -------------------------------------------------------------
+
+@dataclass
+class Num:
+    value: float          # the raw lexeme converted to a Python number
+    line: int = 0         # where the literal appeared (useful in error messages)
+
+
+@dataclass
+class Str:
+    value: str            # the string's contents, without the quotes
+    line: int = 0
+
+
+@dataclass
+class Bool:
+    value: bool           # True for the token TRUE, False for FALSE
+    line: int = 0
+
+
+@dataclass
+class Var:
+    name: str             # the identifier's text
+    line: int = 0
+
+
+@dataclass
+class Unary:
+    op: str               # "-" or "not"
+    operand: Any          # another Unary, or a primary node
+
+
+# TODO (your choice): parentheses.  Either define
+#     @dataclass
+#     class Grouping:
+#         expr: Any
+# and return Grouping(inner) from parse_primary, or return the inner node
+# directly (a pass-through).  Match the node names your grammar work uses,
+# and replace this comment with one line saying which you picked and why.
+
+
+# --- Errors ----------------------------------------------------------------
+
+class ParseError(Exception):
+    """A syntax error at a known position.
+
+    str(err) reads:  ParseError at line L, col C: expected <what>, found <type>
+    """
+
+    def __init__(self, expected: str, found: str, line: int, col: int):
+        self.expected = expected
+        self.found = found
+        self.line = line
+        self.col = col
+        super().__init__(str(self))
+
+    def __str__(self) -> str:
+        return (f"ParseError at line {self.line}, col {self.col}: "
+                f"expected {self.expected}, found {self.found}")
+
+
+# --- The parser ------------------------------------------------------------
+
+class Parser:
+    """Reads tokens only through lexer.peek(), lexer.advance(), lexer.expect()."""
+
+    def __init__(self, lexer: Lexer):
+        self.lexer = lexer
+
+    def parse_primary(self):
+        """Pattern: TODO (one sentence)."""
+        tok = self.lexer.peek()      # look at the next token; do not consume it yet
+        # TODO: decide on tok.type, consume with advance() or expect(), return a node:
+        #   INT or FLOAT   -> Num(...)   convert tok.value with int() or float()
+        #   STRING         -> Str(...)   strip the quotes from tok.value (the
+        #                                reference lexer also offers tok.decoded)
+        #   TRUE or FALSE  -> Bool(...)
+        #   IDENT          -> Var(...)
+        #   LPAREN         -> consume it, parse the inside with self.parse_unary(),
+        #                     consume RPAREN, return the inside (or a Grouping)
+        #   anything else  -> raise ParseError("an expression", tok.type,
+        #                                      tok.line, tok.col)
+        raise NotImplementedError("parse_primary")
+
+    def parse_unary(self):
+        """Pattern: TODO (one sentence)."""
+        tok = self.lexer.peek()
+        # TODO: if tok.type is MINUS or NOT, consume it, call self.parse_unary()
+        #       again for the operand, and return Unary(op, operand).
+        #       Otherwise return self.parse_primary().
+        raise NotImplementedError("parse_unary")
+
+
+if __name__ == "__main__":
+    print(Parser(Lexer("42")).parse_primary())
+    # After Step 1.4, add:  print(Parser(Lexer("--42")).parse_unary())
+```
+
+> **Watch out.** The Lexer assignment's minimum token table has no `not` keyword.  If you use your own lexer, check that `not` produces its own token type (add a `NOT` rule before `IDENT` in your spec if it does not).  Otherwise `not ok` lexes as two identifiers and `parse_unary` never sees the operator.  The reference lexer already has `NOT`.
+
+### Step 1.2: Parse a number literal
+
+One case first.  When this runs, the whole chain (folder, lexer import, dataclass, peek, advance, return) is proven, and every other case is a copy of this shape.
+
+> **Do this.**
+> 1. In `parse_primary`, replace the `raise NotImplementedError` line with the `INT` (and `FLOAT`) case: check `tok.type`, call `self.lexer.advance()` to consume the token, and return `Num(int(tok.value), tok.line)` (or `float(...)` for a `FLOAT`).
+> 2. Leave the other cases for Step 1.3.
+> 3. Run the file from inside `cs374-parser-skeleton/`:
+>
+> ```bash
+> python3 parser_skeleton.py
+> ```
+
+> **You should see.** The dataclass repr of the node your parser returned for the input `42`.
+
+```text
+Num(value=42, line=1)
+```
+
+> **If it fails.**
+> - `NotImplementedError: parse_primary`: your new `if` did not match.  Print `tok.type` right after `peek()` and compare it with the name you tested.
+> - `ValueError: invalid literal for int()`: your lexer's `value` field holds something other than the raw digits.  Check what your `Token` stores.
+> - `None` prints: you built the node but forgot to `return` it.
+
+### Step 1.3: Finish parse_primary
+
+Each remaining case is the same move: look at `tok.type`, consume, return a node.  The parenthesis case is the only one that calls back up the ladder.
+
+> **Do this.**
+> 1. Add the `STRING`, `TRUE`, `FALSE`, and `IDENT` cases.  For a string, strip the two quote characters (the reference lexer's `tok.decoded` already has them removed and escapes resolved).
+> 2. Add the `LPAREN` case: consume the `(`, call `self.parse_unary()` for the inside, then consume the `)` with `self.lexer.expect("RPAREN")`.  Return the inside node, or wrap it in `Grouping` if that was your choice.
+> 3. Add the final `else`: any other token cannot start an expression, so raise `ParseError("an expression", tok.type, tok.line, tok.col)`.  Do not consume the token first; the error should point at it.
+> 4. Change the input in the `__main__` block to `"(x)"` and run again.
+
+> **You should see.** With the pass-through choice, `Var(name='x', line=1)`.  With a `Grouping` node, `Grouping(expr=Var(name='x', line=1))`.
+
+> **Watch out.** The reference lexer's `expect()` raises its own `LexError`, not your `ParseError`, when the token does not match.  That is fine for this lab: the required `ParseError` is for a token that cannot start an expression, and you detect that yourself in the `else` branch.  If you want a missing `)` to be a `ParseError` too, check `self.lexer.peek().type` before calling `expect`.
+
+### Step 1.4: Implement parse_unary
+
+`parse_unary` is the first function that calls itself.  A prefix operator applies to whatever comes after it, and whatever comes after it might be another prefix operator, so the operand is parsed by another call to `parse_unary`.  That recursion is what makes `-` and `not` right-associative and lets them nest.
+
+> **Do this.**
+> 1. In `parse_unary`, check whether `tok.type` is `MINUS` or `NOT`.
+> 2. If it is, consume it with `advance()`, call `self.parse_unary()` to parse the operand, and return `Unary("-", operand)` or `Unary("not", operand)`.
+> 3. If it is not, return `self.parse_primary()`.
+> 4. Add the second print line the `__main__` block suggests, and run:
+>
+> ```bash
+> python3 parser_skeleton.py
+> ```
+
+> **You should see.** Two lines: your Step 1.3 result, then a `Unary` nested inside a `Unary`, which shows that `--42` built two levels.
+
+```text
+Var(name='x', line=1)
+Unary(op='-', operand=Unary(op='-', operand=Num(value=42, line=1)))
+```
+
+> **If it fails.**
+> - `RecursionError`: you called `parse_unary()` without consuming the operator first, so every call sees the same `-`.  Consume, then recurse.
+> - Only one `Unary` level appears: you called `parse_primary()` for the operand instead of `parse_unary()`.
+> - `not ok` gives `Var(name='not', ...)`: your lexer has no `NOT` token; see the Watch out box in Step 1.1.
+
+### Step 1.5: Document the pattern
+
+> **Do this.**
+> 1. Replace the two `TODO` docstrings, and the matching lines in the module docstring, with one sentence each that states the peek/decide/consume pattern as that function uses it.
+> 2. Confirm with a search of your file that neither function touches the lexer through anything other than `peek`, `advance`, and `expect`.
+
+> **Checkpoint.** `python3 parser_skeleton.py` prints both lines from Step 1.4, `(x)`, `"hi"`, `true`, and `not not ok` all produce the node you expect, and each function has a one-sentence pattern docstring.  Swap driver and navigator before Part 2.
+
+---
 
 ## Part 2: Tests and Errors (27%)
 
-In `test_skeleton.py`, write tree-shape tests.  A tree-shape test asserts on node types and fields, for example `isinstance(node, Unary)`, `node.op == "-"`, and `node.operand.value == 42`.  Never compare printed strings.  Cover every primary form and at least two nested unary cases.
+In `test_skeleton.py`, you write tree-shape tests.  A tree-shape test asserts on node types and fields, for example `isinstance(node, Unary)`, `node.op == "-"`, and `node.operand.value == 42`.  Never compare printed strings: a `repr` changes whenever you add a field, but the shape of the tree is what the interpreter will walk.  Cover every primary form and at least two nested unary cases.
 
 Then make failure informative.  Parsing an input that cannot start an expression (for example, `;`) must raise a `ParseError` that states what was expected, what was found, and the line and column of the offending token.
+
+### Step 2.1: Write tree-shape tests
+
+> **Do this.**
+> 1. Create `test_skeleton.py` next to `parser_skeleton.py` and paste in the skeleton below.
+> 2. `test_number` is complete; use it as the model.  Write one test per primary form (string, boolean, identifier, parenthesized) with the suggested names.
+> 3. Finish `test_double_negation`, then add `test_double_not` for `not not ok` and `test_paren_unary_operand` for `-(x)`, a parenthesized expression as a unary operand.
+> 4. Run the tests:
+>
+> ```bash
+> python3 test_skeleton.py
+> ```
+
+```python
+"""test_skeleton.py: tree-shape tests for parse_primary and parse_unary."""
+from lexer import Lexer
+from parser_skeleton import Parser, ParseError, Num, Str, Bool, Var, Unary
+
+
+def parse(src: str):
+    """Parse one expression from src through the top tier of this lab."""
+    return Parser(Lexer(src)).parse_unary()
+
+
+def test_number():
+    node = parse("42")
+    assert isinstance(node, Num), f"expected Num, got {type(node).__name__}"
+    assert node.value == 42
+
+
+# TODO: one test per remaining primary form, asserting on node types and
+#       fields, never on str(node):
+#         test_string         parse('"hi"')  -> Str with value "hi"
+#         test_boolean        parse("true")  -> Bool with value True
+#         test_identifier     parse("x")     -> Var with name "x"
+#         test_parenthesized  parse("(x)")   -> the node your Step 1.3 choice returns
+
+
+def test_double_negation():
+    node = parse("--x")
+    # TODO: assert node is a Unary with op "-", node.operand is a Unary with
+    #       op "-", and node.operand.operand is a Var named "x".
+    raise NotImplementedError("test_double_negation")
+
+
+# TODO: test_double_not for "not not ok", and test_paren_unary_operand for
+#       "-(x)" (a Unary whose operand came through the parenthesis case).
+
+
+def test_bad_start_raises_parse_error():
+    try:
+        parse(";")
+    except ParseError as err:
+        # TODO: assert err.line == 1 and err.col == 1, and that str(err)
+        #       names both what was expected and what was found (SEMICOLON).
+        return
+    assert False, "parse(';') did not raise ParseError"
+
+
+if __name__ == "__main__":
+    import sys
+    tests = [fn for name, fn in sorted(globals().items()) if name.startswith("test_")]
+    failed = 0
+    for fn in tests:
+        try:
+            fn()
+            print(f"PASS {fn.__name__}")
+        except Exception as err:
+            failed += 1
+            print(f"FAIL {fn.__name__}: {err}")
+    sys.exit(1 if failed else 0)
+```
+
+> **You should see.** One line per test, in alphabetical order, every one beginning `PASS`.  With the suggested names the full run is nine lines.
+
+```text
+PASS test_bad_start_raises_parse_error
+PASS test_boolean
+PASS test_double_negation
+PASS test_double_not
+PASS test_identifier
+PASS test_number
+PASS test_paren_unary_operand
+PASS test_parenthesized
+PASS test_string
+```
+
+> **If it fails.**
+> - A `FAIL` line ending in `NotImplementedError`: that test still has its TODO body.
+> - `FAIL test_parenthesized: expected Var, got Grouping` (or the reverse): the test and Step 1.3 disagree about the parenthesis choice.  Pick one and make both match.
+> - `ImportError` naming `Grouping`: you chose the pass-through, so do not import a node you did not define.
+
+### Step 2.2: Make failure informative
+
+A bare Python exception tells the user that something broke.  A positioned `ParseError` tells them which token, where, and what would have been legal instead.  That difference is most of what makes a language usable.
+
+> **Do this.**
+> 1. Finish `test_bad_start_raises_parse_error`: assert the line and column are both 1 and that `str(err)` contains both the expected description and `SEMICOLON`.
+> 2. Confirm the message reads in full, from a Python prompt or a throwaway script:
+>
+> ```bash
+> python3 -c "from lexer import Lexer; from parser_skeleton import Parser; Parser(Lexer(';')).parse_unary()"
+> ```
+
+> **You should see.** A traceback whose last line is your positioned error.
+
+```text
+parser_skeleton.ParseError: ParseError at line 1, col 1: expected an expression, found SEMICOLON
+```
+
+> **If it fails.**
+> - The last line is a `LexError`: the `;` never reached your parser, so your lexer does not recognize it.  Add a `SEMICOLON` rule, or test with another token your lexer does know, such as `)`.
+> - The last line is `NotImplementedError`: the `else` branch from Step 1.3 is missing.
+> - The column is wrong: you consumed the bad token before raising.  Raise on the peeked token.
 
 ---
 
 ## Deliverables
 
 Submit a ZIP containing `parser_skeleton.py`, `test_skeleton.py` with its passing output captured, and a readme line naming both partners and stating whether you built on your own Lexer or the reference.
+
+| File or artifact | What it shows | Rubric row |
+|------------------|---------------|------------|
+| `parser_skeleton.py` | The five node dataclasses, the parenthesis choice, `Parser` with `parse_primary` and `parse_unary`, and a one-sentence pattern per function | The First Two Tiers |
+| `test_skeleton.py` | Tree-shape tests for every primary form, at least two nested unary cases, and the positioned `ParseError` test | Tests and Errors |
+| Captured test output (for example `test_output.txt`) | The tests pass on the lexer you chose | Tests and Errors |
+| Readme line | Both partners' names, and whether you built on your own Lexer or the reference | Deliverable requirement |
+| Part 0 trace, on paper | Pseudocode traced on three tokens with lookahead marked; the left-recursive rule rewritten | Part 0 |
+
+To capture the output, run the tests and send what they print into a file instead of the screen (that is what `>` does), then check the file:
+
+```bash
+python3 test_skeleton.py > test_output.txt
+cat test_output.txt
+```
+
+---
+
+## Self-Check Before You Submit
+
+- [ ] `parse_primary` returns a node for a number, a string, a boolean, an identifier, and a parenthesized expression.
+- [ ] `parse_unary` builds two nested `Unary` nodes for `--x` and for `not not ok`, and handles `-(x)`.
+- [ ] Neither function touches the lexer except through `peek`, `advance`, and `expect`.
+- [ ] Each of the two functions has a one-sentence docstring stating the peek/decide/consume pattern.
+- [ ] Every test asserts on node types and fields; no test compares `str(node)` or `repr(node)` to a string.
+- [ ] Parsing `;` raises a `ParseError` whose message includes what was expected, what was found, and line 1, col 1.
+- [ ] The captured test output shows every test passing.
+- [ ] The readme names both partners and says which lexer you built on.
+
+---
 
 ## Grading Breakdown
 
@@ -103,6 +506,8 @@ This lab is worth 15 points, as the course schedule states.  Each part's weight 
 | Part 1: The First Two Tiers | 63% |
 | Part 2: Tests and Errors | 27% |
 | **Total** | **100% (15 points)** |
+
+---
 
 ## Reflection Prompts
 

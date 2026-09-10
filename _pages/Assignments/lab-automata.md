@@ -56,9 +56,9 @@ tags:
 
 ---
 
-In this lab you build the machines beneath your lexer: general simulators for deterministic finite automata (DFAs) and nondeterministic finite automata (NFAs).  A finite automaton is a small machine that reads a string one symbol at a time, moves between states, and accepts or rejects the string at the end.  A DFA has exactly one next state for each state and symbol.  An NFA may have several next states, or none, and it may move without reading a symbol at all.  Your simulators read each machine's definition from a data file instead of hard-coding it.  You also design one machine of each kind and trace two classic constructions by hand.
+In this lab you build the machines beneath your lexer: general simulators for deterministic finite automata (DFAs) and nondeterministic finite automata (NFAs).  A finite automaton is a small machine that reads a string one symbol at a time, moves between states, and accepts or rejects the string when the input runs out.  A DFA has exactly one next state for each state and symbol.  An NFA may have several next states, or none, and it may move without reading a symbol at all.  Your simulators read each machine's definition from a JSON data file instead of hard-coding it, so one program runs every machine you or I hand it.  You also design one machine of each kind and trace two classic constructions by hand.
 
-The simulators are short programs, and you can check them against the worked traces below.  The constructions are paper exercises, so there is no code to write for those.
+The simulators are short programs, and you can check them against the worked traces on this page.  The constructions in Parts 0 and 3 are paper exercises, so there is no code to write for those.  You leave with a working DFA and NFA engine, two machines you designed yourself, and a by-hand feel for the two algorithms that turn regular expressions into the tables inside every lexer generator.
 
 **Pair policy.**  You may do this lab in pairs.  Work together at one screen, or split the DFA and NFA halves and review each other's work.  Either way, both of you submit the same ZIP, each naming the other in the writeup, and you both earn the same grade.  You may also work alone if you prefer.  Unlike the programming assignments, no individual-work certification is required here; the reflection asks who did what instead.
 
@@ -70,10 +70,25 @@ Do this part on paper before you write any simulator code.  You may do it alone 
 
 A regular expression and a finite automaton are two ways to describe the same set of strings.  Building both for one language of your own is the fastest way to see that they agree.
 
-1.  Write a regular expression for a token class of your choice, such as identifiers or floating-point literals.  Then draw an NFA that accepts the same language.
-2.  Convert a small NFA from the reading to a DFA by hand using the subset construction, the algorithm that makes one DFA state for each set of NFA states the machine could be in at once.  Work through two or three input symbols.  Name one string the resulting DFA accepts.
+### Step 0.1: Write a Regular Expression and a Matching NFA
 
-Bring the construction even if it stalled, and mark the subset-construction step where the state set stopped being obvious.  That stall is the useful part: Part 2 of this lab has you automate exactly that step.  Subset construction by hand is tedious exactly once; after that it is a tool you have.
+> **Do this.**
+> 1. Pick a token class, such as identifiers or floating-point literals.
+> 2. Write a regular expression for it.
+> 3. Draw an NFA that accepts the same language.  Mark the start state with an incoming arrow and each accepting state with a double circle.
+> 4. Check both against two strings the class should accept and two it should not.  The regex and the NFA must agree on all four.
+
+### Step 0.2: Convert a Small NFA to a DFA by Hand
+
+The subset construction is the algorithm that makes one DFA state for each set of NFA states the machine could be in at once.  You will automate it in Part 2 and trace it in full in Part 3, so a short first pass here pays off twice.
+
+> **Do this.**
+> 1. Take a small NFA from the Finite Automata activity in the readings.
+> 2. Apply the subset construction over two or three input symbols.  Each DFA state is a set of NFA states; write each set out in full.
+> 3. Name one string the resulting DFA accepts.
+> 4. If the state set stopped being obvious at some step, circle that step and write one line saying what got hard.
+
+> **Bring to class.** Bring the construction even if it stalled, with the stalling step marked.  That stall is the useful part: Part 2 of this lab has you automate exactly that step.  Subset construction by hand is tedious exactly once; after that it is a tool you have.  When you assemble your submission, put this page in `writeup.md` under a Part 0 heading (a photo of the paper is fine).
 
 ---
 
@@ -81,29 +96,78 @@ Bring the construction even if it stalled, and mark the subset-construction step
 
 ### Environment and Setup
 
-You need Python 3.10 or newer and only the standard library (the `json` module reads the machine files).  Create the layout from the Deliverables section before you start:
+You need:
 
+- Python 3.10 or newer.  Only the standard library is used (the `json` module reads the machine files), so there is nothing to install.
+- A terminal and an editor such as VS Code.  If the terminal is new to you, read the [dev environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) and the [shell primer]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) first; they cover every command on this page.
+- Your Part 0 paper work, so you have a machine in mind when you meet the JSON format.
+
+Confirm your Python version:
+
+```bash
+python3 --version
 ```
-simulator.py       # loader, run_dfa, run_nfa, CLI
-machines/          # one JSON file per machine
-writeup.md         # construction traces and reflection
+
+```text
+Python 3.11.4
 ```
+
+Any version 3.10 or newer works; your exact digits will differ.  If the command is not found, try `python --version` instead, and use whichever name works for the rest of this page.
+
+> **Do this.**
+> 1. Create a project folder with a `machines/` folder inside it, then move into it:
+>
+> ```bash
+> mkdir -p cs374-automata/machines
+> cd cs374-automata
+> ```
+>
+> 2. Open the folder in your editor and create two empty files at the top level, `simulator.py` and `writeup.md`.  You fill both in as you go.
+
+Your folder looks like this when the lab is done:
+
+```text
+cs374-automata/
+  simulator.py       # loader, run_dfa, eps_closure, run_nfa, CLI
+  machines/          # one JSON file per machine
+  writeup.md         # Part 0 work, construction traces, and reflection
+```
+
+> **Time budget.** One focused session with your partner covers Parts 1 and 2; plan on about three hours.  The paper work in Parts 0 and 3 fits in a second, shorter sitting of about an hour.  Write the reflection as you go rather than at the end.
 
 ### Your First 15 Minutes
 
-Start with a machine, not with the simulator.  Copy the two-state parity machine JSON from Part 1 into `machines/even_ones.json`.  Then write the smallest possible `run_dfa`:
+Start with a machine, not with the simulator.  The smallest program that runs one machine is ten lines, and once it works, everything else in Part 1 is wrapping.
 
-```python
-import json, sys
+> **Do this.**
+> 1. Copy the parity machine JSON from Step 1.1 into `machines/even_ones.json`.
+> 2. Put this ten-line core in `simulator.py`:
+>
+> ```python
+> import json, sys
+>
+> machine = json.load(open("machines/even_ones.json"))
+> state = machine["start"]
+> for symbol in sys.argv[1]:
+>     state = machine["delta"][state][symbol]
+> print("accept" if state in machine["accept"] else "reject")
+> ```
+>
+> 3. Run it twice from inside the `cs374-automata` folder:
+>
+> ```bash
+> python3 simulator.py 0110
+> python3 simulator.py 100
+> ```
 
-machine = json.load(open("machines/even_ones.json"))
-state = machine["start"]
-for symbol in sys.argv[1]:
-    state = machine["delta"][state][symbol]
-print("accept" if state in machine["accept"] else "reject")
-```
+> **You should see.** `accept` for the first command and `reject` for the second.  Both match the traces in Step 1.1.
 
-Run `python simulator.py 0110` (accept) and `python simulator.py 101` (reject).  Both match the traces shown in Part 1.  Once this ten-line core works, the rest of Part 1 is wrapping it in validation and `--trace`.  The heart of it is already right.
+Once this core works, the rest of Part 1 is wrapping it in validation, a machine-file argument, and `--trace`.  The heart of it is already right.
+
+> **If it fails.**
+> - `FileNotFoundError`: you ran the command from a different folder.  `cd` into `cs374-automata` and try again.
+> - `KeyError: '2'` or similar: the string contains a symbol the machine does not know.  The full simulator in Step 1.3 turns this crash into a polite reject.
+> - `json.decoder.JSONDecodeError`: a missing comma or quote in the JSON file.  The message names the line.
 
 ### Suggested Pacing
 
@@ -119,7 +183,7 @@ This lab follows the class material on regular expressions and finite automata; 
 
 ## Part 1: DFA Simulation and Design (36%)
 
-### Machine Format
+### Step 1.1: Read the Machine Format and Encode the Parity Machine
 
 Every machine is a JSON (JavaScript Object Notation) file with these keys:
 
@@ -133,7 +197,18 @@ Every machine is a JSON (JavaScript Object Notation) file with these keys:
 
 For a DFA, `delta` is a nested object: `delta[state][symbol]` gives the next state.  Every (state, symbol) pair over the alphabet must appear.
 
-Here is the two-state parity machine for "even number of 1s":
+Here is the two-state parity machine for "even number of 1s", first as a state diagram and then as the JSON you type in.  In the diagram, `start -->` marks the start state, double parentheses mark an accepting state, and each arrow carries the symbol that triggers it.
+
+```text
+             0                        0
+           +----+                   +----+
+           |    |                   |    |
+           |    v         1         |    v
+  start -->((even))--------------->( odd )
+              ^                       |
+              |           1           |
+              +-----------------------+
+```
 
 ```json
 {
@@ -148,39 +223,176 @@ Here is the two-state parity machine for "even number of 1s":
 }
 ```
 
-Trace on `"0110"`: even -> even -> odd -> even -> even.  Accepts. yes  
-Trace on `"101"`: even -> odd -> even -> odd.  Rejects. yes
+Every arrow in the diagram is one entry in `delta`.  The `1` arrow from `even` to `odd` is the `"1": "odd"` inside `"even"`, and the `0` loop on `even` is `"0": "even"`.  The double parentheses are the `accept` list, and the `start -->` arrow is the `start` key.  Nothing in the picture is missing from the file, and nothing in the file is missing from the picture.
 
-### Step 1a: Loader and DFA Simulator
+> **Do this.**
+> 1. If you skipped Your First 15 Minutes, save the JSON above as `machines/even_ones.json` now.
+> 2. Trace `"0110"` and `"100"` through the diagram with your finger before you trust the program to do it.
 
-Write `load_machine(path)`.  It reads a JSON file and checks that the start state, the accept states, and every transition refer only to declared states and alphabet symbols.  Collect all validation errors and raise a single `MachineError` that lists them.
+> **You should see.** Two traces that match these:
+>
+> ```text
+> "0110": even -> even -> odd -> even -> even    accept
+> "100":  even -> odd -> odd -> odd              reject
+> ```
 
-Then implement `run_dfa(machine, s) -> bool` with these rules:
-- Any symbol in `s` that is not in the machine's alphabet is an immediate reject.  Print a reason; do not crash.
-- The empty string `""` is valid input.  It tests whether the start state is an accept state.
-- With the `--trace` flag, print the current state after each symbol.
+### Step 1.2: Write the Loader
 
-Test against the parity machine above (provided) with at least four accepted strings and four rejected strings.
+A wrong machine file is the most common bug in this lab.  A loader that checks the file once, up front, and names every problem at the same time saves you from chasing a `KeyError` deep inside the simulator.
 
-### Step 1b: One DFA Design
+> **Do this.**
+> 1. Replace the ten-line core in `simulator.py` with the skeleton below and fill in the `# TODO` lines.
+> 2. `load_machine(path)` reads a JSON file and checks that the start state, the accept states, and every transition refer only to declared states and alphabet symbols.
+> 3. Collect every validation error into a list and raise a single `MachineError` that lists them, one per line.  Do not stop at the first one.
 
-Design the DFA below, encode it as JSON, and annotate each state with one sentence saying what it "remembers":
+```python
+import json
+import sys
 
-**DFA, Ends in ab:** strings over `{a, b}` that end with the suffix `ab`.  
+
+class MachineError(Exception):
+    """Raised by load_machine with every validation problem listed at once."""
+
+
+def is_nfa(machine):
+    # An NFA's delta values are lists of states; a DFA's are objects (Part 2).
+    return any(isinstance(v, list) for v in machine["delta"].values())
+
+
+def load_machine(path):
+    with open(path) as f:
+        machine = json.load(f)
+    errors = []
+    states = set(machine["states"])
+    alphabet = set(machine["alphabet"])
+    # TODO: the start state must be in states
+    # TODO: every accept state must be in states
+    # TODO: DFA: every delta[state][symbol] must name a declared state, and
+    #       every (state, symbol) pair over the alphabet must appear
+    # TODO: NFA: every "state,symbol" key must split into a declared state and
+    #       either an alphabet symbol or "eps"; every target must be declared
+    if errors:
+        raise MachineError("\n".join(errors))
+    return machine
+```
+
+> **Watch out.** The loader has to accept both `delta` shapes.  A DFA's `delta` is an object of objects.  An NFA's `delta` (Part 2) has `"state,symbol"` keys with list values, and the symbol half may be the special word `eps`.  Write the check so `eps` passes for an NFA and nothing else outside the alphabet does.
+
+Check the loader against the good file first, then against a broken one:
+
+```bash
+python3 -c "import simulator; simulator.load_machine('machines/even_ones.json')"
+```
+
+> **You should see.** Nothing at all.  Silence means the file passed.  Now open `machines/even_ones.json`, change `"accept": ["even"]` to `"accept": ["evn"]`, save, and run the same command again.  This time you should see a traceback that ends with a line like `simulator.MachineError: accept state 'evn' is not a declared state` (your wording may differ).  Put `"even"` back before you continue.
+
+### Step 1.3: Write `run_dfa` and the Command Line
+
+The ten-line core crashed on a symbol it did not know and had the machine path hard-coded.  This step fixes both and adds trace mode, so you can watch the machine move.
+
+> **Do this.**
+> 1. Add `run_dfa(machine, s, trace=False) -> bool` below the loader, with these rules:
+>    - Any symbol in `s` that is not in the machine's alphabet is an immediate reject.  Print a reason; do not crash.
+>    - The empty string `""` is valid input.  It tests whether the start state is an accept state.
+>    - With `trace` on, print the current state after each symbol.
+> 2. Add a `main` that takes the machine path and the input string from the command line and honors a `--trace` flag.
+
+```python
+def run_dfa(machine, s, trace=False):
+    state = machine["start"]
+    if trace:
+        print(f"start: {state}")
+    for symbol in s:
+        # TODO: if symbol is not in the alphabet, print a reason and return False
+        # TODO: move to machine["delta"][state][symbol]
+        # TODO: if trace, print f"read {symbol} -> {state}"
+        pass
+    return state in machine["accept"]
+
+
+def main(argv):
+    # Usage: python3 simulator.py <machine.json> <string> [--trace]
+    trace = "--trace" in argv
+    args = [a for a in argv if a != "--trace"]
+    machine = load_machine(args[0])
+    s = args[1] if len(args) > 1 else ""
+    run = run_nfa if is_nfa(machine) else run_dfa   # run_nfa arrives in Part 2
+    print("accept" if run(machine, s, trace) else "reject")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
+```
+
+Try all three rules:
+
+```bash
+python3 simulator.py machines/even_ones.json 0110 --trace
+python3 simulator.py machines/even_ones.json ""
+python3 simulator.py machines/even_ones.json 0120
+```
+
+> **You should see.** For the first command, one state per symbol and then the verdict:
+>
+> ```text
+> start: even
+> read 0 -> even
+> read 1 -> odd
+> read 1 -> even
+> read 0 -> even
+> accept
+> ```
+>
+> For the empty string, `accept` on its own, because the start state `even` is accepting.  For the third command, a one-line reason such as `reject: symbol '2' is not in the alphabet` followed by `reject`, and no traceback.
+
+> **Checkpoint.** Test against the parity machine with at least four accepted strings and four rejected strings.  Record each string and its result in `writeup.md` under a heading for the machine, so I can see the tests you ran.
+
+### Step 1.4: Design the Ends-in-ab DFA
+
+Designing a DFA means deciding what each state needs to remember.  For this language the answer is short: how much of the suffix `ab` has the machine seen most recently?
+
+> **Do this.**
+> 1. Design a DFA for **Ends in ab**: strings over `{a, b}` that end with the suffix `ab`.
+> 2. Draw it on paper first, then encode it as `machines/ends_in_ab.json` in the same format as the parity machine.
+> 3. In `writeup.md`, annotate each state with one sentence saying what it "remembers" about the input so far.
+> 4. Test with at least four accepted and four rejected strings, and record them in the writeup next to the state annotations.
+
 Worked example: `"aab"` -> accept; `"ba"` -> reject; `"ab"` -> accept; `""` -> reject.  
-Hint: you need at least three states: track what suffix of `ab` has been seen most recently.
+Hint: you need at least three states.  Track what suffix of `ab` has been seen most recently.
 
-Test with at least four accepted and four rejected strings.
+```bash
+python3 simulator.py machines/ends_in_ab.json aab
+python3 simulator.py machines/ends_in_ab.json ba
+python3 simulator.py machines/ends_in_ab.json ""
+```
+
+> **You should see.** `accept`, `reject`, `reject`.  If the empty string accepts, your start state is marked accepting; the empty string does not end in `ab`.
+
+> **If it fails.**
+> - `MachineError` naming a missing (state, symbol) pair: a DFA needs a transition out of every state on both `a` and `b`, including the "just saw `ab`" state.
+> - `"abb"` accepts: after `ab`, reading `b` must forget the suffix entirely, not step back one state.
+> - `"aab"` rejects: after `a`, reading another `a` must stay in the "just saw `a`" state, because the newer `a` could still start the suffix.
 
 ---
 
 ## Part 2: NFA Simulation and Design (36%)
 
-### NFA Machine Format
+### Step 2.1: Read the NFA Machine Format
 
-For an NFA, `delta` maps `"state,symbol"` string keys to lists of states.  The special symbol `"eps"` marks an epsilon (ε) transition, a move the machine may take without reading any input.  A state may have zero or more targets for any symbol.
+For an NFA, `delta` maps `"state,symbol"` string keys to lists of states.  The special symbol `"eps"` marks an epsilon (ε) transition, a move the machine may take without reading any input.  A state may have zero or more targets for any symbol.  The `states`, `alphabet`, `start`, and `accept` keys work as they do for a DFA; do not list `eps` in `alphabet`, because it is a transition label, not an input symbol.
 
-Example fragment:
+Here is a fragment of an NFA, as a diagram and then as JSON.  The fragment does not say which states accept, so none are double-circled.
+
+```text
+            a
+          +----+
+          |    |
+          |    v        a               b
+  ... -->( q0 )--------------->( q1 )--------------->( q2 )
+            |                                          ^
+            |                  eps                     |
+            +------------------------------------------+
+```
 
 ```json
 "delta": {
@@ -190,30 +402,133 @@ Example fragment:
 }
 ```
 
-### Step 2a: Epsilon-Closure and NFA Simulator
+The `a` arrows out of `q0` go two ways, so `"q0,a"` lists two targets: that is the nondeterminism.  The `eps` arrow from `q0` to `q2` is `"q0,eps": ["q2"]`.  Pairs with no arrow (`q1` on `a`, or `q2` on anything) simply have no key, so read transitions with `machine["delta"].get(key, [])` and a missing key means "no moves" instead of a `KeyError`.
 
-Implement `eps_closure(machine, states) -> frozenset`.  The epsilon-closure of a set of states is every state you can reach from that set by following only `"eps"` transitions, including the starting states themselves.  It is a small graph reachability computation:
+### Step 2.2: Implement the Epsilon-Closure
+
+The epsilon-closure of a set of states is every state you can reach from that set by following only `"eps"` transitions, including the starting states themselves.  It is a small graph reachability computation:
 
 1.  Start with the given set of states.
 2.  Follow every `"eps"` transition out of the set and add the targets.
 3.  Repeat until no new state appears.
 
-Handle cycles.  A state may epsilon-transition back to itself or to a predecessor, and your loop must still stop.
+Handle cycles.  A state may epsilon-transition back to itself or to a predecessor, and your loop must still stop.  The check "is this target already in the closure?" is the whole of cycle detection.
 
 Example: If `q0 -ε-> q1`, `q1 -ε-> q2`, and `q2 -ε-> q0`, then `eps_closure(m, {"q0"}) = {"q0", "q1", "q2"}`.
 
-Then implement `run_nfa(machine, s) -> bool`:
+> **Do this.**
+> 1. Add `eps_closure(machine, states) -> frozenset` to `simulator.py` and fill in the `# TODO` lines.  It returns a `frozenset` so a closure can sit inside another set later.
+> 2. Save the three-state cycle below as `machines/eps_cycle.json`.  It is a test machine only; you do not need to submit it.
+> 3. Run the check command.
+
+```python
+def eps_closure(machine, states):
+    """Every state reachable from `states` by eps moves alone, including `states`."""
+    closure = set(states)
+    frontier = list(states)   # states whose eps edges you have not followed yet
+    while frontier:
+        state = frontier.pop()
+        # TODO: look up machine["delta"].get(f"{state},eps", [])
+        # TODO: for each target not already in closure, add it and push it on frontier
+        pass
+    return frozenset(closure)
+```
+
+```json
+{
+  "states": ["q0", "q1", "q2"],
+  "alphabet": ["a"],
+  "start": "q0",
+  "accept": ["q2"],
+  "delta": {
+    "q0,eps": ["q1"],
+    "q1,eps": ["q2"],
+    "q2,eps": ["q0"]
+  }
+}
+```
+
+```bash
+python3 -c "import simulator as s; m = s.load_machine('machines/eps_cycle.json'); print(sorted(s.eps_closure(m, {'q0'})))"
+```
+
+> **You should see.**
+>
+> ```text
+> ['q0', 'q1', 'q2']
+> ```
+
+> **If it fails.**
+> - The command never finishes: you push targets onto the frontier without checking whether they are already in the closure, so the cycle `q0 -> q1 -> q2 -> q0` runs forever.  Press Ctrl+C to stop it.
+> - `['q0']` only: you read `delta["q0,eps"]` once instead of following eps edges out of every newly added state.
+> - `MachineError` mentioning `eps`: your loader from Step 1.2 rejects `eps` as an unknown symbol.  Allow it for NFAs.
+
+### Step 2.3: Implement `run_nfa`
+
+A DFA is in one state at a time.  An NFA is in a set of states at a time, and `run_nfa` tracks that set.  The algorithm is:
+
 1.  Compute the epsilon-closure of `{start}` as the initial set of active states.
 2.  For each symbol in `s`, take the union of all `delta["state,symbol"]` lists over all active states, then take the epsilon-closure of that union.
 3.  Accept if the final active set shares at least one state with the accept set.
 
-### Step 2b: One NFA Design
+> **Do this.**
+> 1. Add `run_nfa(machine, s, trace=False) -> bool` below `eps_closure` and fill in the `# TODO` lines.
+> 2. `main` from Step 1.3 already picks `run_nfa` when `is_nfa` says so; nothing there changes.
+> 3. With `trace` on, print the sorted active set after each symbol, the NFA counterpart of the single state a DFA prints.
 
-Design the NFA below, encode it as JSON, and test it with at least four accepted and four rejected strings:
+```python
+def run_nfa(machine, s, trace=False):
+    active = eps_closure(machine, {machine["start"]})
+    if trace:
+        print(f"start: {sorted(active)}")
+    for symbol in s:
+        # TODO: union machine["delta"].get(f"{state},{symbol}", []) over every state in active
+        # TODO: active = eps_closure(machine, that union)
+        # TODO: if trace, print f"read {symbol} -> {sorted(active)}"
+        pass
+    return any(state in machine["accept"] for state in active)
+```
 
-**NFA, Contains aa:** strings over `{a, b}` containing the substring `aa` somewhere.  
+Smoke-test it on the cycle machine from Step 2.2 before you design anything:
+
+```bash
+python3 simulator.py machines/eps_cycle.json ""
+python3 simulator.py machines/eps_cycle.json a
+```
+
+> **You should see.** `accept`, then `reject`.  The empty string accepts because the epsilon-closure of `q0` already contains the accepting state `q2`.  The string `a` rejects because no state has an `a` move, so the active set becomes empty and stays empty.  An empty active set is a reject, never a crash.
+
+### Step 2.4: Design the Contains-aa NFA
+
+An NFA lets you guess.  For this language the guess is "the `aa` starts here," and the machine keeps every guess alive at once.
+
+> **Do this.**
+> 1. Design an NFA for **Contains aa**: strings over `{a, b}` containing the substring `aa` somewhere.
+> 2. Encode it as `machines/contains_aa.json`.
+> 3. Test with at least four accepted and four rejected strings, and record them in `writeup.md`.
+> 4. Include the `--trace` output for at least one accepted string in the writeup, so the execution path is visible.
+
 Worked example: `"baaab"` -> accept; `"ababab"` -> reject.  
-Hint: nondeterministically guess where `aa` occurs: your design should really use nondeterminism, not be a DFA in disguise.
+Hint: nondeterministically guess where `aa` occurs.  Your design should really use nondeterminism, not be a DFA in disguise.
+
+> **Watch out.** At least one `"state,symbol"` key in your JSON should list two or more targets.  If every list has exactly one entry and there is no `eps` key, you have written a DFA in NFA clothing.
+
+```bash
+python3 simulator.py machines/contains_aa.json baaab --trace
+python3 simulator.py machines/contains_aa.json ababab
+```
+
+> **You should see.** A trace whose active set grows when the machine guesses that an `a` starts the `aa`, then `accept`; and `reject` for `ababab`.  Your state names will differ, but the shape looks like this:
+>
+> ```text
+> start: ['q0']
+> read b -> ['q0']
+> read a -> ['q0', 'q1']
+> read a -> ['q0', 'q1', 'q2']
+> read a -> ['q0', 'q1', 'q2']
+> read b -> ['q0', 'q2']
+> accept
+> ```
 
 ---
 
@@ -221,47 +536,82 @@ Hint: nondeterministically guess where `aa` occurs: your design should really us
 
 These are paper exercises in your writeup, with no code.  The class sessions covered both algorithms.  Here you trace each once on a small example, so you have run by hand what lexer-generator tools automate.
 
-### Step 3a: Subset Construction Trace
+### Step 3.1: Trace the Subset Construction
 
-Apply the subset construction to your Contains aa NFA from Part 2 to produce an equivalent DFA.  Draw the construction table:
+> **Do this.**
+> 1. Apply the subset construction to your Contains aa NFA from Part 2 to produce an equivalent DFA.
+> 2. Fill in the construction table below in `writeup.md`, one row per powerset state.
+> 3. Record how many DFA states result.
 
-| Powerset State | on `a` | on `b` | Accepting? |
-|----------------|--------|--------|------------|
-| {q0} | ... | ... | No/Yes |
-| ... | | | |
+The algorithm:
 
 1.  Start with `eps_closure({start})` as the first powerset state.
 2.  For each powerset state you have not yet processed, compute its transitions on each symbol and epsilon-close the results.  Each result is a new row if you have not seen it before.
 3.  Mark a powerset state as accepting if it contains any NFA accept state.
 4.  Continue until every powerset state has been processed.
 
-Record how many DFA states result.
+> **Paste into your submission.** Copy this table into `writeup.md` and fill it in.
 
-### Step 3b: Thompson's Construction Trace
+| Powerset State | on `a` | on `b` | Accepting? |
+|----------------|--------|--------|------------|
+| {q0} | ... | ... | No/Yes |
+| ... | | | |
 
-Apply Thompson's construction to the regular expression `a(b|c)*`.  Show each sub-expression and its fragment, labeling every state and every ε-transition:
-1.  Fragment for `a`.
-2.  Fragments for `b` and `c`.
-3.  Fragment for `b|c` (union).
-4.  Fragment for `(b|c)*` (Kleene star).
-5.  Concatenation: `a` then `(b|c)*`.
+> **Checkpoint.** Your simulator can confirm your table.  Run `python3 simulator.py machines/contains_aa.json <string> --trace` for a few strings and compare each printed active set against the row you land on.  Every set the trace prints should be one of your powerset states, and the arrows between them should match your `on a` and `on b` columns.
+
+### Step 3.2: Trace Thompson's Construction
+
+Thompson's construction turns a regular expression into an NFA one operator at a time, gluing small fragments together with ε-transitions.
+
+> **Do this.**
+> 1. Apply Thompson's construction to the regular expression `a(b|c)*` in `writeup.md`.
+> 2. Show each sub-expression and its fragment, labeling every state and every ε-transition, in this order:
+>    1. Fragment for `a`.
+>    2. Fragments for `b` and `c`.
+>    3. Fragment for `b|c` (union).
+>    4. Fragment for `(b|c)*` (Kleene star).
+>    5. Concatenation: `a` then `(b|c)*`.
 
 For reference, the fragment rules are:
+
 - A single character: a start state and an accept state joined by one transition labeled with that character.
 - Concatenation of A then B: connect A's accept to B's start with ε.
 - Union of A and B: add a new start with ε to both fragments' starts, and ε from both accepts to a new shared accept.
 - Kleene star of A: add a new start with ε to A's start and to a new accept, plus ε from A's accept back to A's start and on to the new accept.
 
+### Step 3.3: Connect the Simulators to Your Lexer
+
+> **Do this.**
+> 1. Write one paragraph in `writeup.md` connecting these simulators to the lexer you will build next.  Which component of the lexer plays the role of your simulators?
+
 ---
 
 ## Deliverables
 
-Submit a ZIP containing:
-- `simulator.py`: the loader, DFA simulator, and NFA simulator with CLI entry point
-- `machines/`: all JSON machine files (the provided parity machine plus your designed DFA and NFA)
-- `writeup.md`: the subset-construction table, the Thompson's construction fragments, a paragraph connecting these simulators to the lexer you will build next (which component of the lexer plays the role of your simulators?), and both partners' names
+Submit a ZIP containing the files below.
+
+| File or artifact | What it shows | Rubric row |
+|------------------|---------------|------------|
+| `simulator.py` | `load_machine`, `run_dfa`, `eps_closure`, `run_nfa`, and the command-line entry point | Parts 1 and 2 |
+| `machines/even_ones.json` | the provided parity machine, unchanged | Part 1 |
+| `machines/ends_in_ab.json` | your designed DFA | Part 1 |
+| `machines/contains_aa.json` | your designed NFA | Part 2 |
+| `writeup.md` | Part 0 paper work; state annotations and test strings for both designed machines; the subset-construction table with the DFA state count; the Thompson's construction fragments; the paragraph connecting these simulators to the lexer you will build next (which component of the lexer plays the role of your simulators?); both partners' names | Parts 0, 1, 2, 3 |
 
 List your Python version in the writeup so I can reproduce your results.
+
+---
+
+## Self-Check Before You Submit
+
+- [ ] `python3 simulator.py machines/even_ones.json 0110` prints `accept`, and the same command with `100` prints `reject`.
+- [ ] The empty string and an out-of-alphabet symbol each produce a deliberate answer, not a traceback.
+- [ ] `--trace` prints a state (DFA) or a sorted set of states (NFA) after every symbol.
+- [ ] `load_machine` on a deliberately broken file raises one `MachineError` that lists every problem.
+- [ ] `eps_closure` stops on `machines/eps_cycle.json` and returns all three states.
+- [ ] Each state of the Ends-in-ab DFA has a one-sentence annotation, and both designed machines have at least four accepted and four rejected test strings recorded.
+- [ ] The Contains-aa NFA has at least one state with two or more targets on the same symbol.
+- [ ] `writeup.md` has the Part 0 work, the subset-construction table with the DFA state count, every Thompson fragment labeled, the lexer paragraph, both names, and your Python version.
 
 ---
 
