@@ -75,7 +75,7 @@ This assignment is nine stages.  Each stage ends with one command whose output y
 | Stage | What you do | The command that proves it | What you paste | Where to find the steps |
 |---|---|---|---|---|
 | 0 | Judge two languages and translate a snippet, with a pencil | none | Your two judgments and the translation, under a `Part 0` heading | Part 0 |
-| 1 | Open a terminal, learn to move around and save a file, and confirm Python 3.10 or later | `python3 --version` | The version line | Part 1, *Terminal Basics* and Step 1 |
+| 1 | Open a terminal, learn to move around and save a file, and confirm Python 3.10 or later, installing Python and pip if you have to | `python3 --version` | The version line, and the pip version line if you installed Python here | Part 1, *Terminal Basics*, Step 1, and *Installing Python and pip* |
 | 2 | Save and run the starter script | `python3 warmup_check.py` | The script's banner, and the container prompt if you ran it there | Part 1, Step 2 |
 | 3 | Name your editor and prove it can run and debug a file | none | One sentence per bullet | Part 1, Step 3 |
 | 4 | Navigate a shell and search a file | `grep -n "let" sample.txt` | The commands and their output | Part 1.5, Step 1 |
@@ -131,7 +131,7 @@ A route decides *where* the three steps of this part run.  The steps are the sam
 | | Route A (recommended): the course dev container | Route B: native install |
 |---|---|---|
 | Who it is for | Anyone whose laptop can run Docker Desktop | Anyone whose laptop cannot run Docker |
-| What you install | Docker Desktop and the course container, by following the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) through its Step 4 | Python 3.10 or later |
+| What you install | Docker Desktop and the course container, by following the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) through its Step 4 | Python 3.10 or later, with pip (see *Installing Python and pip* under Step 1) |
 | Where Step 2 runs | Inside the container, at the `student@...:/workspace$` prompt | In your own terminal |
 | What you skip | Nothing; the tutorial's Step 4 toolchain checks go in your transcript as well | The tutorial |
 
@@ -149,8 +149,8 @@ Every step on this page happens at a terminal, and several ask you to save a fil
 
 | System | How to open it | What the prompt looks like |
 |---|---|---|
-| macOS | Press Cmd+Space, type `Terminal`, press Enter | `you@laptop ~ %` |
-| Windows, PowerShell | Open the Start menu, type `PowerShell`, press Enter (not "Command Prompt") | `PS C:\Users\you>` |
+| macOS | Press Cmd+Space, type `Terminal`, press Enter (Terminal also lives in **Applications > Utilities**) | `you@laptop ~ %` |
+| Windows, PowerShell | Open the Start menu, type `PowerShell`, press Enter (not "Command Prompt").  On Windows 11, right-clicking the Start button and choosing **Terminal** opens PowerShell too | `PS C:\Users\you>` |
 | Windows, WSL2 Ubuntu | Open the Start menu, type `Ubuntu`, press Enter (Step 1 of the Development Environment tutorial installs it) | `you@laptop:~$` |
 | Linux | Press Ctrl+Alt+T, or open Terminal from the applications menu | `you@laptop:~$` |
 | VS Code, on any system | Press Ctrl+` (backtick), or **View > Terminal**.  It opens in the folder you have open | one of the above |
@@ -202,9 +202,39 @@ On Windows in PowerShell, the command is `python --version`, since Windows Pytho
 
 **What you should see.**  `Python 3.10.x` or later.  Inside the course container, `Python 3.11.x`.
 
-> **Paste into your submission:** the version line.
+> **Paste into your submission:** the version line, and the `python3 -m pip --version` line as well if you installed Python in the next section.
 
-**If it goes wrong.**  If the version is earlier than 3.10, install a newer version or use a virtual environment.  On macOS, `brew install python@3.12`; on Windows, download from [python.org](https://www.python.org/downloads/) and check "Add to PATH"; on Linux, `sudo apt install python3.12` (Debian/Ubuntu) or equivalent.  `command not found` on Windows usually means you typed `python3` where PowerShell wants `python`.
+**If it goes wrong.**  `command not found` on Windows usually means you typed `python3` where PowerShell wants `python`.  If the command is genuinely missing, or the version is earlier than 3.10, install a current Python by following *Installing Python and pip* just below, then rerun this step in a new terminal.  On Route A this can only happen on your host; the container's Python is 3.11 and needs nothing.
+
+#### Installing Python and pip
+
+Only do this section if Step 1 came up short.  It applies to Route B, and to Route A only for what runs on your host: the `uv` step in Part 1.5 (which brings its own Python) and the `python -m venv` fallback there (which does not).
+
+**Do this.**  Check both halves first, Python and its package installer, pip:
+
+```bash
+python3 --version
+python3 -m pip --version
+```
+
+In PowerShell, spell them `python --version` and `python -m pip --version`.  If both print a version and the first is 3.10 or later, skip to Step 2.  Otherwise, install Python for your system from the row below.  Install **3.11 or later** to match the container; 3.10 is the hard floor, because the starter script and the whole build use `match`/`case`.  Every row brings pip with it.
+
+| System | How to install Python (pip comes with it) | Then |
+|---|---|---|
+| **macOS, with Homebrew** | `brew install python@3.12`.  If you do not have [Homebrew](https://brew.sh/), install it first with the one-line command on its home page; it is also the easiest way to install uv in Part 1.5 | Open a new terminal window |
+| **macOS, without Homebrew** | Download the macOS installer from [python.org/downloads](https://www.python.org/downloads/) and run it | Open a new terminal window |
+| **Windows, PowerShell** | Download the Windows installer from [python.org/downloads](https://www.python.org/downloads/), run it, and on its first screen check the box that adds Python to `PATH` before you click **Install Now**.  Or, in PowerShell, `winget install --id Python.Python.3.12 -e` | Open a new PowerShell window, so the updated `PATH` loads |
+| **WSL2 Ubuntu, or Linux** | `sudo apt update && sudo apt install python3 python3-pip python3-venv`.  Ubuntu ships Python 3 but not pip or `venv`, which is why all three packages are named.  If that Python is older than 3.10, `sudo apt install python3.12` adds a newer one alongside it, invoked as `python3.12` | Nothing; the commands work in the same window |
+
+> **What pip is, and why every pip command on this page starts with `python3 -m`.**  pip is Python's package installer, the tool that fetches libraries such as `pytest` from the [Python Package Index](https://pypi.org/) and puts them where `import` can find them.  It has shipped inside Python since version 3.4, so installing Python installs pip.  A machine can hold several Pythons, though (Apple's developer tools add one, Homebrew adds another, and each `uv` environment has its own), and a bare `pip install` may target a different one than the `python3` you run scripts with.  `python3 -m pip install pytest` runs pip *from inside* the Python you name, so the library lands where that Python will look for it.  That is the entire reason the page writes it this way.  Natively, pip also belongs inside a *virtual environment*, a per-project copy of the library folder; the pip row of the table in Part 1.5, Step 4 shows how to make and activate one, and every native `pip install` on this page assumes you have.
+
+**What you should see.**  In a new terminal, `python3 --version` prints `Python 3.12.x` (or whatever you installed), and `python3 -m pip --version` prints a pip version followed by the path of the Python it belongs to.  Check that the path points at the Python you just installed.
+
+> **Paste into your submission:** both version lines, with your Step 1 transcript.
+
+**If it goes wrong.**  `python3: command not found` (or `'python' is not recognized`) right after installing means the terminal predates the install; open a new one.  On Windows, if typing `python` opens the Microsoft Store, Python is not installed yet: close the Store and run the installer above, and if the Store keeps opening afterwards, open **Manage app execution aliases** from the Start menu and turn off the `python.exe` and `python3.exe` entries.  `No module named pip` means pip was skipped: `python3 -m ensurepip --upgrade` restores it on macOS and Windows, and `sudo apt install python3-pip` does on Ubuntu.  On a fresh Mac, typing `python3` may offer to install Apple's Command Line Tools instead; that copy of Python 3 is several versions old and may be below the 3.10 floor, so install a current one from the table anyway.  If Homebrew complains that your macOS version is unsupported or a pre-release, run `brew update` first and retry.  `error: externally-managed-environment` from `pip install` on Ubuntu or Debian is handled in Part 1.5, Step 4.  The Stage 1 rows of the Troubleshooting table collect all of these.
+
+> **A note on uv.**  `uv`, which Part 1.5 installs, can also fetch a Python of its own (`uv python install 3.12`) and run scripts with it (`uv run python warmup_check.py`).  Install a system Python first anyway, so that `python3` works in every terminal and every editor, and so that the `python -m venv` fallback has something to run.
 
 ### Step 2: Saving and running the starter script
 
@@ -495,7 +525,39 @@ Paste `git log --oneline` from Repository > Open in terminal, which is the same 
 
 ### Step 4: Making a reproducible Python environment with uv
 
-**Do this.**  Install [uv](https://docs.astral.sh/uv/), the fast modern Python environment manager we standardize on this term.  Then, in your `~/cs374` directory, create a project and an environment, and add `pytest`, because you will write test suites all semester:
+**Do this.**  Install [uv](https://docs.astral.sh/uv/), the fast modern Python environment manager we standardize on this term, using the row for your system:
+
+| System | Install uv | Then |
+|---|---|---|
+| **macOS, with Homebrew** | `brew install uv` | Nothing; Homebrew's directory is already on your `PATH` |
+| **macOS, Linux, or WSL2 Ubuntu** | The standalone installer: the one-line `curl` command in the first block below the table | Open a new terminal, or run `source $HOME/.local/bin/env`, so that `~/.local/bin` is on your `PATH` |
+| **Windows, PowerShell** | The standalone installer: the one-line `powershell` command in the second block below the table, or `winget install --id=astral-sh.uv -e` | Open a new PowerShell window |
+| **Any system, through pipx** | `pipx install uv`.  pipx itself comes from `brew install pipx` on a Mac, `sudo apt install pipx` on Ubuntu or WSL2, or `python -m pip install --user pipx` on Windows, each followed by `pipx ensurepath` | Open a new terminal, so that pipx's `~/.local/bin` is on your `PATH` |
+| **Any system, through pip** | `python3 -m pip install uv` (PowerShell: `python -m pip install uv`) | Nothing, though on Ubuntu this meets the `externally-managed-environment` refusal described below, so use the `curl` or pipx row there |
+
+The two standalone installer lines, which do not fit in a table cell:
+
+```bash
+# macOS, Linux, or WSL2 Ubuntu
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+```powershell
+# Windows, in PowerShell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Confirm the install with `uv --version`.
+
+> **pip, pipx, or uv?**  All three install packages from the [Python Package Index](https://pypi.org/), and they divide the work cleanly.  **pip** installs a library into one particular Python, for that Python's scripts to import.  **pipx** installs a *program* written in Python (uv, `ruff`, `black`, `jupyter`) into a private environment of its own and puts its command on your `PATH`, so tools never fight over versions.  **uv** does both jobs per project, and pins what it installed in `pyproject.toml` so a teammate can rebuild the same environment; that reproducibility is why the course standardizes on it.  `pytest` is the instructive case, because it is both a library your tests import and a program you run:
+>
+> | Tool | The command | What it does, and when to use it |
+> |---|---|---|
+> | **pip, inside a virtual environment** | macOS, Linux, or WSL2: `cd ~/cs374`, `python3 -m venv .venv`, `source .venv/bin/activate`, then `python3 -m pip install pytest`.  PowerShell: `cd ~/cs374`, `python -m venv .venv`, `.\.venv\Scripts\Activate.ps1`, then `python -m pip install pytest` | A virtual environment is a private copy of Python's library folder for one project, kept in `.venv`, so that the library lands there rather than in the system Python.  Activating it (the prompt gains a `(.venv)` prefix) makes `python3` and `pip` mean that copy for the rest of the terminal session, so activate it again in every new terminal.  Installing without one works on macOS and Windows but is a habit to unlearn: it stops with `error: externally-managed-environment` on Ubuntu, Debian, and a fresh WSL2 Ubuntu, and it mixes every project's libraries together.  If PowerShell refuses to run the activation script, run `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` once, then retry.  This is the documented fallback if uv will not install |
+> | **uv** | `cd ~/cs374`, `uv init`, `uv add pytest`, then `uv run pytest` | Creates the project's own environment in `~/cs374/.venv`, records `pytest` in `pyproject.toml`, and runs it there, where it can import your interpreter's modules.  This is the course way, and it is what the commands below do |
+> | **pipx** | `pipx install pytest` | Works, because pytest is a program, but installs it into a private environment that cannot see your project's code or libraries, so your test suite's imports fail.  Right for a standalone tool such as uv, wrong for a project's test runner |
+
+Then, in your `~/cs374` directory, create a project and an environment, and add `pytest`, because you will write test suites all semester:
 
 ```bash
 cd ~/cs374
@@ -511,7 +573,7 @@ uv add pytest
 
 > **Paste into your submission:** the output of all four commands.
 
-**If it goes wrong.**  What I am checking is that the tools are installed and on your PATH, so the output that fails this step is `uv: command not found` or `pytest: command not found`, not a complaint about a missing project.  If you cannot install uv, fall back to `python -m venv` and `pip`, and note the fallback in your submission.
+**If it goes wrong.**  What I am checking is that the tools are installed and on your PATH, so the output that fails this step is `uv: command not found` or `pytest: command not found`, not a complaint about a missing project.  `uv: command not found` right after the installer means the terminal predates it; open a new one, or run `source $HOME/.local/bin/env`.  On a Mac, if `brew install uv` complains that your macOS version is unsupported, run `brew update` and retry.  If you cannot install uv, fall back to `python3 -m venv .venv`, `source .venv/bin/activate`, and `python3 -m pip install pytest` (PowerShell: `python -m venv .venv`, `.\.venv\Scripts\Activate.ps1`, `python -m pip install pytest`), and note the fallback in your submission.
 
 ### Handy References for the Command Line
 
@@ -569,7 +631,11 @@ Work down this table before you post in the course channel.  The Stage column ma
 | Stage | Symptom | Likely cause | Fix |
 |---|---|---|---|
 | 1 | `python3: command not found` or `'python3' is not recognized` on Windows | Windows Python installs as `python` | Use `python` wherever this page says `python3` |
-| 1 | `python3 --version` prints 3.9 or earlier | An older Python is first on your PATH | Install 3.10 or later as in Step 1, open a new terminal, and check `which python3` (PowerShell: `Get-Command python`) |
+| 1 | `python3 --version` prints 3.9 or earlier | An older Python is first on your PATH | Install 3.10 or later as in *Installing Python and pip*, open a new terminal, and check `which python3` (PowerShell: `Get-Command python`) |
+| 1 | `python3: command not found` on macOS or Linux, or `python` opens the Microsoft Store on Windows | Python is not installed, or the terminal window predates the install | Install it from *Installing Python and pip*, then open a new terminal.  On Windows, if the Store keeps opening afterwards, turn off the `python.exe` and `python3.exe` entries under **Manage app execution aliases** |
+| 1 | `No module named pip` | Python was installed without its package installer | `python3 -m ensurepip --upgrade` on macOS and Windows; `sudo apt install python3-pip` on Ubuntu and WSL2 |
+| 1 | `python3 -m pip --version` names a different Python than the one you just installed | Several Pythons on the machine, and `PATH` finds an older one first | `which python3` (PowerShell: `Get-Command python`) shows which one wins; open a new terminal after the install, and always write `python3 -m pip` rather than a bare `pip` |
+| 1 | On a Mac, Homebrew says your macOS version is unsupported or a pre-release, and `brew install` fails | Your copy of Homebrew predates your macOS upgrade | `brew update`, then rerun the install.  Homebrew needs macOS Sonoma (14) or later |
 | 1 | `cd ~/cs374` says the path does not exist, or lands somewhere odd | You are in the old Windows Command Prompt, where `~` is not your home folder | Open PowerShell or Ubuntu instead, or use `cd %USERPROFILE%\cs374` there |
 | 1 | `Cannot connect to the Docker daemon`, or `docker` is not a command inside Ubuntu | Docker Desktop is not running, or its WSL integration is off | Start Docker Desktop; on Windows, **Settings -> Resources -> WSL Integration**, switch **Ubuntu** on, **Apply & Restart**; the tutorial's Step 10 has the rest |
 | 2 | `can't open file 'warmup_check.py': No such file or directory` | You are running from a different folder than the one you saved into | `pwd` (or `cd` alone in Command Prompt) shows where you are; `ls` shows what is there; `cd` to the folder that has the file |
@@ -581,7 +647,10 @@ Work down this table before you post in the course channel.  The Stage column ma
 | 6 | `git push` asks for a password, then rejects it | The remote is the HTTPS address rather than the SSH one | `git remote set-url origin git@github.com:YOURUSERNAME/REPO.git`, then `git remote -v` to confirm, then push again |
 | 6 | `git push` says `src refspec main does not match any` | Your default branch has another name, or nothing is committed yet | `git branch -M main`, confirm `git log --oneline` shows a commit, then push again |
 | 6 | `git commit` opened an editor and you cannot get out | You omitted `-m`, and the editor is `vim` | Press **Esc**, type `:q!`, press **Enter**, then rerun `git commit -m "first commit"` |
-| 7 | `uv: command not found` | Not installed, or not on `PATH` yet | Follow the uv install docs, restart the terminal, and if it still fails use the documented `python -m venv` fallback and say so |
+| 7 | `uv: command not found` | Not installed, or not on `PATH` yet | Install it from the table in Part 1.5, Step 4 (`brew install uv` on a Mac with Homebrew, the `curl` or PowerShell installer elsewhere), then open a new terminal or run `source $HOME/.local/bin/env`; if it still fails, use the documented `python -m venv` fallback and say so |
+| 7 | `brew install uv` says your macOS version is unsupported | Homebrew is older than your macOS | `brew update`, then rerun `brew install uv` |
+| 7 | `error: externally-managed-environment` from `pip install` | Ubuntu and Debian protect the system Python from pip, and you installed outside a virtual environment | `python3 -m venv ~/cs374/.venv`, `source ~/cs374/.venv/bin/activate`, then rerun the install in that terminal; or use `uv add`, which never touches the system Python |
+| 7 | PowerShell: `Activate.ps1 cannot be loaded because running scripts is disabled on this system` | The default execution policy blocks the activation script | `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` once, then rerun `.\.venv\Scripts\Activate.ps1` |
 | 7 | `uv add` complains that no `pyproject.toml` was found | You skipped `uv init` | Run `uv init` in the same directory, then rerun `uv add pytest` |
 
 ---
