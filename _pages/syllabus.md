@@ -296,11 +296,6 @@ schedule:
   title: "Grammars and the Chomsky Hierarchy (Day 1 of 2)"
   link: "Activities/liascript-grammars.md"
   liapage: true
-  deliverables:
-  - dtitle: "Lab: BNF Workshop Handed Out"
-    dlink: "Assignments/BNFWorkshop"
-    points: "15"
-    rubricpath: "_pages/Assignments/lab-bnfworkshop.md"
   readings:
   - rtitle: "Allison, Ch. 9 §9.3: The Chomsky Hierarchy"
   - rtitle: "Allison, Ch. 6 §6.1: Context-Free Grammars and Derivations"
@@ -317,6 +312,10 @@ schedule:
     dlink: "Assignments/Scheme"
     points: "100"
     rubricpath: "_pages/Assignments/asmt-scheme.md"
+  - dtitle: "Lab: BNF Workshop Handed Out"
+    dlink: "Assignments/BNFWorkshop"
+    points: "15"
+    rubricpath: "_pages/Assignments/lab-bnfworkshop.md"
 - week: "3"
   date: "1"
   title: "Derivations, Parse Trees, Ambiguity, and Precedence"
