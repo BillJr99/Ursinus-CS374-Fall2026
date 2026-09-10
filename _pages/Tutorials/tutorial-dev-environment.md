@@ -479,9 +479,9 @@ That last property has a corollary that catches people, so it is worth saying ou
 
 If your machine cannot run Docker (unsupported hardware, an administrator lock, or too little disk), install the toolchain natively.  This route is fully supported; you simply take on the version-matching responsibility the container would have handled.
 
-**9.1: Python.**  Install Python **3.11 or later** (3.10+ is the hard course floor, for `match`/`case`): macOS `brew install python@3.12`; Windows from [python.org](https://www.python.org/downloads/) (check "Add to PATH"); Debian/Ubuntu `sudo apt install python3.12`.  Verify with `python3 --version`.
+**9.1: Python and pip.**  Install Python **3.11 or later** (3.10+ is the hard course floor, for `match`/`case`): macOS `brew install python@3.12`; Windows from [python.org](https://www.python.org/downloads/) (check the box that adds Python to `PATH`); Debian/Ubuntu `sudo apt install python3.12`.  Each of those brings pip, Python's package installer, with it.  Verify both with `python3 --version` and `python3 -m pip --version` in a new terminal.  The Overview assignment's [*Installing Python and pip*]({{ site.baseurl }}/Assignments/Overview#installing-python-and-pip) section has the full per-system table, and covers the Windows Microsoft Store trap, a missing pip, and Ubuntu's `externally-managed-environment` refusal.
 
-**9.2: Course Python packages with uv.**  In your cloned `cs374-work` repository, using [uv](https://docs.astral.sh/uv/) (the environment manager from the Overview assignment's Part 1.5):
+**9.2: Course Python packages with uv.**  Install [uv](https://docs.astral.sh/uv/) if you have not: `brew install uv` on a Mac with Homebrew, `curl -LsSf https://astral.sh/uv/install.sh | sh` on macOS, Linux, or WSL2, `winget install --id=astral-sh.uv -e` in PowerShell, or `pipx install uv` anywhere pipx is set up; the Overview assignment's Part 1.5, Step 4 has the table and the `brew update` fix for a Homebrew that predates your macOS.  Then, in your cloned `cs374-work` repository:
 
 ```bash
 cd ~/cs374-work
