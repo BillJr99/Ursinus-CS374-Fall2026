@@ -69,19 +69,43 @@ One pointer before you begin.  Several assignments this semester offer **directi
 
 ---
 
-## Part 0: Before You Start — Evaluating Languages and Paradigms (10 points)
+## Before You Start: The Setup Map
+
+This assignment is nine stages.  Each stage ends with one command whose output you paste into your submission, so you can always tell whether a stage is done.  Work down the table in order, and use the last column to find the steps.
+
+| Stage | What you do | The command that proves it | What you paste | Where the steps are |
+|---|---|---|---|---|
+| 0 | Judge two languages and translate a snippet, with a pencil | none | Your two judgments and the translation, under a `Part 0` heading | Part 0 |
+| 1 | Open a terminal, learn to move around and save a file, and confirm Python 3.10 or later | `python3 --version` | The version line | Part 1, *Opening a terminal* and Step 1 |
+| 2 | Save and run the starter script | `python3 warmup_check.py` | The script's banner, and the container prompt if you ran it there | Part 1, Step 2 |
+| 3 | Name your editor and prove it can run and debug a file | none | One sentence per bullet | Part 1, Step 3 |
+| 4 | Navigate a shell and search a file | `grep -n "let" sample.txt` | The commands and their output | Part 1.5, Step 1 |
+| 5 | Authenticate to GitHub with an SSH key | `ssh -T git@github.com` | The greeting that names your username | Part 1.5, Step 2 |
+| 6 | Clone or create a repository, then commit and push | `git log --oneline` | The log showing a pushed commit | Part 1.5, Step 3 |
+| 7 | Create a reproducible Python environment | `uv run python --version` | The output of the uv commands | Part 1.5, Step 4 |
+| 8 | Write the Language Autobiography | none | Four labeled prompts, about a page | Part 2 |
+
+**Do the stages in this order.**  Stage 0 comes first, and it needs no computer.  Stages 1 through 3 are the environment; Stages 4 through 7 use that environment; Stage 8 needs no tools and can be written while anything downloads.
+
+**If a stage fails, document it and move on.**  A documented failure earns full credit for that stage: quote the error verbatim, state your hypothesis about the cause, and say what you tried.  Work down the Troubleshooting table at the end of this page before you post in the course channel.
+
+**You need:** a laptop you can install software on, a GitHub account, and a few gigabytes of free disk.  If any of those is a problem, say so this week rather than in week four.
+
+---
+
+## Part 0: Before You Start, Evaluating Languages and Paradigms (10 points)
 
 Do this one **first**, before the rest of the assignment.  It takes about fifteen minutes and a pencil, and it is the only part of this assignment that has nothing to do with your toolchain.
 
 Readability and writability are easy words to nod at and hard to use well.  They only get sharp when you point them at code you have actually written, in languages you have actually argued about.
 
-**1. Two languages you already know.**  Pick two.  Write **one sentence each** naming a specific *design choice* that makes one of them more **readable** and the other more **writable**.  A design choice is something concrete — significant whitespace, mandatory type annotations, operator overloading, list comprehensions, semicolons, `null` — not a mood.  Then say which of the two criteria you would give up if you had to, and why.
+**1. Two languages you already know.**  Pick two.  Write **one sentence each** naming a specific *design choice* that makes one of them more **readable** and the other more **writable**.  A design choice is something concrete: significant whitespace, mandatory type annotations, operator overloading, list comprehensions, semicolons, `null`.  It is not a mood.  Then say which of the two criteria you would give up if you had to, and why.
 
 **2. A snippet across paradigms.**  Take about five lines of code in any language and classify the paradigm it primarily represents (imperative, object-oriented, functional, declarative).  Then rewrite it in a *different* paradigm, and name what the translation cost you: lines, clarity, performance, or something you could no longer express at all.
 
-If you cannot finish the translation, that is a real answer and it earns full credit — as long as you say precisely where it broke and why. An argument you could not finish is more useful to me than a clean page.
+If you cannot finish the translation, that is a real answer and it earns full credit, as long as you say precisely where it broke and why.  An argument you could not finish is more useful to me than a clean page.
 
-**What to bring to class:** the sticking point. The translation that stalled, or the design choice you could not call good or bad. That is what we start from.
+**What to bring to class:** the sticking point.  The translation that stalled, or the design choice you could not call good or bad.  That is what we start from.
 
 Put both parts in your submission under a heading `Part 0`.
 
@@ -91,31 +115,77 @@ Put both parts in your submission under a heading `Part 0`.
 
 This course builds a language implementation in Python, incrementally, across six assignments.  The final pipeline connects a lexer, parser, AST, environments, and an evaluator; every stage uses `re` (regular expressions), `json` (configuration files), and Python's structural pattern matching (`match`/`case`, available in Python 3.10+).  Verify that all three work before the build begins.
 
-Complete this part by **one of two routes**; the transcript requirement at the end applies to whichever you choose.
+### Which route should I take?
 
-### Route A (recommended): the course dev container
+A route decides *where* the three steps of this part run.  The steps are the same on both routes.
 
-Set up the course Docker container by following the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment): one container image with the entire semester's toolchain preinstalled (Python 3.11, pytest, hypothesis, PLY, `uv`, a Scheme for the functional programming assignment, and flex/bison/gcc/make for the generator-toolchain directions), bind-mounted onto a `cs374-work` GitHub repository you create in the tutorial.  Then:
+| | Route A (recommended): the course dev container | Route B: native install |
+|---|---|---|
+| Who it is for | Anyone whose laptop can run Docker Desktop | Anyone whose laptop cannot run Docker |
+| What you install | Docker Desktop and the course container, by following the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) through its Step 4 | Python 3.10 or later |
+| Where Step 2 runs | Inside the container, at the `student@...:/workspace$` prompt | In your own terminal |
+| What you skip | Nothing; the tutorial's Step 4 toolchain checks go in your transcript as well | The tutorial |
 
-1.  Copy `warmup_check.py` (from Step 2 of Route B below) into your `cs374-work` repository.
-2.  Enter the container and run it **inside the container**: `python3 warmup_check.py`.  Include the full transcript (the container prompt, `python3 --version`, and the script's banner output) in your submission.
-3.  Complete Step 3 of Route B (editor/IDE) as written; VS Code with the Dev Containers extension, opened inside the course container, is the recommended answer and satisfies all three bullets.
+**You do not have to decide yet.**  Step 1 is identical on both routes: if `python3 --version` on your own machine says 3.10 or later, Route B already works, and Route A is still the one I recommend, because the container carries the entire semester's toolchain (Python 3.11, pytest, hypothesis, PLY, `uv`, a Scheme for the functional programming assignment, and flex/bison/gcc/make for the generator-toolchain directions) and every later assignment assumes it.  Decide at Step 2: if Docker Desktop installs and the tutorial's `docker run hello-world` succeeds, run Step 2 inside the container; if Docker will not run on your machine, run it natively and say so in your transcript.
 
-Route A students skip Steps 1-2 of Route B on the host: the tutorial's toolchain verification plus the in-container `warmup_check.py` transcript covers them.
+### Opening a terminal, moving around, and saving a file
 
-### Route B: native install
+Every step on this page happens at a terminal, and several ask you to save a file.  Here is how, on every system this course supports.  Come back to this section whenever a step says "open a terminal," "`cd`," or "save it."
 
-**Step 1: Confirm Python 3.10 or later.**
+**1. Open a terminal.**
+
+| System | How to open it | What the prompt looks like |
+|---|---|---|
+| macOS | Press Cmd+Space, type `Terminal`, press Enter | `you@laptop ~ %` |
+| Windows, PowerShell | Open the Start menu, type `PowerShell`, press Enter (not "Command Prompt") | `PS C:\Users\you>` |
+| Windows, WSL2 Ubuntu | Open the Start menu, type `Ubuntu`, press Enter (Step 1 of the Development Environment tutorial installs it) | `you@laptop:~$` |
+| Linux | Press Ctrl+Alt+T, or open Terminal from the applications menu | `you@laptop:~$` |
+| VS Code, on any system | Press Ctrl+` (backtick), or **View > Terminal**.  It opens in the folder you have open | one of the above |
+| The course container | `docker compose run --rm cs374` from `cs374-work/.devcontainer/`, or **Reopen in Container** in VS Code | `student@a1b2c3d4e5f6:/workspace$` |
+
+**2. Find where you are, and move.**  The terminal always has a current folder, and every relative path is measured from it.  These commands work the same in every shell above, including PowerShell:
+
+```bash
+pwd               # print the folder you are in
+ls                # list what is here (ls -la also shows hidden files; in PowerShell, plain ls)
+cd ~              # go to your home folder
+mkdir -p ~/cs374  # make a folder for this course (in PowerShell: mkdir ~/cs374)
+cd ~/cs374        # go into it
+cd ..             # go up one level
+```
+
+`~` is your home folder: `/Users/you` on macOS, `C:\Users\you` in PowerShell, and `/home/you` in WSL2 Ubuntu.  From WSL2, your Windows files are under `/mnt/c/Users/you`.  `~` does *not* work in the old Windows Command Prompt, which is one reason to use PowerShell or Ubuntu instead.  Do all of this course's work in `~/cs374`, or in the `cs374-work` clone from the tutorial on Route A, so that every `cd ~/cs374` on this page lands in the same place.  Press **Tab** to complete a name you have started typing, and the up arrow to recall the previous command.
+
+**3. Save a file.**  When a step says "save this as `warmup_check.py`," first `cd` into the folder the file belongs in, then use one of these:
+
+- **nano**, on macOS, Linux, WSL2, and inside the course container.  Run `nano warmup_check.py`, paste the contents (Cmd+V on macOS; right-click or Ctrl+Shift+V in Ubuntu), press **Ctrl+O** then **Enter** to write the file, then **Ctrl+X** to exit.
+- **vim**, present on every Unix system.  Run `vim warmup_check.py`, press **i** to enter insert mode, paste, press **Esc**, then type `:wq` and press **Enter** to write and quit.  If you get stuck, press **Esc**, type `:q!`, and press **Enter** to leave without saving.
+- **VS Code**, on any system.  From the folder, run `code .` to open it (or **File > Open Folder**), then **File > New File**, paste, and press **Ctrl+S** (Cmd+S on macOS) to save under the name the step gives.  Type the name with its extension, `warmup_check.py`, and check that the editor did not add `.txt`.
+- **PowerShell without nano.**  Run `notepad warmup_check.py`, click **Yes** to create the file, paste, save, and close Notepad.  For a one-line file, `Set-Content sample.txt "let x = 1;"` writes it directly.
+
+**4. Confirm it landed.**  Run `ls` and see the file's name; run `cat warmup_check.py` and see its contents.  If `ls` does not show it, you saved into a different folder than the one you are in, and `pwd` tells you which one that is.
+
+### The three steps
+
+**Step 1. Confirm Python 3.10 or later.**
+
+*Do.*  Open a terminal and run:
 
 ```bash
 python3 --version
 ```
 
-If the version is earlier than 3.10, install a newer version or use a virtual environment.  On macOS, `brew install python@3.12`; on Windows, download from python.org; on Linux, `sudo apt install python3.12` (Debian/Ubuntu) or equivalent.
+On Windows in PowerShell, the command is `python --version`, since Windows Python installs as `python`.
 
-**Step 2: Run the starter script.**
+*Expected.*  `Python 3.10.x` or later.  Inside the course container, `Python 3.11.x`.
 
-Download `warmup_check.py` from the course site (or copy it from below) and run it.  It exercises `re`, `json`, and `match`/`case`, and prints a confirmation banner if all three pass.  Note: on Windows consoles that garble the yes/no characters, run with `PYTHONIOENCODING=utf-8` or read the True/False values instead.
+*Paste.*  The version line.
+
+*If it fails.*  If the version is earlier than 3.10, install a newer version or use a virtual environment.  On macOS, `brew install python@3.12`; on Windows, download from [python.org](https://www.python.org/downloads/) and check "Add to PATH"; on Linux, `sudo apt install python3.12` (Debian/Ubuntu) or equivalent.  `command not found` on Windows usually means you typed `python3` where PowerShell wants `python`.
+
+**Step 2. Save and run the starter script.**
+
+*Do.*  Save the script below as `warmup_check.py`, using any of the ways in *Opening a terminal, moving around, and saving a file*.  On Route A, save it in your `cs374-work` repository, which is `/workspace` inside the container; on Route B, save it in `~/cs374`.  It exercises `re`, `json`, and `match`/`case`, and prints a confirmation banner if all three pass.
 
 ```python
 # warmup_check.py: CS374 environment verification script
@@ -192,123 +262,183 @@ else:
     print("  Document each failure verbatim and bring it to class.")
 ```
 
-**Save it and run it.**  Python runs files, so the snippet above has to land in one.  Open your `~/cs374` folder in VS Code (**File > Open Folder**), create a file with **File > New File**, paste the script, and save it as `warmup_check.py` in that folder; from the terminal alone, `nano warmup_check.py` (paste, Ctrl+O to write, Ctrl+X to exit) does the same thing.  Then run it from the directory the file lives in:
+Then run it from the directory the file lives in:
 
-```bash
-cd ~/cs374
-python3 warmup_check.py
-```
+| Route | Where you run it | The commands |
+|---|---|---|
+| A | At the container prompt | `cd /workspace`, then `python3 --version`, then `python3 warmup_check.py` |
+| B, macOS, Linux, or WSL2 | In your own terminal | `cd ~/cs374`, then `python3 warmup_check.py` |
+| B, Windows PowerShell | In PowerShell | `cd ~/cs374`, then `python warmup_check.py` |
 
-On Windows in PowerShell the command is `python warmup_check.py`, since Windows Python installs as `python`.  VS Code's Run button (the triangle in the top right, with the Python extension installed) runs the same command in its integrated terminal, and either transcript is fine for your submission.  If the shell answers `can't open file ... No such file or directory`, you are running from a different directory than the one you saved into; `ls` (or `dir`) will show you which.
+VS Code's Run button (the triangle in the top right, with the Python extension installed) runs the same command in its integrated terminal, and either transcript is fine for your submission.
 
-**Step 3: Identify your editor or IDE.**
+*Expected.*  Five `[OK]` lines and the banner `CS374 environment verified. OK`.  On Windows consoles that garble the yes/no characters, run with `PYTHONIOENCODING=utf-8` or read the True/False values instead.
 
-State which editor or IDE you will use for the semester and confirm that you can:
+*Paste.*  The full transcript: the prompt (including the container prompt on Route A), `python3 --version`, and the script's output.
+
+*If it fails.*  `can't open file ... No such file or directory` means you are running from a different directory than the one you saved into; `ls` (or `dir`) shows which.  A `[FAIL]` on the Python version line means Step 1 needs another pass.  A `SyntaxError` at `match x:` means the Python that ran is older than 3.10, whatever `python3 --version` said in a different window.
+
+**Step 3. Identify your editor or IDE.**
+
+*Do.*  State which editor or IDE you will use for the semester and confirm that you can:
+
 - Open, edit, and save a Python file.
 - Run a Python file from within the editor (or from its integrated terminal).
 - Set a breakpoint and inspect a variable in the debugger.
 
-Recommended editors: VS Code (with Python extension), PyCharm Community Edition, or any editor you already know.  Avoid IDEs that hide the command line entirely; you will need `python3`, `git`, and occasionally `pip` directly.
+Recommended editors: VS Code (with the Python extension), PyCharm Community Edition, or any editor you already know.  On Route A, VS Code with the Dev Containers extension, opened inside the course container, is the recommended answer and satisfies all three bullets.  Avoid IDEs that hide the command line entirely; you will need `python3`, `git`, and occasionally `pip` directly.
 
-**Capture a transcript** (copy-paste or screenshot) of all three steps: for Route A, that means the in-container `warmup_check.py` run with `python3 --version`, plus the editor step.  If any step fails, document the error text verbatim, your hypothesis about the cause, and what you tried to fix it.  A well-documented failure with a follow-up plan earns full credit for that step.
+*Paste.*  The editor's name and one sentence per bullet saying how you confirmed it.
+
+**Capture a transcript** (copy-paste or screenshot) of all three steps.  If any step fails, document the error text verbatim, your hypothesis about the cause, and what you tried to fix it.  A well-documented failure with a follow-up plan earns full credit for that step.
 
 ---
 
 ## Part 1.5: Command-Line and Git Checkpoint
 
-You will build one language across six assignments, each importing the previous stage's component *unchanged*, all from the terminal and all under version control.  This checkpoint confirms those underlying tools work before the pipeline depends on them.  You don't need to be a shell expert.  You need to navigate, version your work, and create a reproducible environment.  The two required-setup tutorials teach all of it, so I have not repeated any of it here.  Work through the [Course Development Environment]({{ site.baseurl }}/Tutorials/DevEnvironment) for the container, git identity, and the daily loop, and [Shell Skills for Language Development]({{ site.baseurl }}/Tutorials/ShellForLanguageDev), a step-by-step article with a *Try it* checkpoint per step, for navigation, `grep`, redirection, and the test harness.  The **Command-Line Survival** links below fill any remaining gaps.
+You will build one language across six assignments, each importing the previous stage's component *unchanged*, all from the terminal and all under version control.  This checkpoint confirms those underlying tools work before the pipeline depends on them.  You don't need to be a shell expert.  You need to navigate, version your work, and create a reproducible environment.
 
-**Container-route note (Route A):** perform the git steps of this checkpoint **from inside the course container**, against the `cs374-work` GitHub repository you created in the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment); the tutorial's practice section (create `hello.py`, run, commit, push) is exactly this checkpoint, so its transcript satisfies the shell-navigation and git items below.  The `uv` step still runs on your host (the container image already pins the course packages; `uv` is your reproducible-environment tool for the native route and anywhere outside the container).
+The steps below are complete on their own.  Two tutorials go deeper when you want them: the [Course Development Environment]({{ site.baseurl }}/Tutorials/DevEnvironment) for the container, git identity, and the daily loop, and [Shell Skills for Language Development]({{ site.baseurl }}/Tutorials/ShellForLanguageDev), whose Step 0 covers opening a terminal, navigation, and `grep`, and whose later steps build the test harness you will want by the first programming assignment.  The **Command-Line Survival** links at the end of this part fill any remaining gaps.
 
-Complete each step and capture the terminal output:
+**Route A note.**  Do the git steps of this checkpoint **from inside the course container**, against the `cs374-work` GitHub repository you created in the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment).  The tutorial's practice section (create `hello.py`, run, commit, push) is exactly this checkpoint, so its transcript satisfies the shell-navigation and git items below.  Create the SSH key in Step 2 on your host anyway, because that is where it belongs.  The `uv` step runs on your host on both routes; the container already pins the course packages, and `uv` is your reproducible-environment tool for everything outside the container.
 
-1.  **Navigate and search.**  Create a course directory, enter it, and list it: `mkdir -p ~/cs374 && cd ~/cs374 && pwd && ls -la`.  That directory is empty at this point, so make a file for the search to find before you search.  Redirecting a couple of lines into a file is the quickest way, though typing them into an editor (`nano sample.txt`, or a new file saved from VS Code) or copying in a `.py` file you already have works just as well:
+Complete each step and capture the terminal output.
 
-    ```bash
-    printf 'let x = 1;\nlet y = x + 2;\nprint y;\n' > sample.txt
-    cat sample.txt
-    ```
+**Step 1. Navigate and search.**
 
-    Note that `touch sample.txt` creates the file but leaves it empty, and a search over an empty file matches nothing, so put a line or two inside it.  (In native PowerShell, the equivalent is `Set-Content sample.txt "let x = 1;"`, since `printf` and `grep` are Unix shell tools; `Select-String` is the PowerShell search command.  Running these from WSL2 or Git Bash keeps the commands as written.)
+*Do.*  Create a course directory, enter it, and list it:
 
-    Now run one search with `grep -n` (or `rg`), and paste the command and its output:
+```bash
+mkdir -p ~/cs374 && cd ~/cs374 && pwd && ls -la
+```
 
-    ```bash
-    grep -n "let" sample.txt
-    ```
+The directory is empty at this point, so make a file for the search to find.  Redirecting a couple of lines into a file is the quickest way; typing them into an editor (`nano sample.txt`, or any of the ways in *Opening a terminal, moving around, and saving a file*) or copying in a `.py` file you already have works just as well:
 
-    (`~` means your home folder; it works in macOS Terminal, Linux shells, WSL2, Git Bash, and PowerShell, but *not* in the Windows Command Prompt, where the equivalent is `%USERPROFILE%`.  Run these from PowerShell or WSL2 on Windows.)  Searching text is the daily reality of lexer and parser work, the same regular expressions you will use in the Regex assignment.  ([regex101](https://regex101.com/) is your friend there.)
+```bash
+printf 'let x = 1;\nlet y = x + 2;\nprint y;\n' > sample.txt
+cat sample.txt
+```
 
-2.  **Authenticate to GitHub with an SSH key.**  You will push to GitHub all semester, and GitHub has not accepted account passwords over HTTPS for years, so settle authentication now rather than discovering it at your first `git push`.  Use a key you already have, or create one.
+`touch sample.txt` creates the file but leaves it empty, and a search over an empty file matches nothing, so put a line or two inside it.  In native PowerShell, the equivalent is `Set-Content sample.txt "let x = 1;"`, since `printf` and `grep` are Unix shell tools, and `Select-String` is the PowerShell search command.  Running these from WSL2 or Git Bash keeps the commands as written.
 
-    Check first, because you may already have one: run `ls -al ~/.ssh` and look for a pair such as `id_ed25519` and `id_ed25519.pub`.  If a pair is there and you know it is registered with GitHub, jump to the test below.
+Now run one search with `grep -n` (or `rg`):
 
-    **Create a key.**  Ed25519 is the current default; use `ssh-keygen -t rsa -b 4096` instead only on a system too old to support it.
+```bash
+grep -n "let" sample.txt
+```
 
-    ```bash
-    ssh-keygen -t ed25519 -C "your_email@example.com"
-    ```
+*Expected.*  `pwd` prints a path ending in `cs374`, `cat` prints your three lines, and `grep` prints `1:let x = 1;` and `2:let y = x + 2;`, each with its line number.
 
-    Accept the default path (`~/.ssh/id_ed25519`).  A passphrase is optional and worth setting; if you set one, load the key into the agent so you are not retyping it every push: `eval "$(ssh-agent -s)"`, then `ssh-add ~/.ssh/id_ed25519`.
+*Paste.*  Every command above with its output.
 
-    **Add the public key to GitHub.**  Print it with `cat ~/.ssh/id_ed25519.pub` and copy the entire line, then on GitHub open **Settings -> SSH and GPG keys -> New SSH key**, title it so you can tell which machine it belongs to, and paste.  Paste the `.pub` file and nothing else: the file *without* `.pub` is your private key, and it never leaves your machine, never goes in a repository, and never gets pasted into a web form.
+Searching text is the daily reality of lexer and parser work, the same regular expressions you will use in the Regex assignment, and [regex101](https://regex101.com/) is your friend there.
 
-    **Test it, and paste this output into your submission:**
+**Step 2. Authenticate to GitHub with an SSH key.**
 
-    ```bash
-    ssh -T git@github.com
-    ```
+You will push to GitHub all semester, and GitHub has not accepted account passwords over HTTPS for years, so settle authentication now rather than discovering it at your first `git push`.  SSH (Secure Shell) is the protocol; the key is a file pair, one half private and one half public.  Use a key you already have, or create one.  Follow 2a through 2d in order; the alternatives after Step 3 replace specific sub-steps, and you should choose at most one.
 
-    The first connection asks you to confirm GitHub's host fingerprint; answering `yes` is expected.  Success looks like `Hi YOURUSERNAME! You've successfully authenticated, but GitHub does not provide shell access.`  That is the success message, not an error: GitHub is telling you the key works and that SSH to GitHub is only ever used for git, never for a login shell.
+*2a. Check for a key you already have.*
 
-    From here on, use the SSH remote form, `git@github.com:YOURUSERNAME/REPO.git`, rather than the `https://` URL.  If you already cloned over HTTPS, switch the existing remote rather than re-cloning:
+```bash
+ls -al ~/.ssh
+```
 
-    ```bash
-    git remote set-url origin git@github.com:YOURUSERNAME/REPO.git
-    ```
+Look for a pair such as `id_ed25519` and `id_ed25519.pub`.  If a pair is there and you know it is registered with GitHub, jump to 2d.
 
-    **A shortcut, and the one I would take on native Windows.**  The [GitHub CLI](https://cli.github.com/), the `gh` command, does this entire exchange for you.  Install it (`winget install --id GitHub.cli` in PowerShell, `brew install gh` on macOS, or your package manager on Linux), then run `gh auth login`, choose **GitHub.com**, choose **SSH** as the protocol, and answer yes when it offers to generate a new SSH key and upload it to your account.  That one prompt replaces `ssh-keygen`, the `cat` of the `.pub` file, and the paste into Settings.  Verify it exactly as above, with `ssh -T git@github.com`, and paste that output; `gh` also clones for you, with `gh repo clone YOURUSERNAME/REPO` in place of the `git clone` in step 3.
+*2b. Create a key.*  Ed25519 is the current default; use `ssh-keygen -t rsa -b 4096` instead only on a system too old to support it.
 
-    This matters most on **native Windows without WSL2**, where you would otherwise have to assemble the SSH tooling yourself.  Two separate downloads help there, and they are worth telling apart.  [GitHub Desktop](https://desktop.github.com/) is the graphical client; it bundles Git for Windows, which is where `ssh-keygen` and Git Bash come from, and it handles its own authentication so you can clone, commit, and push without touching a key at all.  `gh` is the command-line tool just described, and it is a separate install rather than something GitHub Desktop brings along, though installing both is common and they coexist happily.  Either one spares you the manual key dance; the Ubuntu or WSL2 route gives you the standard Unix tooling instead, and every command on this page then works as written.
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
 
-    (Route A students: this key lives on your **host** machine, which is where you just made it.  Whether to expose it to the container or use a repository-scoped token inside the container instead is a separate decision, and Step 5 of the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) walks through both.  Either way, create and register the key here.)
+Accept the default path (`~/.ssh/id_ed25519`).  A passphrase is optional and worth setting; if you set one, load the key into the agent so you are not retyping it every push: `eval "$(ssh-agent -s)"`, then `ssh-add ~/.ssh/id_ed25519`.
 
-3.  **Version control.**  Get a repository on your machine, commit a file to it, and push that commit back to GitHub.  Which command starts you off depends on where the repository already exists, and this is the distinction worth learning once rather than guessing at every semester: **clone** when the repository is already on GitHub, and `git init` only when it is not.
+*2c. Register the public key with GitHub.*  Print it with `cat ~/.ssh/id_ed25519.pub` and copy the entire line, then on GitHub open **Settings -> SSH and GPG keys -> New SSH key**, title it so you can tell which machine it belongs to, and paste.  Paste the `.pub` file and nothing else: the file *without* `.pub` is your private key, and it never leaves your machine, never goes in a repository, and never gets pasted into a web form.
 
-    **If the repository already exists on GitHub** (your GitHub Classroom repository, or the `cs374-work` repository you created in the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment)), clone it.  Cloning downloads the full repository, sets `origin` to the URL you cloned from, and leaves you in a working copy that is already connected, so there is no `git remote add` afterward.  Copy the address from the green **Code** button on the repository page, choosing the **SSH** tab so you get the `git@github.com:` form the key you just tested authenticates:
+*2d. Test it.*
 
-    ```bash
-    cd ~/cs374
-    git clone git@github.com:YOURUSERNAME/REPO.git
-    cd REPO
-    git remote -v
-    ```
+```bash
+ssh -T git@github.com
+```
 
-    `git clone` creates a *new folder* named after the repository, inside whatever directory you run it from, which is why you `cd` into it on the next line.  `git remote -v` should print your SSH URL twice, once for fetch and once for push; that is your evidence the working copy is wired to GitHub.  A repository with no commits yet clones with a warning that it is empty, and that is fine, since the commit below is about to fill it.
+*Expected.*  The first connection asks you to confirm GitHub's host fingerprint; answering `yes` is expected.  Success looks like `Hi YOURUSERNAME! You've successfully authenticated, but GitHub does not provide shell access.`  That is the success message, not an error: GitHub is telling you the key works and that SSH to GitHub is only ever used for git, never for a login shell.
 
-    **Prefer to do this in VS Code?**  You can, and it drives the same git underneath, so the result is identical.  With no folder open, the Source Control view (Ctrl+Shift+G, or Cmd+Shift+G on macOS) offers a **Clone Repository** button; from anywhere, the Command Palette (Ctrl+Shift+P, or Cmd+Shift+P) runs **Git: Clone**.  Either one asks for the repository address, where you paste the same SSH URL, then asks which local folder to put it in, `~/cs374` here, and offers to open the clone when it finishes.  Say yes: the integrated terminal (Ctrl+`) then opens already inside the repository, which is where you run `git log --oneline` for your transcript.  The palette also offers **Clone from GitHub**, which lets you pick from a list of your repositories instead of pasting a URL, though it signs you in to GitHub inside VS Code and authenticates as that account rather than with your key.  This is the same editor you identified in Part 1, Step 3, so if you set a breakpoint there you already have it installed.
+*Paste.*  That output.
 
-    **If you are starting from a folder on your machine instead**, with no repository on GitHub yet, create the repository on GitHub first (**+ > New repository**, no README, which keeps the histories from conflicting), then `git init` locally and attach that remote by hand:
+From here on, use the SSH remote form, `git@github.com:YOURUSERNAME/REPO.git`, rather than the `https://` URL.  If you already cloned over HTTPS, switch the existing remote rather than re-cloning:
 
-    ```bash
-    git init
-    git remote add origin git@github.com:YOURUSERNAME/REPO.git
-    ```
+```bash
+git remote set-url origin git@github.com:YOURUSERNAME/REPO.git
+```
 
-    **Either way, the commit is the same.**  Git versions files, so the repository needs at least one file in it before there is anything to commit; create that file the way you created `sample.txt` above, with a redirect, an editor, or a copy of something you already have:
+**Route A and credentials inside the container.**  This key lives on your **host** machine, which is where you just made it.  Inside the container, Step 5 of the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) recommends a repository-scoped personal access token (PAT) instead, and shows the read-only key mount if you would rather use this key there.  That is why the tutorial clones `cs374-work` over HTTPS: the token authenticates HTTPS pushes.  Either way, create and register the key here.
 
-    ```bash
-    printf '# CS374 scratch repository\n' > README.md
-    git add README.md
-    git commit -m "first commit"
-    git push -u origin main
-    ```
+**Step 3. Version control.**
 
-    Use the SSH remote you tested in step 2; the push should not prompt you for a username or password.  Three things commonly go sideways here: `git commit` without `-m` drops you into an editor, and `:q!` leaves it if that editor turns out to be `vim`; `git push` complains if your default branch is not named `main`, which `git branch -M main` fixes; and a `git clone` that asks for a password means you copied the HTTPS address rather than the SSH one, so `git remote set-url origin git@github.com:YOURUSERNAME/REPO.git` puts it right without re-cloning.  Paste `git log --oneline`.  Your team will live in git during the capstone, so start now.
-4.  **Reproducible Python with uv.**  Install [uv](https://docs.astral.sh/uv/), the fast modern Python environment manager we standardize on this term, and create a project environment: `uv venv`, then `uv run python --version`, then `uv add pytest` (you will write test suites all semester).  Paste the output.  There is no course project here yet, so `uv add` may stop on a missing `pyproject.toml` (and a bare `pytest` would say `no tests ran`); that is fine for this checkpoint, and `uv init` before `uv add` clears it if you want the install to complete.  What I am checking is that the tools are installed and on your PATH, so the output that fails this step is `uv: command not found` or `pytest: command not found`, not a complaint about a missing project.  (If you cannot install uv, fall back to `python -m venv` + `pip`, and note the fallback in your submission.)
+Get a repository on your machine, commit a file to it, and push that commit back to GitHub.  Which command starts you off depends on where the repository already exists, and this is the distinction worth learning once rather than guessing at every semester: **clone** when the repository is already on GitHub, and `git init` only when it is not.
+
+*3a. Get the repository onto your machine.*  If the repository already exists on GitHub (your GitHub Classroom repository, or the `cs374-work` repository you created in the [Development Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment)), clone it.  Cloning downloads the full repository, sets `origin` to the URL you cloned from, and leaves you in a working copy that is already connected, so there is no `git remote add` afterward.  Copy the address from the green **Code** button on the repository page, choosing the **SSH** tab so you get the `git@github.com:` form the key you just tested authenticates:
+
+```bash
+cd ~/cs374
+git clone git@github.com:YOURUSERNAME/REPO.git
+cd REPO
+git remote -v
+```
+
+`git clone` creates a *new folder* named after the repository, inside whatever directory you run it from, which is why you `cd` into it on the next line.  `git remote -v` should print your SSH URL twice, once for fetch and once for push; that is your evidence the working copy is wired to GitHub.  A repository with no commits yet clones with a warning that it is empty, and that is fine, since the commit below is about to fill it.
+
+If you are starting from a folder on your machine instead, with no repository on GitHub yet, create the repository on GitHub first (**+ > New repository**, no README, which keeps the histories from conflicting), then `git init` locally and attach that remote by hand:
+
+```bash
+git init
+git remote add origin git@github.com:YOURUSERNAME/REPO.git
+```
+
+*3b. Commit and push.*  Git versions files, so the repository needs at least one file in it before there is anything to commit; create that file the way you created `sample.txt` above, with a redirect, an editor, or a copy of something you already have:
+
+```bash
+printf '# CS374 scratch repository\n' > README.md
+git add README.md
+git commit -m "first commit"
+git push -u origin main
+```
+
+*Expected.*  `git commit` prints a line beginning `[main` with your message, and `git push` ends with `main -> main` and does not prompt for a username or password.  Then run `git log --oneline` and **paste its output**.  Your team will live in git during the capstone, so start now.
+
+*If it fails.*  Three things commonly go sideways here: `git commit` without `-m` drops you into an editor, and `:q!` leaves it if that editor turns out to be `vim`; `git push` complains if your default branch is not named `main`, which `git branch -M main` fixes; and a `git clone` that asks for a password means you copied the HTTPS address rather than the SSH one, so `git remote set-url origin git@github.com:YOURUSERNAME/REPO.git` puts it right without re-cloning.
+
+**Alternatives for Steps 2 and 3.  Choose at most one, and verify with `ssh -T git@github.com` either way.**
+
+- **The GitHub CLI, and the one I would take on native Windows.**  The [GitHub CLI](https://cli.github.com/), the `gh` command, does the entire exchange in 2b through 2c for you.  Install it (`winget install --id GitHub.cli` in PowerShell, `brew install gh` on macOS, or your package manager on Linux), then run `gh auth login`, choose **GitHub.com**, choose **SSH** as the protocol, and answer yes when it offers to generate a new SSH key and upload it to your account.  That one prompt replaces `ssh-keygen`, the `cat` of the `.pub` file, and the paste into Settings.  Verify it exactly as in 2d and paste that output; `gh` also clones for you, with `gh repo clone YOURUSERNAME/REPO` in place of the `git clone` in 3a.
+- **VS Code, for the clone in 3a.**  It drives the same git underneath, so the result is identical.  With no folder open, the Source Control view (Ctrl+Shift+G, or Cmd+Shift+G on macOS) offers a **Clone Repository** button; from anywhere, the Command Palette (Ctrl+Shift+P, or Cmd+Shift+P) runs **Git: Clone**.  Either one asks for the repository address, where you paste the same SSH URL, then asks which local folder to put it in, `~/cs374` here, and offers to open the clone when it finishes.  Say yes: the integrated terminal (Ctrl+`) then opens already inside the repository, which is where you run `git log --oneline` for your transcript.  The palette also offers **Clone from GitHub**, which lets you pick from a list of your repositories instead of pasting a URL, though it signs you in to GitHub inside VS Code and authenticates as that account rather than with your key.  This is the same editor you identified in Part 1, Step 3, so if you set a breakpoint there you already have it installed.
+- **GitHub Desktop, for 3a and 3b.**  [GitHub Desktop](https://desktop.github.com/) is the graphical client; it bundles Git for Windows, which is where `ssh-keygen` and Git Bash come from, and it handles its own authentication so you can clone, commit, and push without touching a key at all.  Paste `git log --oneline` from Repository > Open in terminal, which is the same transcript the command-line route produces.  Create the key in Step 2 anyway, because the checklist asks for the `ssh -T` output.
+
+**Telling the two GitHub downloads apart on native Windows without WSL2.**  `gh` is the command-line tool, a separate install rather than something GitHub Desktop brings along, though installing both is common and they coexist happily.  GitHub Desktop is the graphical client just described.  Either one spares you the manual key dance; the Ubuntu or WSL2 route gives you the standard Unix tooling instead, and every command on this page then works as written.
+
+**Step 4. Reproducible Python with uv.**
+
+*Do.*  Install [uv](https://docs.astral.sh/uv/), the fast modern Python environment manager we standardize on this term.  Then, in your `~/cs374` directory, create a project and an environment, and add `pytest`, because you will write test suites all semester:
+
+```bash
+cd ~/cs374
+uv init
+uv venv
+uv run python --version
+uv add pytest
+```
+
+`uv init` writes a `pyproject.toml`, which is what `uv add` records the dependency in; without it, `uv add` stops with a message about a missing project.
+
+*Expected.*  `uv run python --version` prints a Python version, and `uv add pytest` prints `Installed` lines that include `pytest`.  A bare `pytest` afterward would say `no tests ran`, which is correct, because there are no tests yet.
+
+*Paste.*  The output of all four commands.
+
+*If it fails.*  What I am checking is that the tools are installed and on your PATH, so the output that fails this step is `uv: command not found` or `pytest: command not found`, not a complaint about a missing project.  If you cannot install uv, fall back to `python -m venv` and `pip`, and note the fallback in your submission.
 
 ### Command-Line Survival: reference (use as needed)
 
+- [Shell Skills for Language Development]({{ site.baseurl }}/Tutorials/ShellForLanguageDev): Step 0 for the terminal basics this checkpoint uses, and Steps 1 through 6 for the test harness and Makefile you will want by the first programming assignment.
 - [tldr pages](https://tldr.sh/): example-first cheat sheets (`tldr grep`).
 - [explainshell](https://explainshell.com/): annotates any command line flag by flag.
 - [ShellCheck](https://www.shellcheck.net/): lints shell scripts (you will use it in the project's scripting-targets extension).
@@ -344,6 +474,45 @@ Describe one feature of any language (or of a language feature you read about) t
 Pose one question about how programming languages work that you hope this course will answer.  The best questions are the ones you don't know the answer to, and not the ones you could look up in Wikipedia.
 
 *Examples of good questions:* "Why does Python have both `is` and `==`, and what is actually different between them at the implementation level?"  "How does a compiler know which variables a closure needs to capture?"  "Is there a way to guarantee that a recursion terminates without running it?"
+
+---
+
+## Troubleshooting
+
+Work down this table before you post in the course channel.  The Stage column matches the setup map at the top of the page.  If none of it helps, post the exact command you ran and its full output.
+
+| Stage | Symptom | Likely cause | Fix |
+|---|---|---|---|
+| 1 | `python3: command not found` or `'python3' is not recognized` on Windows | Windows Python installs as `python` | Use `python` wherever this page says `python3` |
+| 1 | `python3 --version` prints 3.9 or earlier | An older Python is first on your PATH | Install 3.10 or later as in Step 1, open a new terminal, and check `which python3` (PowerShell: `Get-Command python`) |
+| 1 | `cd ~/cs374` says the path does not exist, or lands somewhere odd | You are in the old Windows Command Prompt, where `~` is not your home folder | Open PowerShell or Ubuntu instead, or use `cd %USERPROFILE%\cs374` there |
+| 1 | `Cannot connect to the Docker daemon`, or `docker` is not a command inside Ubuntu | Docker Desktop is not running, or its WSL integration is off | Start Docker Desktop; on Windows, **Settings -> Resources -> WSL Integration**, switch **Ubuntu** on, **Apply & Restart**; the tutorial's Step 10 has the rest |
+| 2 | `can't open file 'warmup_check.py': No such file or directory` | You are running from a different folder than the one you saved into | `pwd` (or `cd` alone in Command Prompt) shows where you are; `ls` shows what is there; `cd` to the folder that has the file |
+| 2 | `SyntaxError` at the line `match x:` | The Python that ran is older than 3.10, whatever another window said | Run `python3 --version` in the *same* terminal, and fix Step 1 there |
+| 2 | The banner's check marks print as odd characters | A Windows console encoding | Run with `PYTHONIOENCODING=utf-8`, or read the `OK`/`FAIL` words instead |
+| 4 | `grep` or `printf` is not recognized | You are in native PowerShell, where these are Unix commands | Use `Set-Content` and `Select-String` as Step 1 shows, or run the commands from WSL2 or Git Bash |
+| 5 | `ssh-keygen` is not recognized on Windows | OpenSSH is not installed, or the window predates it | Open a new PowerShell window; if it persists, install GitHub Desktop (which bundles Git for Windows) or the GitHub CLI and use the alternative after Step 3 |
+| 5 | `git@github.com: Permission denied (publickey)` | The key is not loaded in the agent, or its public half was never added to GitHub | `ssh-add -l` lists loaded keys and `ssh-add ~/.ssh/id_ed25519` loads yours; confirm the contents of `id_ed25519.pub` appear under Settings -> SSH and GPG keys; then retest with `ssh -T git@github.com` |
+| 6 | `git push` asks for a password, then rejects it | The remote is the HTTPS address rather than the SSH one | `git remote set-url origin git@github.com:YOURUSERNAME/REPO.git`, then `git remote -v` to confirm, then push again |
+| 6 | `git push` says `src refspec main does not match any` | Your default branch has another name, or nothing is committed yet | `git branch -M main`, confirm `git log --oneline` shows a commit, then push again |
+| 6 | `git commit` opened an editor and you cannot get out | You omitted `-m`, and the editor is `vim` | Press **Esc**, type `:q!`, press **Enter**, then rerun `git commit -m "first commit"` |
+| 7 | `uv: command not found` | Not installed, or not on `PATH` yet | Follow the uv install docs, restart the terminal, and if it still fails use the documented `python -m venv` fallback and say so |
+| 7 | `uv add` complains that no `pyproject.toml` was found | You skipped `uv init` | Run `uv init` in the same directory, then rerun `uv add pytest` |
+
+---
+
+## Self-Check Before You Submit
+
+Hold your submission against the rubric's `proficient` column:
+
+- [ ] One file, PDF preferred, with each component **clearly labeled**.
+- [ ] Part 0 is under its own `Part 0` heading, with both language judgments and the paradigm translation.
+- [ ] The Part 1 transcript covers all three steps and shows the `python3 --version` line and the script's banner, copied verbatim.
+- [ ] Which route you took (A or B) is stated, and a Route A transcript shows the container prompt.
+- [ ] Part 1.5: the navigation and `grep` transcript, the `ssh -T git@github.com` greeting, a `git log --oneline` showing a pushed commit, and the uv (or documented fallback) output.
+- [ ] Any failure is quoted exactly, with a hypothesis and what you tried.
+- [ ] The autobiography answers all four prompts and is about a page.
+- [ ] Collaboration, AI-disclosure, and hours questions answered at the end.
 
 ---
 
