@@ -199,7 +199,7 @@ Put these in `recursion.scm`, with a test call after each one. Every function he
 
 1. **`czr`**: return the last element of a list. Model it on `sumlist`, but notice that nothing has to happen on the way back up: the answer is just whatever the deepest call found.
 2. **`count`**: return how many items are in a list. Use `czr` as a guide to traversing the list. Its base case cannot look at `(car L)` at all, which is the hint you need.
-3. **`reverse-list`**: reverse a list using only `car`, `cdr`, and `cons`. (Name it `reverse-list` so you do not collide with the built-in `reverse`; compare against the built-in when you are done.) Then answer: how many `cons` calls does yours make for a list of length `n`?
+3. **`reverse-list`**: reverse a list using only `car`, `cdr`, and `append`. (Name it `reverse-list` so you do not collide with the built-in `reverse`; compare against the built-in when you are done.)
 4. **`largest`**: return the largest element. Start from the version below, which is correct but wasteful, and improve it.
 
 ```scheme
