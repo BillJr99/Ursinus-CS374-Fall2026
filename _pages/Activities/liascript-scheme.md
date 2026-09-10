@@ -710,6 +710,20 @@ Question 21 asked what a closure's return value even *is* once there is more tha
 (fast-square 4)              ; prints nothing at all, returns 16
 ```
 
+Memoizing `slow-square` saves nothing worth having, because squaring was never expensive.  The function where it pays is the one that recomputes the *same subresult* over and over:
+
+```scheme
+(define fib-fast
+  (memoize (lambda (n)
+             (if (< n 2)
+                 n
+                 (+ (fib-fast (- n 1)) (fib-fast (- n 2)))))))
+
+(fib-fast 25)                ; 75025
+```
+
+Look hard at the body: it calls `fib-fast`, **not itself**.  That is the one subtle line in this model.
+
 ### Reading the Code
 
 - `assoc` walks the list looking for a pair whose `car` is `x`, and hands back that whole pair, or `#f` if there is no such pair.  `(cdr hit)` is therefore the cached answer.
@@ -717,6 +731,7 @@ Question 21 asked what a closure's return value even *is* once there is more tha
 - Naming the lookup with `let` means the cache is searched once instead of twice.  That is the same move `largest2` made in Model 2 and `lookup` made in Model 5.5, and it is worth noticing that the fix looks identical in three completely different settings.
 - The cache is captured, not global.  Two calls to `memoize` build two independent caches, exactly as two calls to `make-counter` built two independent counters, and nothing else in the program can reach either one.
 - `set!` earns its keep here for the second time today.  A memo table you cannot update is an empty list forever.
+- **The recursive call has to go through the wrapper.**  `fib-fast`'s body names `fib-fast`, so every recursive call re-enters the memoized procedure and meets the cache.  Had the body called an inner, unmemoized copy of itself, only the outermost call would ever be cached, every recursive call would miss, and the running time would not move at all.  The cache has to sit *between* every call, not merely around the first one.  This is the mistake to expect when you memoize something of your own.
 
 > **Watch out!**  An association list searches in $O(n)$, so this is a teaching cache rather than a production one.  MIT Scheme spells the real thing `(make-equal-hash-table)`, `(hash-table/get cache x #f)`, and `(hash-table/put! cache x result)`; Racket spells it `make-hash`; R7RS does not standardize hash tables at all, which is why the portable version above uses `assoc`.  Write the association list when you want the code to run in any Scheme, and reach for your dialect's hash table when the cache gets big.  The hash-table version also acquires a bug that this one does not have, and that bug is question 27.
 
@@ -726,6 +741,54 @@ Question 21 asked what a closure's return value even *is* once there is more tha
 27.  Suppose you rewrite the cache with a hash table and test for a hit using `(hash-table/get cache x #f)`.  Now memoize a predicate, a function that legitimately returns `#f` sometimes.  What goes wrong, how often does it go wrong, and how would you fix it without giving up the hash table?
 28.  Memoizing `slow-square` saves nothing worth having.  Name a function you could write with what you know today whose running time memoization would drag from exponential down to linear, and say exactly which repeated work disappears.
 29.  A memoized function mutates on every cache miss, so it is not referentially transparent on the inside.  Is it still referentially transparent on the *outside*?  Defend your answer, because your team's language will have to take a position on this in December.
+
+## Code Cell: The Answer to Question 28, Counted
+
+Question 28 asks you to name a function memoization drags from exponential down to linear.  Fibonacci is that function, and this cell counts the calls rather than asserting the improvement.  Predict both numbers before you run it.
+
+```python
+# Both Fibonaccis, instrumented, so the improvement is a count and not a claim.
+calls = {}
+
+def counted(name, f):
+    calls[name] = 0
+    def wrapped(n):
+        calls[name] += 1
+        return f(n)
+    return wrapped
+
+def memoize(f):
+    cache = {}                      # the captured state: a table, not a number
+    def wrapped(x):
+        if x not in cache:
+            cache[x] = f(x)
+        return cache[x]
+    return wrapped
+
+def fib_slow(n):
+    return n if n < 2 else slow(n - 1) + slow(n - 2)
+
+slow = counted("slow", fib_slow)
+
+def fib_fast(n):
+    return n if n < 2 else fast(n - 1) + fast(n - 2)
+
+# counted() first, then memoize(), so the counter sees only real evaluations
+fast = memoize(counted("fast", fib_fast))
+
+print("fib(25) naive    :", slow(25), "in", calls["slow"], "calls")
+print("fib(25) memoized :", fast(25), "in", calls["fast"], "calls")
+
+# fib(25) naive    : 75025 in 242785 calls
+# fib(25) memoized : 75025 in 26 calls
+```
+
+### Reading the Code
+
+- **Why exactly 26.**  The memoized version evaluates the underlying function once for each distinct input from 0 through 25 inclusive, which is 26 evaluations.  Every other call is a cache hit and never reaches the counter.
+- The naive count is $2 \cdot \mathrm{fib}(n{+}1) - 1$, which for $n = 25$ is $2 \cdot 121393 - 1 = 242785$.  You can derive that on paper before running anything.
+- Both `fib_fast` and `fib_slow` name a *module-level* function in their recursive call rather than themselves, for the same reason the Scheme version names `fib-fast`: the wrapper has to be in the path of every call.
+- Put this beside `largest` and `largest2` from Model 2.  **Both are the same disease, recomputing a subresult you already had, and `let` and `memoize` are the small and the large cure.**  One names a value so it is computed once inside a single call; the other keeps a table so it is computed once across all calls.
 
 ---
 
