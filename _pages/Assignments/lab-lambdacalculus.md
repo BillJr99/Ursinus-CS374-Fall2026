@@ -51,11 +51,11 @@ tags:
 
 ---
 
-In this lab you and a partner evaluate lambda calculus expressions by hand, the way the Lambda Calculus class sessions do at the board.  It is entirely on paper.  You leave with a page of reductions you carried out one step at a time, a capture case you handled by renaming a bound variable, and Church-encoded booleans and numerals you verified by reduction rather than by trust.  No later assignment imports this lab, so it stands alone, but it prepares you for two things.  The first is the Functional Programming assignment's Direction C, Church encodings in code, where the reductions you write here become the test cases your reducer has to reproduce.  The second is the closures material, where "a function that captures a variable" stops being mysterious once you have alpha-renamed by hand.  Give yourself enough time to work the reductions slowly.  Rushing them defeats the purpose.
+In this lab you and a partner evaluate lambda calculus expressions by hand, the way the Lambda Calculus class sessions do at the board.  It is entirely on paper.  You leave with a page of reductions carried out one step at a time, a capture case you handled by renaming a bound variable, and Church-encoded booleans and numerals you verified by reduction rather than by trust.  No later assignment imports this lab, but it prepares you for the Functional Programming assignment's Direction C (Church encodings in code, where these reductions become the test cases your reducer has to reproduce) and for the closures material, where "a function that captures a variable" stops being mysterious once you have alpha-renamed by hand.  Work the reductions slowly; rushing them defeats the purpose.
 
 **Pair policy.**  You may do this lab in pairs.  Reduce independently, then reconcile line by line; the disagreements are where the learning is.  Hand in one document between you, each naming the other, and you both receive the same grade.  You may also do this alone.
 
-Five terms come up throughout, so here they are in one place:
+Five terms come up throughout:
 
 - A *redex* is a subterm ready to reduce: a lambda applied to an argument, such as $$(\lambda x.\, x)\ y$$.
 - *Beta reduction* contracts a redex by substituting the argument for the bound variable in the body.  One contraction is one beta-step.
@@ -67,52 +67,28 @@ Five terms come up throughout, so here they are in one place:
 
 ## Before You Start
 
-There is nothing to install for this lab.  You need pencil and paper, and one file (or one photo) to hand in at the end.
+There is nothing to install.  You may hand in a typed Markdown file or a legible scan or photo of handwritten work; decide now, because the typed route needs a file and the handwritten route needs a camera.
 
 - Work through the Lambda Calculus I and Lambda Calculus II activities listed under Readings above.  Every encoding this lab uses comes from them.
-- Have pencil, paper, and an eraser.  A second pen color is handy for underlining redexes.
-- If you type your submission, use VS Code or any plain-text editor.  The [dev environment page]({{ site.baseurl }}/Tutorials/DevEnvironment) walks through installing one.  You do not need the terminal for this lab; if you want to make your folder from the command line anyway, the [shell primer]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) covers the two commands below.
+- Have pencil, paper, an eraser, and a second pen color for underlining redexes.
+- If you type your submission, use VS Code or any plain-text editor; the [dev environment page]({{ site.baseurl }}/Tutorials/DevEnvironment) walks through installing one.  You do not need the terminal for this lab, but the [shell primer]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) covers the two commands below if you want to make your folder that way.
 - The [Build a Lambda Calculus Reducer tutorial]({{ site.baseurl }}/Tutorials/LambdaCalculusReducer) is optional.  This lab does not need it.
 
 ### Step 0.1: Set Up the Deliverable
 
-You may hand in either a typed Markdown file or a clear scan or photo of handwritten work; both are acceptable, as long as the handwritten version is legible.  Decide now, because the typed route needs a file and the handwritten route needs a camera.
-
 > **Do this.**
-> 1. Create a folder named `cs374-lambda` for this lab.  In VS Code, use File, Open Folder, and make a new folder there; from the terminal, run the two commands below.
-> 2. **Typed route:** create a file named `reductions.md` inside `cs374-lambda`, and paste the skeleton in the `text` fence below into it.  Put both partners' names on the first line.
-> 3. **Handwritten route:** write both partners' names at the top of the first sheet, and label every section and item number exactly as the skeleton does, so that I can find item 4 of Part 1 without hunting.  When you are done, photograph each page in good light with the page filling the frame, and confirm every symbol is readable on the photo before you submit.  Hand in one PDF named `reductions.pdf` with the pages in order, or images named `reductions-1.jpg`, `reductions-2.jpg`, and so on.
+> 1. Create a folder named `cs374-lambda` (File, Open Folder in VS Code, or the two commands below).
+> 2. **Typed route:** create `reductions.md` inside it.  Put both partners' names on the first line, then the headings `## Part 0`, `## Part 1`, and `## Part 2`, each with `### Item 1`, `### Item 2`, and so on for its items, plus `### Least-confident step` under Part 0.
+> 3. **Handwritten route:** write both names at the top of the first sheet and label every part and item number the same way, so I can find item 4 of Part 1 without hunting.  When done, photograph each page in good light with the page filling the frame, confirm every symbol is readable, and hand in one `reductions.pdf` with the pages in order (or `reductions-1.jpg`, `reductions-2.jpg`, and so on).
 
 ```bash
 mkdir cs374-lambda
 cd cs374-lambda
 ```
 
-```text
-Partners: <name one> and <name two>
-
-## Part 0
-### Item 1
-### Item 2
-### Least-confident step
-
-## Part 1
-### Item 1
-### Item 2
-### Item 3
-### Item 4 (capture case)
-### Item 5 (omega and evaluation order)
-
-## Part 2
-### Item 1
-### Item 2
-### Item 3
-### Item 4 (closing question)
-```
-
 ### Step 0.2: How to Type a Term
 
-If you type, write every lambda term in display math so it renders on the page.  Open with `$$`, type the term, and close with `$$`.  Put each beta-step on its own line.  The pieces you need:
+If you type, write every lambda term in display math: open with `$$`, type the term, close with `$$`, and put each beta-step on its own line.  A single `$` does not render on this site, and a term that does not render is a term I cannot grade.
 
 | What you want | Type this inside `$$...$$` |
 |---------------|----------------------------|
@@ -124,37 +100,23 @@ If you type, write every lambda term in display math so it renders on the page. 
 | An alpha-renaming arrow, $$\to_\alpha$$ | `\to_\alpha` |
 | A name like $$\text{TRUE}$$ | `\text{TRUE}` |
 
-For example, the line
+For example, `$$\underline{(\lambda x.\, x)\ y} \to_\beta y$$` renders as $$\underline{(\lambda x.\, x)\ y} \to_\beta y$$.
 
-```text
-$$\underline{(\lambda x.\, x)\ y} \to_\beta y$$
-```
-
-renders as
-
-$$\underline{(\lambda x.\, x)\ y} \to_\beta y$$
-
-> **Watch out.**  Use `$$` on both sides every time.  A single `$` does not render on this site, and a term that does not render is a term I cannot grade.
-
-> **Time budget.**  About two to three hours, most of it in one sitting with your partner.  Part 0 takes about half an hour, Part 1 about an hour, Part 2 about an hour, and the reconciliation with your partner fits inside those.
+> **Time budget.**  Two to three hours, most of it in one sitting with your partner: about half an hour for Part 0 and an hour each for Parts 1 and 2, with the reconciliation inside those.
 
 ---
 
 ## Notation and a Worked Reduction
 
-Read this section before Part 0.  It shows one reduction the way I want to see yours, and it collects the Church encodings you use in Part 2.
-
-### A Worked Beta Reduction
-
-Two conventions from the readings do most of the work.  Application associates to the left, so $$f\ a\ b$$ means $$(f\ a)\ b$$.  The body of a lambda extends as far right as it can, so $$\lambda x.\, x\ y$$ means $$\lambda x.\, (x\ y)$$.  With those in hand, here is a term that reduces to normal form in three steps.  The redex contracted at each step is underlined, and the justification follows each line.
+Two conventions from the readings do most of the work.  Application associates to the left, so $$f\ a\ b$$ means $$(f\ a)\ b$$.  The body of a lambda extends as far right as it can, so $$\lambda x.\, x\ y$$ means $$\lambda x.\, (x\ y)$$.  Here is a term that reduces to normal form in three steps, with the contracted redex underlined and a justification after each line.  This is the format I want to see in your work.
 
 $$\underline{(\lambda x.\, \lambda y.\, y\ x)\ a}\ (\lambda z.\, z)$$
 
-Start: application is left-associative, so the only redex is the underlined one on the left.  The rightmost $$(\lambda z.\, z)$$ is a lambda with nothing applied to it, so it is not a redex.
+Start: application is left-associative, so the only redex is the underlined one.  The rightmost $$(\lambda z.\, z)$$ has nothing applied to it, so it is not a redex.
 
 $$\to_\beta \quad \underline{(\lambda y.\, y\ a)\ (\lambda z.\, z)}$$
 
-Step 1: substitute $$a$$ for $$x$$ in the body $$\lambda y.\, y\ x$$.  No capture, because the argument $$a$$ contains no free $$y$$.
+Step 1: substitute $$a$$ for $$x$$ in the body $$\lambda y.\, y\ x$$.  No capture, because $$a$$ contains no free $$y$$.
 
 $$\to_\beta \quad \underline{(\lambda z.\, z)\ a}$$
 
@@ -162,113 +124,78 @@ Step 2: substitute $$(\lambda z.\, z)$$ for $$y$$ in the body $$y\ a$$.  No capt
 
 $$\to_\beta \quad a$$
 
-Step 3: substitute $$a$$ for $$z$$ in the body $$z$$.  The result $$a$$ has no redexes, so it is in normal form.
+Step 3: substitute $$a$$ for $$z$$ in the body $$z$$.  The result has no redexes, so it is in normal form.
 
-That is the whole format: one term per line, the redex underlined, the arrow labeled, and one phrase saying what was substituted for what and why no capture occurred.  When a capture would occur, you add an alpha step first, written like this on a term of its own (this one is not from the lab):
+That is the whole format: one term per line, the redex underlined, the arrow labeled, and one phrase saying what was substituted for what and why no capture occurred.  When a capture would occur, add an alpha step first on a line of its own (this example is not from the lab):
 
 $$\lambda y.\, y\ w \quad \to_\alpha \quad \lambda v.\, v\ w$$
 
-Alpha-renaming changes the bound $$y$$ and every use of it to a fresh name $$v$$, and leaves the free $$w$$ alone.  The term means the same thing before and after.
+The bound $$y$$ and every use of it become a fresh name $$v$$; the free $$w$$ is left alone, and the term means the same thing before and after.
 
-### Church Booleans
+### Church Booleans and Numerals
 
-A Church encoding represents a value such as a boolean or a number as a lambda term, so that the calculus needs no built-in data at all.  A boolean is a function that chooses one of its two arguments:
+A Church encoding represents a value such as a boolean or a number as a lambda term, so the calculus needs no built-in data.  A boolean is a function that chooses one of its two arguments; a numeral $$n$$ is a function that applies its first argument $$n$$ times to its second.
 
-$$\text{TRUE} = \lambda t.\, \lambda f.\, t$$
-
-$$\text{FALSE} = \lambda t.\, \lambda f.\, f$$
-
-$$\text{AND} = \lambda p.\, \lambda q.\, p\ q\ p$$
-
-### Church Numerals
-
-A numeral $$n$$ is a function that applies its first argument $$n$$ times to its second:
-
-$$\text{ZERO} = \lambda f.\, \lambda x.\, x$$
-
-$$\text{ONE} = \lambda f.\, \lambda x.\, f\ x$$
-
-$$\text{TWO} = \lambda f.\, \lambda x.\, f\ (f\ x)$$
-
-$$\text{SUCC} = \lambda n.\, \lambda f.\, \lambda x.\, f\ (n\ f\ x)$$
-
-When a lab item names one of these, substitute its definition in full as your first line, then reduce.  A name is an abbreviation, not a redex.
+| Name | Definition |
+|------|------------|
+| $$\text{TRUE}$$ | $$\lambda t.\, \lambda f.\, t$$ |
+| $$\text{FALSE}$$ | $$\lambda t.\, \lambda f.\, f$$ |
+| $$\text{AND}$$ | $$\lambda p.\, \lambda q.\, p\ q\ p$$ |
+| $$\text{ZERO}$$ | $$\lambda f.\, \lambda x.\, x$$ |
+| $$\text{ONE}$$ | $$\lambda f.\, \lambda x.\, f\ x$$ |
+| $$\text{TWO}$$ | $$\lambda f.\, \lambda x.\, f\ (f\ x)$$ |
+| $$\text{SUCC}$$ | $$\lambda n.\, \lambda f.\, \lambda x.\, f\ (n\ f\ x)$$ |
 
 ---
 
 ## Your First 15 Minutes
 
-Get one reduction into the right shape before you touch the graded items.
-
-> **Do this.**
-> 1. Read the worked reduction above once, start to finish, without writing anything.
-> 2. Cover it.  On paper, reduce $$(\lambda x.\, \lambda y.\, y\ x)\ a\ (\lambda z.\, z)$$ yourself: one beta-step per line, the redex underlined on every line, and a phrase after each line saying what you substituted for what.
-> 3. Uncover the worked version and compare line by line.
-> 4. Open `reductions.md` (or your first sheet), find the `## Part 0` heading, and start Part 0 item 1.  It has the same shape as the term you just reduced.
-
-> **Checkpoint.**  Your redo should match the worked trace step for step: three beta-steps, ending at $$a$$.  If you ended somewhere else, the usual cause is reading $$f\ a\ b$$ as $$f\ (a\ b)$$; reread the left-associativity convention and try again before you move on.
+1. Read the worked reduction above once, start to finish, without writing anything.
+2. Cover it and reduce $$(\lambda x.\, \lambda y.\, y\ x)\ a\ (\lambda z.\, z)$$ yourself on paper: one beta-step per line, the redex underlined on every line, and a phrase after each line saying what you substituted for what.
+3. Uncover the worked version and compare line by line.  You should match it step for step: three beta-steps, ending at $$a$$.  If you ended somewhere else, the usual cause is reading $$f\ a\ b$$ as $$f\ (a\ b)$$; reread the left-associativity convention and try again before you move on.
+4. Open `reductions.md` (or your first sheet) at `## Part 0` and start item 1.  It has the same shape as the term you just reduced.
 
 ---
 
 ## Part 0: Before You Start - Beta Reduction and Church Encodings (10%)
 
-Do this part first, before the rest of the lab.  Use pencil and paper, and write every step down.
+Do this part first.  Beta reduction is a rewriting rule, and you learn it by applying it slowly and recording each step.  Two reductions will do: one that reaches a normal form, and one that never will.
 
-Beta reduction is a rewriting rule.  You learn it by applying it slowly and recording each step.  Two reductions will do: one that reaches a normal form, and one that never will.  The second is why the lambda calculus is worth a unit of this course.
+> **Do this.**  Under `## Part 0`, one item per heading:
+> 1. Beta-reduce $$(\lambda x.\, \lambda y.\, x)\ a\ b$$ to normal form, showing each step.  Then try $$(\lambda x.\, x\ x)\ (\lambda x.\, x\ x)$$: reduce it far enough to show why it never terminates, and explain what happens.
+> 2. Using the Church encodings from the reading, verify by reduction that $$\text{SUCC}\ \text{ZERO}$$ behaves like $$\text{ONE}$$.  Write out both definitions in full first, then reduce until the result matches $$\text{ONE}$$ up to the names of bound variables.
+> 3. Under `### Least-confident step`, mark the step you were least confident was legal: circle it on paper, or write `<-- least confident` after it in the file, and add one sentence saying what made you unsure.
 
-> **Do this.**
-> 1. Beta-reduce $$(\lambda x.\, \lambda y.\, x)\ a\ b$$ to normal form, showing each step.  Then try $$(\lambda x.\, x\ x)\ (\lambda x.\, x\ x)$$ and explain what happens.
-> 2. Using the Church encodings from the reading, verify by reduction that $$\text{SUCC}\ \text{ZERO}$$ behaves like $$\text{ONE}$$.  Begin by writing out both definitions in full, then reduce until the result matches $$\text{ONE}$$ up to the names of bound variables.
-> 3. Go back over your steps and mark the one you were least confident was legal.  Circle it on paper, or write `<-- least confident` after it in the file, and add one sentence saying what made you unsure.
-
-> **Paste into your submission.**  Under `## Part 0`: the full step-by-step reduction of item 1's first term to normal form; enough steps of the second term to show why it never terminates, with your explanation; the $$\text{SUCC}\ \text{ZERO}$$ verification under item 2; and the marked least-confident step with its sentence.
-
-> **Bring to class.**  The reduction step you were least confident was legal.  Those are the steps we work through at the board, and capture-avoiding substitution (Part 1) is usually the reason one felt wrong.
+> **Bring to class.**  Your least-confident step.  Those are the steps we work through at the board, and capture-avoiding substitution (Part 1) is usually the reason one felt wrong.
 
 ---
 
 ## Part 1: Beta Reduction (50%)
 
-In `reductions.md`, reduce each expression below to normal form.  Write one beta-step per line, and mark the redex you contract at each step by underlining or bracketing it.  Before each step, ask whether the substitution would capture a free variable; if it would, alpha-rename first.
+Reduce each expression below to normal form, one beta-step per line, with the redex you contract underlined or bracketed on every line.  Before each step, compare the argument's free variables with the binder you are about to substitute under; if a name appears in both places, alpha-rename the binder first.  Item 4 is the one place in this lab where the obvious move is wrong, and the rubric row for this part turns on whether you renamed or captured.
 
 > **Do this.**  Under `## Part 1`, one item per heading:
 > 1. Reduce $$(\lambda x.\, x)\ y$$.
 > 2. Reduce $$(\lambda x.\, \lambda y.\, x)\ a\ b$$.
-> 3. Reduce $$(\lambda f.\, \lambda x.\, f\ (f\ x))\ (\lambda z.\, z + 1)\ 0$$.  Treat $$+$$ and the numerals as constants: they are not redexes, and $$0 + 1$$ stays written as $$0 + 1$$ (or you may simplify the arithmetic at the end, after the last beta-step).
+> 3. Reduce $$(\lambda f.\, \lambda x.\, f\ (f\ x))\ (\lambda z.\, z + 1)\ 0$$.  Treat $$+$$ and the numerals as constants: they are not redexes, and $$0 + 1$$ stays written as $$0 + 1$$ (you may simplify the arithmetic after the last beta-step).
 > 4. **The capture case:** reduce $$(\lambda x.\, \lambda y.\, x)\ y$$.  Blind substitution captures the free $$y$$.  Alpha-rename first, show the renaming as its own $$\to_\alpha$$ line, and add one sentence explaining what would have gone wrong without it.
-> 5. Reduce $$(\lambda x.\, x\ x)\ (\lambda x.\, x\ x)$$ three steps, then state what this term tells you about termination.  Then answer: given $$(\lambda x.\, z)\ ((\lambda x.\, x\ x)\ (\lambda x.\, x\ x))$$, which evaluation order (normal or applicative) terminates, and what does that imply about lazy evaluation?
-
-For item 5, normal order reduces the leftmost outermost redex first, and applicative order reduces arguments before applying the function.  Work the term both ways on paper, a few steps each, before you write the answer.
-
-> **Watch out.**  Item 4 is the one place in this lab where the obvious move is wrong.  Before you substitute, look at the argument's free variables and at the binder you are about to substitute under.  If a name appears in both places, rename the binder first.  The rubric row for this part turns on whether you renamed or captured.
-
-> **Paste into your submission.**  Under `## Part 1`: five reduction sequences, one beta-step per line with the redex marked on every line; the $$\to_\alpha$$ line and its explanatory sentence under item 4; the three steps and the termination statement under item 5; and the normal-order versus applicative-order answer with the divergence example, under item 5 as well.
-
-Remember from this part: every reduction is a sequence of single steps, each with its redex marked, and the capture case is the one place you must rename before you substitute.
+> 5. Reduce $$(\lambda x.\, x\ x)\ (\lambda x.\, x\ x)$$ three steps, then state what this term tells you about termination.  Then answer: given $$(\lambda x.\, z)\ ((\lambda x.\, x\ x)\ (\lambda x.\, x\ x))$$, which evaluation order (normal or applicative) terminates, and what does that imply about lazy evaluation?  Normal order reduces the leftmost outermost redex first; applicative order reduces arguments before applying the function.  Work the term both ways on paper, a few steps each, before you write the answer.
 
 ---
 
 ## Part 2: Church Encodings (40%)
 
-A Church encoding represents a value such as a boolean or a number as a lambda term, so that the calculus needs no built-in data at all.  Use the definitions from the Notation section above: $$\text{TRUE} = \lambda t.\, \lambda f.\, t$$, $$\text{FALSE} = \lambda t.\, \lambda f.\, f$$, $$\text{AND} = \lambda p.\, \lambda q.\, p\ q\ p$$, and the numerals $$\text{ZERO} = \lambda f.\, \lambda x.\, x$$, $$\text{ONE} = \lambda f.\, \lambda x.\, f\ x$$, $$\text{SUCC} = \lambda n.\, \lambda f.\, \lambda x.\, f\ (n\ f\ x)$$.
+When an item names an encoding from the table above, write its definition in full as your first line, then reduce; a name is an abbreviation, not a redex.  Two terms are alpha-equivalent when they differ only in the names of bound variables, so a verification succeeds when your complete sequence ends at a term matching the expected one after renaming, not when you claim it would.
 
 > **Do this.**  Under `## Part 2`, one item per heading:
 > 1. Verify that $$\text{AND}\ \text{TRUE}\ \text{FALSE}$$ reduces to $$\text{FALSE}$$, showing every step.  Your first line expands all three names to their definitions.
 > 2. Verify that $$\text{AND}\ \text{TRUE}\ \text{TRUE}$$ reduces to $$\text{TRUE}$$.
-> 3. Verify that $$\text{SUCC}\ \text{ONE}$$ reduces to a term alpha-equivalent to $$\text{TWO} = \lambda f.\, \lambda x.\, f\ (f\ x)$$.
+> 3. Verify that $$\text{SUCC}\ \text{ONE}$$ reduces to a term alpha-equivalent to $$\text{TWO} = \lambda f.\, \lambda x.\, f\ (f\ x)$$.  If your final term has different binder names from $$\text{TWO}$$, add one $$\to_\alpha$$ line that renames them and ends exactly at $$\text{TWO}$$.
 > 4. Close with a short answer: a Church numeral *is* a higher-order function, "apply $$f$$, $$n$$ times."  Name the Python or Scheme idiom from the Functional Programming sessions that does exactly this, and one place your team language or interpreter could use the same trick.
-
-Two terms are alpha-equivalent when they differ only in the names of bound variables, so item 3 succeeds when your result matches $$\text{TWO}$$ after renaming.  If your final term has different binder names from $$\text{TWO}$$, add one $$\to_\alpha$$ line that renames them and ends exactly at $$\text{TWO}$$.
-
-> **Paste into your submission.**  Under `## Part 2`: three complete reduction sequences, each starting from the expanded definitions and ending at the expected term (with a final $$\to_\alpha$$ line under item 3 if you needed one), and a short paragraph under item 4 naming the idiom and the place in your team language or interpreter where it applies.
-
-Remember from this part: a verification is a complete reduction sequence that ends at the expected term, not a claim that it would.
 
 ---
 
 ## Deliverables
-
-Submit `reductions.md` (or a scanned/photographed handwritten equivalent, legible) containing both parts, with both partners named at the top.
 
 | File or artifact | What it shows | Rubric row |
 |------------------|---------------|------------|

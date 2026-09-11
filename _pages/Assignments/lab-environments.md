@@ -49,7 +49,7 @@ tags:
 
 ---
 
-In this lab you build `Environment`, the class that makes scope real in your interpreter.  An environment is the data structure that maps variable names to their values.  Each block of code gets its own environment, and each environment points to the enclosing one, so a lookup can walk outward until it finds the name.  You leave with a tested `environment.py` that the Interpreter assignment's Step 2c imports unchanged, plus a paper trace that predicts what your class will do before you run it.  By the time you wire the class into the evaluator, its behavior should already be settled and tested.  You do this lab with a partner.
+In this lab you build `Environment`, the class that makes scope real in your interpreter.  An environment is the data structure that maps variable names to their values.  Each block of code gets its own environment, and each environment points to the enclosing one, so a lookup can walk outward until it finds the name.  You leave with a tested `environment.py` that the Interpreter assignment's Step 2c imports unchanged, plus a paper trace that predicts what your class will do before you run it.  You do this lab with a partner.
 
 **Pair policy.**  You may do this lab in pairs.  You each submit the same files, name each other in them, and earn the same grade.  You may also work alone.  The Interpreter assignment remains individual work: you may both carry this shared `Environment` into it, but the evaluator around it must be your own.
 
@@ -59,13 +59,12 @@ In this lab you build `Environment`, the class that makes scope real in your int
 
 You need:
 
-- Python 3.10 or newer.  Nothing else: the class uses only the standard library.
-- Any text editor.  VS Code is fine; so is anything that saves plain `.py` files.
-- A terminal you can run `python3` from.  If the terminal is new to you, read the [Dev Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) and the [Shell for Language Development primer]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) first; both are short.
+- Python 3.10 or newer.  The class uses only the standard library.
+- Any editor that saves plain `.py` files, and a terminal you can run `python3` from.  If the terminal is new to you, read the [Dev Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) and the [Shell for Language Development primer]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) first; both are short.
 - The provided behavior script `test_environment.py` from the course starter repo.
 - The two readings listed above (the Binding and Scope activity and the Environments activity).  Part 0 uses their vocabulary.
 
-Make a folder for this lab and confirm your Python version from inside it:
+Make a folder for this lab and confirm your Python version from inside it (any `3.10` or higher is fine; on Windows, if `python3` is not found, use `python` wherever this page says `python3`):
 
 ```bash
 mkdir cs374-environments
@@ -77,49 +76,34 @@ python3 --version
 Python 3.11.9
 ```
 
-Any version that starts with `3.10`, `3.11`, `3.12`, or higher is fine.  If the terminal says `python3` is not found and you are on Windows, use `python` wherever this page says `python3`.
-
-> **Time budget.**  About two to three hours, like every lab in this course.  Part 0 is thirty minutes on paper, Part 1 is about an hour of coding, and Part 2 is thirty to forty-five minutes of prediction and checking.  See the course schedule for the assigned and due dates.
+> **Time budget.**  About two to three hours: thirty minutes on paper for Part 0, about an hour of coding for Part 1, and thirty to forty-five minutes of prediction and checking for Part 2.  See the course schedule for the assigned and due dates.
 
 ---
 
 ## Your First 15 Minutes
 
-Get a file that imports and one method that works before you think about the rest.
-
 1.  Create `environment.py` inside `cs374-environments/` and paste in the skeleton from Step 1.1.
-2.  Run it once on its own.  A skeleton that runs and prints nothing is a skeleton with no syntax errors:
-
-```bash
-python3 environment.py
-```
-
+2.  Run `python3 environment.py` once.  A skeleton that runs and prints nothing has no syntax errors.
 3.  Fill in `define` (one line: store the value in this scope's table) and the first two lines of `lookup` (if the name is in this scope's table, return it).
-4.  Create `try_env.py` from Step 1.3, run `python3 try_env.py`, and watch it print `51` and `2` before it stops at the unfinished `assign`.  That crash is your to-do list.
-
-Once you can see output, the rest of Part 1 is filling in three short methods, and Part 2 is checking your predictions against them.
+4.  Create `try_env.py` from Step 1.2 and run `python3 try_env.py`.  It prints `51` and `2`, then stops at the unfinished `assign`.  That crash is your to-do list.
 
 ---
 
 ## Part 0: Trace Binding and Scope on Paper (10%)
 
-Do this part on paper before you write the `Environment` class.  It has two halves, one for each of the two topics it prepares you for.  You may do it alone even though the rest of this lab is pair work.  Put your answers at the top of `trace.md` (a photo of the paper is fine) so they travel with the rest of your submission.
-
-Drawing the environment settles a scope question in about thirty seconds.  Two terms first.  Under lexical scope, a name refers to the binding in the enclosing text of the program.  Under dynamic scope, a name refers to the most recent binding made by any caller that is still running.
+Do this part on paper before you write the class; you may do it alone even though the rest of the lab is pair work.  Put your answers at the top of `trace.md` (a photo of the paper is fine).  Two terms first.  Under lexical scope, a name refers to the binding in the enclosing text of the program.  Under dynamic scope, a name refers to the most recent binding made by any caller that is still running.
 
 ### Step 0.1: Trace the Shadowing Expression
 
-Evaluate this expression by hand, drawing the environment at each step.  Shadowing is what happens here: the inner binding of `x` hides the outer one.
+Evaluate this expression by hand, drawing the environment at each step.  The inner binding of `x` shadows (hides) the outer one.
 
 ```text
 let x = 2 in let x = x + 1 in x * x
 ```
 
-Write a chain innermost-first, with each scope as a box of bindings and an arrow to its parent, like `E1{x=2} -> E0{}` (`E0` is the empty top-level scope).  A drawn picture of boxes and arrows is just as good as the text form.
-
 > **Do this.**
-> 1. Copy the table below into `trace.md` (or draw it on paper).
-> 2. Fill in the environment chain and the result at every step.  Step 1 is done for you as a model.
+> 1. Copy the table below into `trace.md` (or draw it on paper).  Step 1 is done for you as a model.
+> 2. Fill in the chain and the result at every step.  Write chains innermost-first, each scope a box of bindings with an arrow to its parent, like `E1{x=2} -> E0{}` (`E0` is the empty top-level scope).  A drawn picture of boxes and arrows is just as good.
 > 3. Write the final value of the whole expression under the table.
 
 | Step | Expression being evaluated | Environment chain (lexical) | Result |
@@ -133,32 +117,19 @@ Write a chain innermost-first, with each scope as a box of bindings and an arrow
 ### Step 0.2: Predict It Under Dynamic Scope
 
 > **Do this.**
-> 1. Copy the same table again, headed "Environment chain (dynamic)".
-> 2. Fill it in following the dynamic rule: a name refers to the most recent binding made by any caller that is still running.
-> 3. Mark the exact step where the two tables first give different results.  If every row agrees for this expression, say so, and say what a program would have to contain before the two rules could disagree.
-
-| Step | Expression being evaluated | Environment chain (dynamic) | Result |
-|------|----------------------------|-----------------------------|--------|
-| 1 | `let x = 2 in ...` binds the outer `x` | | |
-| 2 | `x + 1` | | |
-| 3 | `let x = <step 2 result> in ...` binds the inner `x` | | |
-| 4 | `x * x` | | |
-| 5 | the inner `let` ends, then the outer `let` ends | | |
+> 1. Copy the same table again, headed "Environment chain (dynamic)", and fill it in under the dynamic rule.
+> 2. Mark the exact step where the two tables first give different results.  If every row agrees for this expression, say so, and say what a program would have to contain before the two rules could disagree.
 
 ### Step 0.3: Decide the Unbound-Variable Behavior
 
-An unbound variable is a name that no environment in the chain defines.  Your evaluator will meet one eventually, and you should decide now what happens rather than let Python decide for you.
-
 > **Do this.**
-> 1. Write a two-line expression of your own that uses a name nobody bound (for example, an outer `let` that binds `x` and a body that mentions `y`).
+> 1. Write a two-line expression of your own that uses an unbound variable, a name no environment in the chain defines (for example, an outer `let` that binds `x` and a body that mentions `y`).
 > 2. Trace it the same way, and stop at the step where the chain runs out.
-> 3. Decide what error the evaluator should raise (name the class) and at what moment: when the program is read, when the enclosing `let` is entered, or when the lookup of the name actually runs.  Write the error and the moment as one sentence in `trace.md`.
+> 3. Decide what error the evaluator should raise (name the class) and at what moment: when the program is read, when the enclosing `let` is entered, or when the lookup of the name actually runs.  Write the error and the moment as one sentence in `trace.md`.  Decide this now rather than let Python decide for you.
 
 ### Step 0.4: Write Two Probe Programs for the Mystery Scoping Language
 
-In class you will run programs against an interpreter whose scoping rule is hidden and deduce the rule from the answers.  A probe is worth exactly as much as its ability to tell the two rules apart.  A probe program is one whose output differs depending on whether the language is lexically or dynamically scoped, so a program that prints the same thing under both rules tells you nothing.
-
-Here is the shape of a probe, in a pseudocode syntax.  A function reads a name it did not bind, and the function is called from a place that rebinds that name.  This one is mine, so it does not count toward your two.
+In class you will run programs against an interpreter whose scoping rule is hidden and deduce the rule from the answers.  A probe program is one whose output differs depending on whether the language is lexically or dynamically scoped, so a program that prints the same thing under both rules tells you nothing.  Here is the shape of a probe, in pseudocode: a function reads a name it did not bind, and it is called from a place that rebinds that name.  This one is mine, so it does not count toward your two.
 
 ```text
 let x = 1;
@@ -171,47 +142,38 @@ caller();
 ```
 
 > **Do this.**
-> 1. Write two short programs of your own whose output differs depending on whether the language is lexically or dynamically scoped.  Make one of them as short as you can.
+> 1. Write two short programs of your own whose output differs depending on the scoping rule.  Make one of them as short as you can.
 > 2. For each program, write your prediction of what it prints under each rule: one line for lexical, one line for dynamic.
-> 3. Check each probe against the definition above: if both predictions match, the probe cannot tell the rules apart, so change it.
+> 3. If both predictions for a probe match, it cannot tell the rules apart, so change it.
 
 > **Bring to class.** Both probe programs and all four predictions.  You will run them against the mystery interpreter in the Binding and Scope session.
-
-A half-finished trace is worth more than a blank page.  Part 1's distinction between `define` and `assign` is the mechanism that makes your trace come out one way rather than the other.
 
 ---
 
 ## Part 1: Build the Environment Class (63%)
 
-Implement `Environment` in `environment.py`.  It stands alone: no AST or evaluator is needed, and its interface is plain Python.  The interface is:
+Implement `Environment` in `environment.py`.  It stands alone (no AST or evaluator needed) with this interface:
 
 - `Environment(parent=None)`: a scope with an optional enclosing scope.
 - `define(name, value)`: create `name` in this scope.  This shadows any outer binding of the same name.
 - `assign(name, value)`: update the nearest enclosing binding of `name`.  If no scope in the chain defines it, raise a language-level `LangNameError` (not a bare Python `KeyError`) that carries the name.
 - `lookup(name)`: return the nearest enclosing binding's value, or raise `LangNameError`.
 
-The word "nearest" is doing the work in both `assign` and `lookup`.  Each method starts in the current scope and walks toward the parent one link at a time, stopping at the first scope that has the name.
+### Step 1.1: Create environment.py and Fill In the Methods
 
-### Step 1.1: Create environment.py from the Skeleton
-
-The skeleton names every method the interface requires and includes the two error classes, so the file runs on its own.  `LangError` carries a line and column with defaults of zero because the class does not know where in the source a name appeared; the evaluator fills those in when it wires this class in during the Interpreter assignment.  Your job here is to make the error carry the name.
+The skeleton below names every method and includes the two error classes, so the file runs on its own.  `LangError` carries a line and column that default to zero; the evaluator fills those in during the Interpreter assignment.  `lookup` and `assign` share a shape: check this scope, else defer to the parent, else raise.  The one line that separates `define` from `assign` is the point of the lab: `define` writes into this scope's table no matter what any parent holds, and `assign` never writes into this scope unless the name is already here.
 
 > **Do this.**
-> 1. Create `environment.py` in your `cs374-environments/` folder.
-> 2. Paste in the skeleton below.
-> 3. Run it once to confirm there are no syntax errors:
->
-> ```bash
-> python3 environment.py
-> ```
+> 1. Create `environment.py` in your `cs374-environments/` folder, paste in the skeleton below, and run `python3 environment.py` once.  A clean run prints nothing; a `SyntaxError` or `IndentationError` means the paste went wrong.
+> 2. Replace each `raise NotImplementedError(...)` with the code the `# TODO` comments describe.  In `lookup` and `assign`, let the recursive call on `self._parent` do the walking; you do not need a loop.
+> 3. Give each `LangNameError` a message that includes the variable name, such as `Undefined variable 'y'` for `lookup` and `Cannot assign to undefined variable 'y'` for `assign`.
+> 4. Run `python3 environment.py` again and confirm it still prints nothing.
 
 ```python
 """environment.py: the scope table for the CS374 interpreter."""
 
-
 class LangError(Exception):
     """Base class for every language-level error (same shape as Interpreter Step 5a)."""
-
     def __init__(self, message, line=0, col=0):
         self.message = message
         self.line = line      # the evaluator fills these in later
@@ -221,67 +183,41 @@ class LangError(Exception):
     def __str__(self):
         return f"line {self.line}, col {self.col}: {self.message}"
 
-
 class LangNameError(LangError):
     """Raised when a name has no binding anywhere in the chain."""
-    pass
-
 
 class Environment:
     """One scope: a table of bindings plus a link to the enclosing scope."""
-
     def __init__(self, parent=None):
         self._bindings = {}     # name -> value, for THIS scope only
         self._parent = parent   # the enclosing Environment, or None at top level
 
     def define(self, name, value):
-        """Create (or replace) a binding for name in THIS scope.  Used by let."""
         # TODO: store the value in this scope's table.  Do not look at the parent.
         raise NotImplementedError("define")
 
     def lookup(self, name):
-        """Return the value of the nearest binding of name, walking outward."""
         # TODO: if name is bound in this scope, return its value.
         # TODO: otherwise, if there is a parent, ask the parent and return its answer.
         # TODO: otherwise raise LangNameError with a message that names the variable.
         raise NotImplementedError("lookup")
 
     def assign(self, name, value):
-        """Update the nearest existing binding of name.  Used by bare assignment."""
         # TODO: if name is bound in this scope, update it here.
         # TODO: otherwise, if there is a parent, hand the assignment to the parent.
         # TODO: otherwise raise LangNameError.  Never create a new binding here.
         raise NotImplementedError("assign")
 ```
 
-> **You should see.** Nothing.  The file defines three classes and runs no code, so a clean run prints nothing and returns you to the prompt.  A `SyntaxError` or `IndentationError` means the paste went wrong; check that every method body is indented under its `def`.
+> **Watch out.** `if self._parent:` runs the parent's truthiness, and an `Environment` with no bindings is still a real parent.  Compare against `None` explicitly: `if self._parent is not None:`.
 
-> **Watch out.** When you reach the Interpreter assignment, Step 5a defines the same `LangError` hierarchy in `interpreter.py`.  Keep one definition: either import `LangError` and `LangNameError` from `environment.py`, or move them into the interpreter's error module and import them back here.  Two copies of `LangNameError` means an `except LangNameError` in the evaluator can miss the one your `Environment` raises.
+> **Watch out.** The Interpreter assignment's Step 5a defines the same `LangError` hierarchy in `interpreter.py`.  Keep one definition: import `LangError` and `LangNameError` from `environment.py`, or move them into the interpreter's error module and import them back here.  With two copies of `LangNameError`, an `except LangNameError` in the evaluator can miss the one your `Environment` raises.
 
-### Step 1.2: Fill In define, lookup, and assign
+### Step 1.2: Run the Usage Example
 
-Each method is a few lines, and `lookup` and `assign` share a shape: check this scope, else defer to the parent, else raise.  The one line that separates `define` from `assign` is the whole point of the lab.  `define` writes into this scope's table no matter what any parent holds.  `assign` never writes into this scope unless the name is already here.
+This is the Interpreter assignment's shadowing program, translated line by line into calls on your class.  A `let` is a `define`, a bare assignment is an `assign`, entering a block is a new `Environment` whose parent is the current one, and leaving the block means you stop using it.
 
-> **Do this.**
-> 1. Replace each `raise NotImplementedError(...)` with the code the `# TODO` comments describe.
-> 2. In `lookup` and `assign`, make the recursive call on `self._parent` do the walking.  You do not need a loop.
-> 3. Give each `LangNameError` a message that includes the variable name, such as `Undefined variable 'y'` for `lookup` and `Cannot assign to undefined variable 'y'` for `assign`.
-> 4. Run `python3 environment.py` again and confirm it still prints nothing.
-
-> **Watch out.** The test `if self._parent:` looks like it means "is there a parent," but it also runs the parent's truthiness, and an `Environment` with no bindings is still a real parent.  Compare against `None` explicitly: `if self._parent is not None:`.
-
-### Step 1.3: Run the Usage Example
-
-This example is the Interpreter assignment's shadowing program, translated line by line into calls on your class.  A `let` is a `define`, a bare assignment is an `assign`, entering a block is a new `Environment` whose parent is the current one, and leaving the block means you stop using it.
-
-> **Do this.**
-> 1. Create `try_env.py` in the same folder as `environment.py`.
-> 2. Paste in the example below.
-> 3. Run it from that folder:
->
-> ```bash
-> python3 try_env.py
-> ```
+> **Do this.** Create `try_env.py` in the same folder as `environment.py`, paste in the example below, and run `python3 try_env.py` from that folder.
 
 ```python
 from environment import Environment, LangNameError
@@ -303,7 +239,7 @@ except LangNameError as err:
     print("caught:", err)
 ```
 
-> **You should see.** Four lines.  The last line's wording after `caught:` is whatever message you wrote, but it must contain the name `nope`.
+> **You should see.** Four lines.  The wording after `caught:` is whatever message you wrote, but it must contain the name `nope`.
 
 ```text
 51
@@ -315,13 +251,11 @@ caught: line 0, col 0: Cannot assign to undefined variable 'nope'
 > **If it fails.**
 > - `ModuleNotFoundError: No module named 'environment'`: you ran the command from a different folder.  `cd` into `cs374-environments/` and run it again.
 > - The third line prints `10` instead of `11`: your `assign` created a new `y` in `inner` instead of updating `outer`.  That is the define-versus-assign bug the rubric names.
-> - The program ends with a `KeyError` traceback instead of `caught:`: `assign` fell through to a dictionary lookup instead of raising `LangNameError`.
+> - A `KeyError` traceback instead of `caught:`: `assign` fell through to a dictionary lookup instead of raising `LangNameError`.
 
-> **Watch out.** This example prints `51` then `2` even if `lookup` never consults the parent, because both `x` bindings are found in the scope where the lookup starts.  Parent chaining is caught by the next step, not this one.
+### Step 1.3: Run the Provided Behavior Script
 
-### Step 1.4: Run the Provided Behavior Script
-
-Verify your class against the provided behavior script `test_environment.py` in the course starter repo.  It checks five behaviors:
+The example above prints `51` then `2` even if `lookup` never consults the parent, because both `x` bindings sit in the scope where the lookup starts.  The provided `test_environment.py` checks that and four more behaviors:
 
 1.  Lookup through three levels of nesting.
 2.  `define` in an inner scope shadows the outer binding.
@@ -330,23 +264,15 @@ Verify your class against the provided behavior script `test_environment.py` in 
 5.  Scope restoration: after a child scope is discarded, the outer binding is unchanged.
 
 > **Do this.**
-> 1. Copy `test_environment.py` from the starter repo into `cs374-environments/`, next to `environment.py`.
-> 2. Run it from that folder:
->
-> ```bash
-> python3 test_environment.py
-> ```
->
-> 3. Save the output for your submission: either redirect it to a file with `python3 test_environment.py > test_output.txt 2>&1`, or take a screenshot of the terminal.
+> 1. Copy `test_environment.py` from the starter repo into `cs374-environments/`, next to `environment.py`, and run `python3 test_environment.py` from that folder.
+> 2. Save the output for your submission: redirect it with `python3 test_environment.py > test_output.txt 2>&1`, or take a screenshot of the terminal.
 
-> **You should see.** All five behaviors reported as passing and no Python traceback.  If the script is built on `unittest`, the last lines are `Ran 5 tests` followed by `OK`.  A `FAILED` line names the behavior that broke; the number in the list above tells you which method to reread.
+> **You should see.** All five behaviors passing and no Python traceback.  If the script is built on `unittest`, the last lines are `Ran 5 tests` followed by `OK`.  A `FAILED` line names the behavior that broke; its number in the list above tells you which method to reread.
 
 > **If it fails.**
-> - Behavior 1 fails but Step 1.3 passed: `lookup` finds names in the current scope but never recurses to `self._parent`.
+> - Behavior 1 fails but Step 1.2 passed: `lookup` finds names in the current scope but never recurses to `self._parent`.
 > - Behavior 3 fails: `assign` checks `self._bindings` and then creates the name there instead of deferring to the parent.
 > - Behavior 5 fails: something in `define` or `assign` wrote into the parent's table directly.  Only `assign` may touch a parent, and only through the parent's own `assign`.
-
-The signature behavior to get right is the Interpreter assignment's shadowing program: an inner `let x` shadows the outer one and prints `51`, and after the block exits the outer `x` is intact and prints `2`.  Step 1.3 is that program; Step 1.4 is everything around it.
 
 ---
 
@@ -379,50 +305,25 @@ print y;                 # step 20
 
 ### Step 2.1: Fill In the Trace Table Before You Run Anything
 
-For each step, draw the environment chain: each scope as a box with its bindings and an arrow to its parent.  Use the same innermost-first notation as Part 0, naming the scopes `top`, `A`, `B`, and `C`.  In the Result column write the value printed (for a `print` step), the binding that was created or changed and in which scope (for a `let` or assignment step), or "enter" and "leave" for the braces.
-
 > **Do this.**
-> 1. Copy the table below into `trace.md`.
-> 2. Fill in every row from memory of the rules, not by running code.  Step 1 is done for you as a model.
+> 1. Copy the table below into `trace.md`, one row per numbered step, and fill in every row from the rules, not by running code.  Step 1 is done for you as a model.
+> 2. Draw each chain in the same innermost-first notation as Part 0, naming the scopes `top`, `A`, `B`, and `C`.  In the Result column write the value printed (for a `print` step), the binding created or changed and in which scope (for a `let` or assignment step), or "enter" and "leave" for the braces.
 > 3. Under the table, write the six values you expect `print` to produce, in order.
 
 | Step | Line | Environment chain | Result |
 |------|------|-------------------|--------|
 | 1 | `let x = 1;` | `top{x=1}` | `x=1` created in `top` |
 | 2 | `let y = 10;` | | |
-| 3 | `{` enter A | | |
-| 4 | `let x = 2;` | | |
-| 5 | `y = y + x;` | | |
-| 6 | `{` enter B | | |
-| 7 | `x = x * 10;` | | |
-| 8 | `let z = y;` | | |
-| 9 | `{` enter C | | |
-| 10 | `let y = 0;` | | |
-| 11 | `z = z + x;` | | |
-| 12 | `print y;` | | |
-| 13 | `}` leave C | | |
-| 14 | `print x;` | | |
-| 15 | `print z;` | | |
-| 16 | `}` leave B | | |
-| 17 | `print x;` | | |
-| 18 | `}` leave A | | |
-| 19 | `print x;` | | |
-| 20 | `print y;` | | |
+| ... | one row per step, through step 20 `print y;` | | |
 
 ### Step 2.2: Run the Program Through Your Class and Compare
 
-You do not have an evaluator yet, so run the program the same way Step 1.3 did: translate each step into a call on your class.  This is also a preview of exactly what the Interpreter assignment's `Let`, `Assign`, `Block`, and `Var` cases will do.
+You do not have an evaluator yet, so run the program the way Step 1.2 did: translate each step into a call on your class.  This is a preview of exactly what the Interpreter assignment's `Let`, `Assign`, `Block`, and `Var` cases will do.
 
 > **Do this.**
 > 1. Create `trace_run.py` next to `environment.py` and start it from the listing below.
-> 2. Finish the `# TODO`: one line per remaining step.  Each `{` becomes `Environment(parent=<the scope you are in>)`, each `}` means you go back to using the parent, and each `print` becomes a Python `print` of a `lookup`.
-> 3. Run it:
->
-> ```bash
-> python3 trace_run.py
-> ```
->
-> 4. Compare the six printed values with your predictions.  For any step where your prediction missed, write one sentence in `trace.md` naming the rule you misapplied (define versus assign, or which scope a lookup starts in).
+> 2. Finish the `# TODO`, one line per remaining step.  Each `{` becomes `Environment(parent=<the scope you are in>)`, each `}` means you go back to using the parent, and each `print` becomes a Python `print` of a `lookup`.
+> 3. Run `python3 trace_run.py` and compare the six printed values with your predictions.  For any step where your prediction missed, write one sentence in `trace.md` naming the rule you misapplied (define versus assign, or which scope a lookup starts in).
 
 ```python
 from environment import Environment
@@ -436,7 +337,7 @@ a.assign("y", a.lookup("y") + a.lookup("x"))     # step 5:  y = y + x;
 # TODO: steps 6 through 20, one line each, in the same style.
 ```
 
-> **You should see.** Six lines of output, one per `print` in the program, in the order of steps 12, 14, 15, 17, 19, and 20.  If all six match the values under your table, your predictions were right; if not, the mismatched step tells you which rule to revisit.  Do not look at the output before your table is filled in.  The prediction is the graded part.
+> **You should see.** Six lines of output, one per `print`, in the order of steps 12, 14, 15, 17, 19, and 20.  Do not look at the output before your table is filled in.  The prediction is the graded part.
 
 ### Step 2.3: Answer the Two Theory Questions
 
@@ -467,8 +368,7 @@ Submit a ZIP containing the files below, with both partners named in `trace.md`.
 
 - [ ] Part 0's shadowing expression is traced with the environment drawn at every step, under both lexical and dynamic scope, with the diverging step marked (or the absence of one explained).
 - [ ] Part 0 names the error an unbound variable raises and the moment it fires, and includes two probe programs with a prediction under each rule.
-- [ ] `define` writes only into the current scope; `assign` never creates a binding.
-- [ ] `assign` to an undefined name raises `LangNameError` (not `KeyError`) with the name in the message.
+- [ ] `define` writes only into the current scope; `assign` never creates a binding, and `assign` to an undefined name raises `LangNameError` (not `KeyError`) with the name in the message.
 - [ ] `lookup` chains through three levels of nesting, and `python3 test_environment.py` reports all five behaviors passing.
 - [ ] The shadowing program prints `51` then `2`, and the outer binding is unchanged after the block.
 - [ ] `trace.md` shows the environment chain at every step of the trace program, was written before the run, and notes any prediction that missed.

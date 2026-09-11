@@ -66,7 +66,7 @@ Before you start, you need:
 
 - Python 3.10 or newer.  The `re` and `json` modules are part of the standard library, so there is nothing to install.
 - A text editor (VS Code or any editor you like) and a terminal.  If the terminal is new to you, read the [dev environment page]({{ site.baseurl }}/Tutorials/DevEnvironment) and the [shell primer]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) first; both are short.
-- Your files from the Regex Workshop lab, if you have started it.
+- Your files from the Regex Workshop lab, if you have started it.  The lab is due mid-assignment and completes your first patterns and the mini lexer skeleton, so bring those files straight into Parts 1 and 2: the lab is a head start on this assignment, not separate work.
 
 Confirm your Python version from the terminal:
 
@@ -74,15 +74,9 @@ Confirm your Python version from the terminal:
 python3 --version
 ```
 
-> **You should see.** One line naming a version, such as the one below.  Any version 3.10 or newer is fine.  If the terminal says `python3` is not found (common on Windows), use `python` in place of `python3` in every command on this page.
+You should see one line such as `Python 3.12.3`; any version 3.10 or newer is fine.  If the terminal says `python3` is not found (common on Windows), use `python` in place of `python3` in every command on this page.
 
-```text
-Python 3.12.3
-```
-
-> **Do this.**
-> 1. Make a project folder for this assignment and move into it.  Every command on this page runs from inside this folder.
-> 2. Create the six files below so each part has a home.  You can create them in your editor (save each new file into `cs374-regex/`) or with the `touch` command shown, which works in the macOS and Linux shells and in Git Bash on Windows.
+> **Do this.** Make a project folder, move into it, and create the six files below: `patterns.py` (Part 1), `mini_lexer.py` (Part 2), `transformer.py` (Part 3a-3b), `log_parser.py` and `config.json` (Part 3c), and `readme.md` (Part 4).  Every command on this page runs from inside this folder.  `touch` works in the macOS and Linux shells and in Git Bash on Windows; you can also save each new empty file from your editor into `cs374-regex/`.
 >
 > ```bash
 > mkdir cs374-regex
@@ -90,62 +84,27 @@ Python 3.12.3
 > touch patterns.py mini_lexer.py transformer.py log_parser.py config.json readme.md
 > ```
 
-```text
-cs374-regex/
-  patterns.py      # Part 1
-  mini_lexer.py    # Part 2
-  transformer.py   # Part 3a-3b
-  log_parser.py    # Part 3c
-  config.json      # Part 3c configuration
-  readme.md        # Part 4 answers
-```
-
-> **Time budget.** The four parts carry 25 points each and are sized alike.  The Regex Workshop lab (two to three hours, and due mid-assignment) completes your first patterns and the mini lexer skeleton, so Parts 1 and 2 go faster once the lab is in.  Spread the rest across the assignment window using the pacing table below, and get the first pattern passing today.
+> **Time budget.** The four parts carry 25 points each and are sized alike.  Parts 1 and 2 go faster once the Regex Workshop lab (two to three hours) is in.  Spread the rest across the assignment window using the pacing table below, and get the first pattern passing today.
 
 ### Your First 30 Minutes
 
-Get one pattern passing before you write any others.
+Get one pattern passing, then break it on purpose, so you know what both outcomes look like.
 
-> **Do this.**
-> 1. Open `patterns.py` and paste the `check()` harness from Step 1a at the top of the file.
-> 2. Below the harness, add pattern P1, `COURSE_CODE`, and its test call (the code below).
-> 3. Save the file, then run it from inside `cs374-regex/` with the command below.
->
-> ```python
-> COURSE_CODE = r"[A-Z]{2,4}-?\d{3}"
->
-> check("COURSE_CODE", COURSE_CODE,
->       should_match=["CS374", "MATH111", "BIO-101"],
->       should_not_match=["cs374", "CS3741"])
-> ```
->
-> ```bash
-> python3 patterns.py
-> ```
+1. Open `patterns.py` and paste the `check()` harness from Step 1a at the top of the file.
+2. Below the harness, add pattern P1 and its test call:
 
-> **You should see.** One `PASS` line.  The numbers in parentheses count the test cases you supplied.
+   ```python
+   COURSE_CODE = r"[A-Z]{2,4}-?\d{3}"
 
-```text
-PASS COURSE_CODE (3 positive, 2 negative)
-```
+   check("COURSE_CODE", COURSE_CODE,
+         should_match=["CS374", "MATH111", "BIO-101"],
+         should_not_match=["cs374", "CS3741"])
+   ```
+3. Save, then run `python3 patterns.py` from inside `cs374-regex/`.  You should see one line, `PASS COURSE_CODE (3 positive, 2 negative)`; the numbers count the test cases you supplied.
+4. Remove the `-?` from `COURSE_CODE`, save, and run again.  You should see `FAIL COURSE_CODE:` followed by one indented line for each string the pattern got wrong, here `SHOULD match but did NOT: 'BIO-101'`.
+5. Put the `-?` back and confirm the `PASS` line returns.
 
-Now break the pattern on purpose so you know what a failure looks like.
-
-> **Do this.**
-> 1. Remove the `-?` from `COURSE_CODE` and save.
-> 2. Run `python3 patterns.py` again.
-> 3. Put the `-?` back and confirm the `PASS` line returns.
-
-> **You should see.** A `FAIL` line, followed by one indented line for each string the pattern got wrong.
-
-```text
-FAIL COURSE_CODE:
-  SHOULD match but did NOT: 'BIO-101'
-```
-
-> **Why this matters.** That loop (edit, run, read the failure) is the whole workflow for Part 1, and it carries through the rest of the assignment.  `check()` never tells you a pattern is right in general; it tells you exactly which string it got wrong, and that string is your next clue.  Once the loop works for one pattern, the other nine repeat the same cycle.  Parts 2 and 3 replace the `PASS` line with a printed token list or an output file, but the loop is the same: change one thing, run, read what changed.
-
-This assignment goes out alongside the Regular Expressions class session and the Regex Workshop lab.  The lab is due mid-assignment, and it completes your first patterns and the mini lexer skeleton for you.  Bring your lab files straight into Parts 1 and 2: the lab is a head start on this assignment, not separate work.
+That loop (edit, run, read the failure) is the whole workflow for this assignment.  `check()` never tells you a pattern is right in general; it tells you exactly which string it got wrong, and that string is your next clue.  Parts 2 and 3 replace the `PASS` line with a printed token list or an output file, but the loop is the same.
 
 ### Suggested Pacing
 
@@ -163,16 +122,9 @@ See the course schedule for the assigned and due dates.  A suggested sequence:
 
 ## Part 1: Pattern Library (25 points)
 
-Part 1 asks for ten tested patterns.  You test each one with the `check()` harness below, which reports every string that matched when it should not have, and every string that failed to match when it should have.
-
 ### Step 1a: Add the check() Harness
 
-The harness is the only test tool you need for Part 1.  Add it once, and every pattern you write reuses it.
-
-> **Do this.**
-> 1. Open `patterns.py`.
-> 2. Paste the harness below at the top of the file, before any patterns.  (If you already did this in Your First 30 Minutes, skip to Step 1b.)
-> 3. Run `python3 patterns.py` once to confirm the file has no syntax errors.
+The harness reports every string that matched when it should not have, and every string that failed to match when it should have.  Paste it at the top of `patterns.py`, before any patterns, and run `python3 patterns.py` once to confirm the file has no syntax errors.  It prints nothing yet; nothing calls `check()` until you add a pattern.  If you already did this in Your First 30 Minutes, skip to Step 1b.
 
 ```python
 import re
@@ -194,31 +146,14 @@ def check(name: str, pattern: str, should_match: list, should_not_match: list):
         print(f"PASS {name} ({len(should_match)} positive, {len(should_not_match)} negative)")
 ```
 
-> **You should see.** Nothing at all, and no error.  The file only defines a function so far; nothing calls it until you add a pattern and its `check()` call.
-
-> **If it fails.**
-> - `SyntaxError` or `IndentationError`: the paste lost its indentation.  Every line inside `check()` must be indented by four spaces, and the two `for` loop bodies by eight.
-> - `python3: command not found`: use `python` instead, as noted in Environment and Setup.
-
 `fullmatch` succeeds only when the pattern matches the entire string, from the first character to the last.  That is deliberate.  A pattern that matches only the first part of `CS3741` is too permissive, and `fullmatch` exposes it.
 
 ### Step 1b: Write the Ten Required Patterns
 
-Write a pattern for each item below.  Define each one as a raw string with the name shown, and pass it to `check()`, which compiles it with `re.compile`.  Test each pattern with at least three positive and two negative cases.  The lists under each pattern give you starting cases.  The rubric also asks for a one-sentence explanation of each non-trivial construct in a pattern (a lookahead, a bounded repeat, an alternation), so write that sentence as a comment above the pattern.
-
-> **Do this.** For each of P1 through P10, add this block to `patterns.py`, below the harness, and run `python3 patterns.py` after each one:
-> 1. A comment with one sentence per non-trivial construct in the pattern.
+> **Do this.** For each of P1 through P10, add this block to `patterns.py` below the harness, in the shape P1 took in Your First 30 Minutes, and run `python3 patterns.py` after each one:
+> 1. A comment with one sentence per non-trivial construct in the pattern (a lookahead, a bounded repeat, an alternation).  The rubric asks for this sentence.
 > 2. The pattern itself, as a raw string, named exactly as shown in the list.
 > 3. A `check()` call with at least three `should_match` and two `should_not_match` strings, starting from the lists below and adding your own.
->
-> ```python
-> # P2 IDENTIFIER: <one sentence per non-trivial construct goes here>
-> IDENTIFIER = r"..."   # TODO
->
-> check("IDENTIFIER", IDENTIFIER,
->       should_match=["foo", "_bar", "x1", "my_var_2"],
->       should_not_match=["1foo", "-x", "foo bar", '"x"'])
-> ```
 
 **P1 `COURSE_CODE`:** Ursinus course codes: two to four capital letters, an optional hyphen, then exactly three digits.
 - Match: `CS374`, `MATH111`, `BIO-101`, `ENGL-201`
@@ -281,19 +216,15 @@ PASS MARKDOWN_LINK (3 positive, 3 negative)
 > - `re.error` before any `PASS` or `FAIL` line: the pattern itself does not compile.  Look for an unbalanced bracket or parenthesis; the message reports the position.
 
 > **Watch out.**
-> - P6 lists only two positive cases.  The rubric requires at least three, so add at least one of your own to every pattern that falls short.
+> - P6 lists only two positive cases.  The rubric requires at least three, so add your own to every pattern that falls short.
 > - I run hidden test cases too.  The rubric names two common misses: permitting leading zeros where the description forbids them, and leaving a pattern unanchored that should be anchored.  Add the negative cases you would use to catch those before I do.
-> - `check()` uses `fullmatch`, so a pattern passes here with or without `^` and `$`.  Decide deliberately which approach each pattern takes.  Q2 in Part 4 asks you to state which anchor approach you used in each pattern and why, and Part 3 reuses P5 and P6 without anchors.
+> - `check()` uses `fullmatch`, so a pattern passes here with or without `^` and `$`.  Decide deliberately which approach each pattern takes.  Q2 in Part 4 asks which anchor approach you used in each pattern and why, and Part 3 reuses P5 and P6 without anchors.
 
 ---
 
 ## Part 2: Mini Lexer Using re.finditer (25 points)
 
-Part 2 builds a lexer, a program that splits source text into tokens, out of a single regex and `re.finditer`.  A token is a labeled piece of source text such as a keyword, a number, or an operator.
-
-### The finditer Approach
-
-A production lexer does not call `re.match` in a loop at each position.  Instead it joins every token pattern into one large alternation (a list of patterns separated by `|`) and calls `re.finditer`, which returns every non-overlapping match in a single pass.  Each alternative is a named group, `(?P<NAME>pattern)`, so each match reports which token rule fired through `m.lastgroup`.
+Part 2 builds a lexer, a program that splits source text into tokens, out of a single regex and `re.finditer`.  A token is a labeled piece of source text such as a keyword, a number, or an operator.  A production lexer does not call `re.match` in a loop at each position.  It joins every token pattern into one large alternation (a list of patterns separated by `|`) and calls `re.finditer`, which returns every non-overlapping match in a single pass.  Each alternative is a named group, `(?P<NAME>pattern)`, so each match reports which token rule fired through `m.lastgroup`.
 
 ```python
 import re
@@ -322,22 +253,17 @@ Order matters in `TOKEN_SPEC`.  At each position the engine tries the alternativ
 
 ### Step 2a: Implement mini_lex()
 
-`mini_lex()` walks the matches in order and checks that each match starts where the previous one ended.  Any gap means a character matched no rule, and the function raises `LexError` at that position.  `LexError` is not defined in the snippet below; you declare it as an `Exception` subclass in your file.
+`mini_lex()` walks the matches in order and checks that each match starts where the previous one ended.  Any gap means a character matched no rule, and the function raises `LexError` at that position.
 
 > **Do this.**
-> 1. Open `mini_lexer.py`.  Paste the `TOKEN_SPEC` and `MASTER` code from The finditer Approach at the top.
-> 2. Below it, declare `LexError` (the first snippet below).
-> 3. Below that, paste `mini_lex()` (the second snippet).
-> 4. At the bottom of the file, add the main block (the third snippet), which lexes one sample line and prints the result.
-> 5. Run the file with the command below.
+> 1. Open `mini_lexer.py` and paste the `TOKEN_SPEC` and `MASTER` code from the top of Part 2 at the top, then the code below (the `LexError` class, `mini_lex()`, and a main block that lexes one sample line).
+> 2. Run `python3 mini_lexer.py`.
 
 ```python
 class LexError(Exception):
     """Raised when a character matches no rule in TOKEN_SPEC."""
     pass
-```
 
-```python
 def mini_lex(source: str) -> list:
     """Return a list of (token_type, value, start_pos) tuples, skipping whitespace.
     Raise LexError on any character that matches no rule (a gap in finditer coverage)."""
@@ -353,15 +279,9 @@ def mini_lex(source: str) -> list:
     if pos != len(source):
         raise LexError(f"Unrecognized character {source[pos]!r} at position {pos}")
     return tokens
-```
 
-```python
 if __name__ == "__main__":
     print(mini_lex("if x = 3.14;"))
-```
-
-```bash
-python3 mini_lexer.py
 ```
 
 > **You should see.** Five tuples, one per token.  Whitespace is consumed but not listed.  The third value in each tuple is the index in the source string where that token starts.
@@ -370,14 +290,9 @@ python3 mini_lexer.py
 [('IF', 'if', 0), ('IDENT', 'x', 3), ('EQ', '=', 5), ('FLOAT', '3.14', 7), ('SEMICOLON', ';', 11)]
 ```
 
-> **If it fails.**
-> - `NameError: name 'MASTER' is not defined`: the `TOKEN_SPEC` and `MASTER` block must sit above `mini_lex()` in the file.
-> - `NameError: name 'LexError' is not defined`: the class declaration is missing or sits below the main block.
-> - The output shows `('INT', '3', 7)` followed by a `LexError` at the dot: `FLOAT` is listed below `INT`.  Move it up.
-
 ### Step 2b: Extend the Token Spec
 
-Extend `TOKEN_SPEC` to cover the language in the table below.  Use at least 15 token types, and include every keyword, operator, and literal listed.  Put the negative lookahead `(?!\w)` on every keyword so that `iffy` does not tokenize as `IF`.
+Extend `TOKEN_SPEC` to cover the language in the table below.  Use at least 15 token types, include every keyword, operator, and literal listed, and put the negative lookahead `(?!\w)` on every keyword so that `iffy` does not tokenize as `IF`.  The Lexer assignment tokenizes this same language with a reusable component, so this work carries forward directly; the table has everything you need.
 
 | Category | Tokens |
 |----------|--------|
@@ -389,11 +304,9 @@ Extend `TOKEN_SPEC` to cover the language in the table below.  Use at least 15 t
 | Skipped | whitespace, `# comment to end of line` |
 
 > **Do this.**
-> 1. Replace `TOKEN_SPEC` in `mini_lexer.py` with a longer list built on the skeleton below.  Keep the entries you already have and fill in each `# TODO`.
-> 2. Name each keyword's token type in capitals (`LET`, `WHILE`, and so on); the ordering table in Step 2c expects `LET`.
-> 3. "Skipped" means `mini_lex()` consumes the match but does not add a tuple, exactly as it does for `WHITESPACE`.  Extend the `if kind != "WHITESPACE"` test so it skips comments too.
-> 4. Apply the rule that puts `FLOAT` before `INT` when you place each two-character operator relative to its one-character prefix.
-> 5. Run `python3 mini_lexer.py` after each group of entries, not after all of them.
+> 1. Replace `TOKEN_SPEC` in `mini_lexer.py` with the skeleton below and fill in each `# TODO`.  Name each keyword's token type in capitals (`LET`, `WHILE`, and so on); the ordering table in Step 2c expects `LET`.  Place each two-character operator above its one-character prefix, for the same reason `FLOAT` sits above `INT`.
+> 2. "Skipped" means `mini_lex()` consumes the match but does not add a tuple, exactly as it does for `WHITESPACE`.  Extend the `if kind != "WHITESPACE"` test so it skips comments too.
+> 3. Run `python3 mini_lexer.py` after each group of entries, not after all of them.
 >
 > ```python
 > TOKEN_SPEC = [
@@ -411,22 +324,13 @@ Extend `TOKEN_SPEC` to cover the language in the table below.  Use at least 15 t
 > ]
 > ```
 
-> **You should see.** The sample line from Step 2a still prints the same five tuples, since it uses no new token types.  Change the sample to `let x = 1;` and `let` now lexes as a keyword rather than an identifier.
-
-```text
-[('LET', 'let', 0), ('IDENT', 'x', 4), ('EQ', '=', 6), ('INT', '1', 8), ('SEMICOLON', ';', 9)]
-```
-
 > **If it fails.**
 > - `re.error: redefinition of group name`: two entries in `TOKEN_SPEC` share a name.  Every name must be unique because each becomes a named group.
-> - `let` still comes back as `IDENT`: the `LET` entry sits below `IDENT`, or its pattern lacks the `(?!\w)` lookahead and a different rule wins.
-> - `<=` comes back as `LT` then `EQ`: the two-character entry sits below the one-character entry.
-
-The Lexer assignment asks you to tokenize this same language with a reusable component, so the work you do here carries forward directly.  The table above has everything you need; you do not need that assignment sheet to finish this one.
+> - `let` still comes back as `IDENT`, or `<=` comes back as `LT` then `EQ`: the keyword or two-character entry sits below the rule that beat it, or the keyword lacks its `(?!\w)` lookahead.
 
 ### Step 2c: Verify Ordering and Maximal Munch
 
-Run `mini_lex` on each input below and confirm that the output matches the expected token types.  If `iffy` comes back as `IF`, or `3.14` comes back as `INT`, fix the order of `TOKEN_SPEC`.
+Run `mini_lex` on each input below and confirm that the output matches the expected token types.  If `iffy` comes back as `IF`, the keyword is missing its `(?!\w)` lookahead; if `3.14` comes back as `INT`, `FLOAT` sits below `INT`; if `@` prints a token instead of `LexError`, one of your patterns is too broad (an unescaped `.` is the usual cause).
 
 | Input | Expected |
 |-------|----------|
@@ -438,9 +342,8 @@ Run `mini_lex` on each input below and confirm that the output matches the expec
 | `@` | `LexError at position 0` |
 
 > **Do this.**
-> 1. Replace the main block at the bottom of `mini_lexer.py` with the loop below.  It runs all six inputs and catches the `LexError` so the last input does not end the program.
+> 1. Replace the main block at the bottom of `mini_lexer.py` with the loop below, and keep it there: its output is part of `test_output.txt` in the Deliverables.  It runs all six inputs and catches the `LexError` so the last input does not end the program.
 > 2. Run `python3 mini_lexer.py` and compare each line to the table.
-> 3. Keep this loop in the file; its output is part of `test_output.txt` in the Deliverables.
 >
 > ```python
 > if __name__ == "__main__":
@@ -462,16 +365,9 @@ Run `mini_lex` on each input below and confirm that the output matches the expec
 '@'            -> LexError: Unrecognized character '@' at position 0
 ```
 
-> **If it fails.**
-> - `iffy` prints as `IF`: the keyword pattern is missing its `(?!\w)` lookahead.
-> - `3.14` prints as `INT` then `LexError` at position 1: `FLOAT` is below `INT`.
-> - `@` prints a token instead of `LexError`: one of your patterns is too broad and swallows characters it should not (an unescaped `.` is the usual cause).
-
 ---
 
 ## Part 3: Regex-Based Text Transformer and Log Parser (25 points)
-
-Part 3 uses regexes to change text and to pull structured data out of a log file.  It has three steps: a text transformer, a greedy versus lazy demonstration, and a log parser.
 
 ### Step 3a: Text Transformer
 
@@ -483,8 +379,7 @@ In `transformer.py`, write a `transform(text: str) -> str` function that applies
 
 > **Do this.**
 > 1. Open `transformer.py` and paste the skeleton below.  The three-line input paragraph you must demonstrate on is already in `SAMPLE`.
-> 2. Fill in the three patterns and the three `re.sub` calls at the `# TODO` markers.  Copy P5 and P6 from `patterns.py` and strip any anchors.
-> 3. Run the file with the command below.
+> 2. Fill in the three patterns and the three `re.sub` calls at the `# TODO` markers, copying P5 and P6 from `patterns.py` and stripping any anchors, then run `python3 transformer.py`.
 
 ```python
 import re
@@ -506,10 +401,6 @@ if __name__ == "__main__":
     print(transform(SAMPLE))
 ```
 
-```bash
-python3 transformer.py
-```
-
 > **You should see.** These three lines.  Everything outside the redacted and converted pieces stays exactly as it was in `SAMPLE`.
 
 ```text
@@ -529,8 +420,7 @@ A greedy quantifier (`*`) matches as much text as it can.  A lazy quantifier (`*
 
 > **Do this.**
 > 1. Add the code below to `transformer.py`, inside the main block after the `transform(SAMPLE)` call, so one run prints both demonstrations.
-> 2. In a comment next to the two `re.search` lines, explain in one sentence why greedy captured more.
-> 3. Run `python3 transformer.py` again.
+> 2. In a comment next to the two `re.search` lines, explain in one sentence why greedy captured more, then run `python3 transformer.py` again.
 
 ```python
 import re
@@ -541,14 +431,12 @@ print(f"Greedy: {greedy.group()!r}")
 print(f"Lazy:   {lazy.group()!r}")
 ```
 
-> **You should see.** Two lines after the transformer output.  The greedy pattern runs to the last `>` in the string; the lazy one stops at the first.
+> **You should see.** Two lines after the transformer output.  The greedy pattern runs to the last `>` in the string; the lazy one stops at the first.  You use this exact example again in Q1 of Part 4, so keep the input string and both patterns unchanged.
 
 ```text
 Greedy: '<b>bold</b> and <i>italic</i>'
 Lazy:   '<b>'
 ```
-
-You use this exact example again in Q1 of Part 4, so keep the input string and both patterns unchanged.
 
 ### Step 3c: Log Parser
 
@@ -560,19 +448,9 @@ In `log_parser.py`, write a `parse_log(log_path: str, config_path: str)` functio
 4.  Extract every percentage value (`\d+%`) mentioned in WARN lines and report the maximum.
 5.  Write all ERROR lines, each prefixed with its original line number, to `errors.txt`.
 
-The named-group pattern must match this line format exactly:
+The named-group pattern must match the line format `YYYY-MM-DD HH:MM:SS LEVEL message text here` exactly.  Store both the input log path and the output `errors.txt` path in a JSON configuration file rather than in the code.  A JSON file holds data as nested names and values, and Python's `json.load` reads it into a dictionary.
 
-```text
-YYYY-MM-DD HH:MM:SS LEVEL message text here
-```
-
-Store both the input log path and the output `errors.txt` path in a JSON configuration file rather than in the code.  A JSON file holds data as nested names and values, and Python's `json.load` reads it into a dictionary.
-
-> **Do this.**
-> 1. Open `config.json` and paste the two-key object below.
-> 2. Save the provided server log in `cs374-regex/` under the name `config.json` points to, `server.log`.
-> 3. Open `log_parser.py` and paste the skeleton below.  Fill in the pattern and the `# TODO` markers.
-> 4. Run the file with the command below.
+> **Do this.** Paste the two-key object below into `config.json`, and save the provided server log in `cs374-regex/` under the name it points to, `server.log`.  Then paste the skeleton into `log_parser.py`, fill in the pattern and the `# TODO` markers, and run `python3 log_parser.py`.
 
 ```json
 {
@@ -602,10 +480,6 @@ if __name__ == "__main__":
     parse_log(cfg["log_path"], "config.json")
 ```
 
-```bash
-python3 log_parser.py
-```
-
 > **You should see.** Five report lines in this shape, and a new `errors.txt` in `cs374-regex/`.  The numbers come from the provided log, so match the shape, not these exact values.  Open `errors.txt` and confirm each line begins with its line number from the original log.
 
 ```text
@@ -627,12 +501,7 @@ ERROR lines written to errors.txt
 
 ## Part 4: Pattern Analysis (25 points)
 
-Answer the four questions below in `readme.md`.  Each answer must be at least one paragraph and must include a concrete example from your own work in this assignment.
-
-> **Do this.**
-> 1. Open `readme.md` and add four headings, `Q1` through `Q4`.
-> 2. Under each, write at least one paragraph that quotes a pattern, an input, or an output from your own files.  Restating the course notes without your own example earns the lowest rubric row.
-> 3. End the file with the Python version you used (`python3 --version`), so that I can reproduce your results.
+Answer the four questions below in `readme.md` under headings `Q1` through `Q4`.  Each answer must be at least one paragraph and must quote a pattern, an input, or an output from your own files; restating the course notes without your own example earns the lowest rubric row.  End the file with the Python version you used (`python3 --version`), so that I can reproduce your results.
 
 ### Q1: Greedy vs. Lazy
 
@@ -660,7 +529,7 @@ In one paragraph, explain why no regular expression can validate balanced nested
 > **Do this.**
 > 1. From inside `cs374-regex/`, capture the output of all four modules into `test_output.txt` with the commands below.  The first `>` creates the file; each `>>` appends to it.
 > 2. Confirm `errors.txt` is present from your last `log_parser.py` run.
-> 3. Zip the `cs374-regex/` folder (right-click and compress, or `zip -r cs374-regex.zip cs374-regex` from the parent folder) and submit the ZIP.
+> 3. Zip the `cs374-regex/` folder (right-click and compress, or `zip -r cs374-regex.zip cs374-regex` from the parent folder) and submit the ZIP.  It must contain the files in the table below.
 >
 > ```bash
 > python3 patterns.py > test_output.txt
@@ -668,8 +537,6 @@ In one paragraph, explain why no regular expression can validate balanced nested
 > python3 transformer.py >> test_output.txt
 > python3 log_parser.py >> test_output.txt
 > ```
-
-The ZIP must contain:
 
 | File or artifact | What it shows | Rubric row |
 |------------------|---------------|------------|
@@ -680,18 +547,14 @@ The ZIP must contain:
 | `config.json` | The log parser configuration | Text Transformer and Log Parser |
 | `errors.txt` | The generated errors file from the provided log | Text Transformer and Log Parser |
 | `test_output.txt` | Output of running all four modules | All rows |
-| `readme.md` | Approximately one page: the four analysis answers, the limits paragraph, and your Python version | Pattern Analysis |
-
-List your Python version in `readme.md` so that your results can be reproduced.
+| `readme.md` | Approximately one page: the four analysis answers, the limits paragraph, and your Python version so that your results can be reproduced | Pattern Analysis |
 
 ---
 
 ## Self-Check Before You Submit
 
-- [ ] `python3 patterns.py` prints ten `PASS` lines and no `FAIL` lines, and every pattern has at least three positive and two negative cases.
-- [ ] Every pattern is a raw string, uses the name shown, and carries a one-sentence comment for each non-trivial construct.
-- [ ] `python3 mini_lexer.py` prints the six Step 2c lines exactly as tabled, and `TOKEN_SPEC` has at least 15 types with `(?!\w)` on every keyword.
-- [ ] `mini_lex()` raises `LexError` with the position for any unrecognized character, and skips comments as well as whitespace.
+- [ ] `python3 patterns.py` prints ten `PASS` lines and no `FAIL` lines; every pattern is a raw string with the name shown, at least three positive and two negative cases, and a one-sentence comment for each non-trivial construct.
+- [ ] `python3 mini_lexer.py` prints the six Step 2c lines exactly as tabled; `TOKEN_SPEC` has at least 15 types with `(?!\w)` on every keyword; `mini_lex()` raises `LexError` with the position for any unrecognized character and skips comments as well as whitespace.
 - [ ] `python3 transformer.py` prints the three transformed lines and the two greedy/lazy lines, with the one-sentence comment in place.
 - [ ] `python3 log_parser.py` reads its paths from `config.json`, reports malformed lines with their line numbers, and writes `errors.txt`.
 - [ ] `readme.md` answers Q1 through Q4 with examples from your own files, names the Chomsky level and the pipeline component in Q4, and lists your Python version.

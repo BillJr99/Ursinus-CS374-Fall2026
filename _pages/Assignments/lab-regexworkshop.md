@@ -54,11 +54,11 @@ tags:
 
 ---
 
-This **lab** turns the regular-expression theory from class into a tool you can use.  You leave with three things: a set of `re` experiments you ran and varied yourself, a `check()` test harness with your first three passing patterns, and a `re.finditer` mini lexer that tokenizes `let x = 42` and reports the one character it does not recognize.  This lab feeds the [Regular Expressions assignment]({{ site.baseurl }}/Assignments/Regex) directly: that assignment's Part 1 grows the harness to ten patterns, its Part 2 completes the mini lexer, and the Lexer assignment later turns the same lexer into a permanent pipeline component.  Nothing you build here is throwaway.
+This **lab** turns the regular-expression theory from class into a tool you can use.  You leave with three things: a set of `re` experiments you ran and varied yourself, a `check()` test harness with your first three passing patterns, and a `re.finditer` mini lexer that tokenizes `let x = 42` and reports the one character it does not recognize.  All three feed the [Regular Expressions assignment]({{ site.baseurl }}/Assignments/Regex) directly: its Part 1 grows the harness to ten patterns, its Part 2 completes the mini lexer, and the Lexer assignment later turns the same lexer into a permanent pipeline component.
 
-Work the parts in order.  Parts 1 and 2 are walkthroughs: I show you something, you run it, then you vary it and write down what happened.  Parts 3 and 4 are the two artifacts everything downstream grows from, and they follow the same rhythm.  Every code block here runs as it stands.  Put it in a file, run it, then change something and run it again.  Reading these blocks without running them is the one way to get nothing out of this lab.
+Work the parts in order.  Parts 1 and 2 are walkthroughs: I show you something, you run it, then you vary it and write down what happened.  Parts 3 and 4 build the two artifacts everything downstream grows from, in the same rhythm.  Every code block here runs as it stands.  Put it in a file, run it, change something, and run it again.  Reading these blocks without running them is the one way to get nothing out of this lab.
 
-**Pair policy.**  You may do this lab in pairs.  Driver and navigator at one screen works well here; swap at the halfway mark, which is the start of Part 3.  You each submit the same files and name the other in the readme, and you both get the same grade.  You may also work alone.  The Regex assignment itself remains individual work: you may both reuse this lab's shared artifacts there, but everything you add beyond them must be your own.
+**Pair policy.**  You may do this lab in pairs.  Driver and navigator at one screen works well; swap at the start of Part 3.  You each submit the same files, name the other in the readme, and both get the same grade.  You may also work alone.  The Regex assignment itself remains individual work: you may both reuse this lab's shared artifacts there, but everything you add beyond them must be your own.
 
 ---
 
@@ -66,42 +66,36 @@ Work the parts in order.  Parts 1 and 2 are walkthroughs: I show you something, 
 
 You need:
 
-- Python 3.10 or newer.  The `re` module is part of the standard library, so there is nothing to install.
-- A text editor (VS Code or any editor you like) and a terminal.  If either is new to you, work through the [dev environment page]({{ site.baseurl }}/Tutorials/DevEnvironment) and the [shell primer]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) first.  The steps below assume you can open a terminal in a folder and run a Python file from it.
-- The Regular Expressions activity and the Python `re` documentation (both listed in the readings above) open in a browser tab.
+- Python 3.10 or newer.  The `re` module is in the standard library, so there is nothing to install.
+- A text editor (VS Code or any editor you like) and a terminal.  If either is new to you, work through the [dev environment page]({{ site.baseurl }}/Tutorials/DevEnvironment) and the [shell primer]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) first.
+- The Regular Expressions activity and the Python `re` documentation (both in the readings above) open in a browser tab.
 
 > **Do this.**
-> 1. Create a folder named `cs374-regex` somewhere you will find again (your Documents folder is fine).  Every file in this lab lives in that one folder, and the Regex assignment's files join them later.
-> 2. Open a terminal in that folder.  In VS Code, choose File > Open Folder, pick `cs374-regex`, then choose Terminal > New Terminal.
+> 1. Create a folder named `cs374-regex` somewhere you will find again.  Every file in this lab lives there, and the Regex assignment's files join them later.
+> 2. Open a terminal in that folder.  In VS Code, choose File > Open Folder, pick `cs374-regex`, then Terminal > New Terminal.
 > 3. Confirm that Python answers:
 >
 > ```bash
 > python3 --version
 > ```
 
-> **You should see.** One line naming your Python version.  Any version 3.10 or newer is fine.  Write the version down; the readme asks for it.
+> **You should see.** One line naming a Python version 3.10 or newer.  Write it down; the readme asks for it.  If the command is not found on Windows, try `python --version` or `py --version`, and use that spelling in place of `python3` for the rest of the lab.  A version below 3.10 means installing a current Python from python.org, then reopening the terminal.
 
 ```text
 Python 3.11.15
 ```
 
-> **If it fails.**
-> - `command not found`: on Windows, try `python --version` or `py --version` instead, and use that spelling in place of `python3` for the rest of the lab.
-> - A version below 3.10: install a current Python from python.org, then close and reopen the terminal so it sees the new install.
-
-> **Time budget.** About 3 hours: roughly 45 minutes for each part.  Budget more if the terminal is new to you, and less if you finished the class activity comfortably.
+> **Time budget.** About 3 hours, roughly 45 minutes per part.  Budget more if the terminal is new to you.
 
 ### Your First 15 Minutes
 
-Get one script running end to end before you read anything else.
-
-1.  Create `five_verbs.py` in `cs374-regex`, paste the Part 1 walkthrough code into it, and run `python3 five_verbs.py`.  Compare the six lines it prints with the **You should see** box in Step 1.1.
-2.  Change the input: replace `19426` in the text with `194260` and run again.  The `[ZIP]` disappears, because `\b\d{5}\b` no longer finds five digits with a boundary on both sides.
+1.  Create `five_verbs.py` in `cs374-regex`, paste the Step 1.1 code into it, and run `python3 five_verbs.py`.  Compare its six lines with the **You should see** box there.
+2.  Replace `19426` in the text with `194260` and run again.  The `[ZIP]` disappears, because `\b\d{5}\b` no longer finds five digits with a boundary on both sides.
 3.  Put `19426` back.  That loop (edit, run, read the output) is the entire method for this lab.
 
 ### Suggested Pacing
 
-See the course schedule for the assigned and due dates.  This lab is due partway through the Regex assignment, and the assignment's own pacing table expects your harness and mini lexer to arrive from here.
+See the course schedule for the assigned and due dates.  This lab is due partway through the Regex assignment, whose pacing table expects your harness and mini lexer to arrive from here.
 
 | Checkpoint | You should have |
 |------------|-----------------|
@@ -113,19 +107,13 @@ See the course schedule for the assigned and due dates.  This lab is due partway
 
 ## Part 1: Python's `re` in Five Verbs (25%)
 
-Python's `re` library adds engineering conveniences to the theory.  Anchors pin a match to a position: `^` is the start of the string and `$` is the end.  Character classes stand for one character from a set: `\d` is a digit, `\w` is a word character, and `\s` is whitespace.  Groups `(...)` capture the text they match so you can read it back later.  Five functions carry almost all the work: `re.search` (find the first match anywhere), `re.match` (match at the start), `re.findall` (all matches), `re.sub` (substitute), and `re.finditer` (iterate matches with positions).  Raw strings (`r"..."`) keep Python's own backslash handling out of your way.  Use them always.
+Python's `re` library adds engineering conveniences to the theory.  Anchors pin a match to a position: `^` is the start of the string and `$` is the end.  Character classes stand for one character from a set: `\d` is a digit, `\w` is a word character, and `\s` is whitespace.  Groups `(...)` capture the text they match so you can read it back later.  Five functions carry almost all the work: `re.search` (first match anywhere), `re.match` (match at the start), `re.findall` (all matches), `re.sub` (substitute), and `re.finditer` (iterate matches with positions).  Raw strings (`r"..."`) keep Python's own backslash handling out of your way.  Use them always.
 
 ### Step 1.1: The walkthrough
 
-This script exercises all five verbs on one sentence, so you can see what each returns before you have to choose between them.
-
 > **Do this.**
-> 1. Create a file named `five_verbs.py` in your `cs374-regex` folder and paste the code below into it.
-> 2. Run it from that folder:
->
-> ```bash
-> python3 five_verbs.py
-> ```
+> 1. Create `five_verbs.py` in `cs374-regex` and paste the code below into it.
+> 2. Run `python3 five_verbs.py` from that folder.  If Python says `can't open file ... No such file or directory`, your terminal is not in `cs374-regex`; change into it (the shell primer shows `cd`) and run again.
 
 ```python
 import re
@@ -153,7 +141,7 @@ for m in re.finditer(r"order", text, flags=re.IGNORECASE):
     print(f"'order' at characters {m.start()}-{m.end()}")
 ```
 
-> **You should see.** Six lines.  The fourth is the original sentence with the zip code replaced, and the last two give character offsets.
+> **You should see.** Six lines.  The fourth is the sentence with the zip code replaced, and the last two give character offsets.
 
 ```text
 first order number: 1042
@@ -164,31 +152,20 @@ Order #1042 shipped 2026-09-18 to Collegeville, PA [ZIP]; order #1043 pending.
 'order' at characters 58-63
 ```
 
-> **If it fails.**
-> - `can't open file ... No such file or directory`: your terminal is not in `cs374-regex`.  Change into that folder (the shell primer shows `cd`) and run again.
-> - `NameError: name 're' is not defined`: the `import re` line at the top did not make it into the file.
-
 **Reading the code.**
 
-- `re.search` returns a match object or `None`.  That is why every use above checks `m` before reading it.  `m.group(1)` is the text captured by the first parenthesized group, not the whole match.  `m.group(0)` is the whole match.
-- `re.findall` changes shape depending on your pattern.  With no groups it returns whole matches.  With exactly one group it returns only that group, which is why `r"#(\d+)"` yields bare numbers rather than `#`-prefixed ones.  With two or more groups it returns tuples.  This trips up everyone once, and the next step makes it trip you now, where it costs you nothing.
-- `m.groups()` returns all captures at once, which is how the three-part date comes apart in one line.
-- `\b` in the redaction pattern is a word boundary.  It is a zero-width assertion: it matches a position between characters, not a character itself.  Without it, `\d{5}` would match the first five digits of a longer number.
-- `finditer` yields match objects with `.start()` and `.end()`, so you learn where each match sits.  Finding text and tokenizing it part company right there, and that is why Part 4 is built on `finditer` rather than `findall`.
+- `re.search` returns a match object or `None`, which is why every use above checks `m` before reading it.  `m.group(1)` is the text captured by the first parenthesized group, `m.group(0)` is the whole match, and `m.groups()` returns all captures at once.
+- `re.findall` changes shape with your pattern: no groups gives whole matches, exactly one group gives only that group (so `r"#(\d+)"` yields bare numbers), and two or more groups give tuples.  This trips up everyone once; the next step makes it trip you now, where it costs nothing.
+- `\b` is a word boundary, a zero-width assertion that matches a position between characters rather than a character.  Without it, `\d{5}` would match the first five digits of a longer number.  `finditer` yields match objects with `.start()` and `.end()`, so you learn where each match sits, and that is why Part 4 is built on `finditer` rather than `findall`.
 
 ### Step 1.2: Now you: the `findall` shape experiment
 
-Four nearly identical patterns give four different shapes of answer.  Predicting first, then running, is what makes the shape rule stick.
+Four nearly identical patterns give four different shapes of answer.  Predict first, then run; that is what makes the shape rule stick.
 
 > **Do this.**
 > 1. Create `findall_shapes.py` in the same folder and paste the code below into it.
 > 2. Before you run it, write down what you expect each of the four lines to print.
-> 3. Run it and compare:
->
-> ```bash
-> python3 findall_shapes.py
-> ```
->
+> 3. Run `python3 findall_shapes.py` and compare.
 > 4. Complete the `TODO` at the bottom of the file and run it again.
 
 ```python
@@ -210,7 +187,7 @@ for pattern, label in experiments:
 #       the full text (m.group(0)), the captured digits, and m.start().
 ```
 
-> **You should see.** Before the `TODO`, four lines with four different shapes: strings, strings, tuples, strings.
+> **You should see.** Before the `TODO`, four lines in four shapes: strings, strings, tuples, strings.  After it, three more lines in a layout of your choosing: `CS374` with digits `374` at position 0, `MATH-111` with `111` at 16, and `CS173` with `173` at 36.
 
 ```text
   no groups                          findall -> ['CS374', 'MATH-111', 'CS173']
@@ -218,8 +195,6 @@ for pattern, label in experiments:
   two groups                         findall -> [('CS', '374'), ('MATH', '111'), ('CS', '173')]
   one capturing, one non-capturing   findall -> ['374', '111', '173']
 ```
-
-After the `TODO`, three more lines in a layout of your choosing, one per match: `CS374` with digits `374` at position 0, `MATH-111` with `111` at 16, and `CS173` with `173` at 36.
 
 ### Step 1.3: What to write up
 
@@ -237,28 +212,24 @@ Complete the `TODO` in `findall_shapes.py` and include the file.
 
 ## Part 2: Watching the Engine Backtrack (20%)
 
-Matching is not a single left-to-right sweep.  Whenever the pattern offers a choice, the engine makes the greedy choice first and remembers the decision point.  A star deciding how many repetitions to take is one such choice; an alternation deciding which branch to try is another.  If the rest of the pattern later fails, the engine backtracks: it returns to the most recent decision, takes the next alternative, and pushes forward again.
+Matching is not a single left-to-right sweep.  Whenever the pattern offers a choice (how many repetitions a star takes, which branch of an alternation to try), the engine makes the greedy choice first and remembers the decision point.  If the rest of the pattern later fails, the engine backtracks: it returns to the most recent decision, takes the next alternative, and pushes forward again.
 
-**Worked example.**  Match the pattern `a*ab` against `"aaab"` using `re.fullmatch`.  Read the pattern as "any number of `a`s, then one more `a`, then a `b`."  The greedy `a*` first takes every `a` it can, which turns out to be one too many.
+**Worked example.**  Match `a*ab` against `"aaab"` with `re.fullmatch`.  Read the pattern as "any number of `a`s, then one more `a`, then a `b`."  The greedy `a*` first takes every `a` it can, which is one too many.
 
 | Step | `a*` currently holds | Rest of pattern needs | Rest of input is | Outcome |
 |------|----------------------|-----------------------|------------------|---------|
 | 1 | `"aaa"` (greedy maximum) | `ab` | `"b"` | `a` vs `b` fails -> **backtrack** |
 | 2 | `"aa"` (gave one back) | `ab` | `"ab"` | `ab` = `ab` -> **MATCH** |
 
-Two attempts, one backtrack.  Now trace the same pattern against `"ab"` yourself, on paper, before you run anything.
+Two attempts, one backtrack.  Now trace the same pattern against `"ab"` on paper before you run anything.
 
 ### Step 2.1: The walkthrough
 
-This script implements the one pattern `a*ab` as an explicit search that narrates every decision, then checks each verdict against Python's real engine.
+This script implements `a*ab` as an explicit search that narrates every decision, then checks each verdict against Python's real engine.
 
 > **Do this.**
 > 1. Create `backtrack.py` in `cs374-regex` and paste the code below into it.
-> 2. Run it:
->
-> ```bash
-> python3 backtrack.py
-> ```
+> 2. Run `python3 backtrack.py`.
 
 ```python
 import re
@@ -312,14 +283,9 @@ Pattern a*ab vs 'aaa':
   re.fullmatch agrees: True (engine says no match)
 ```
 
-> **Checkpoint.** Compare the `'ab'` block with the paper trace you did a moment ago.  If your trace had `a*` start with `''` instead of `'a'`, you traced a reluctant star, not a greedy one.  Step 2.2 lets you run that version too.
+> **Checkpoint.** Compare the `'ab'` block with your paper trace.  If your trace had `a*` start with `''` instead of `'a'`, you traced a reluctant star, not a greedy one.  Step 2.2 lets you run that version too.
 
-**Reading the code.**
-
-- `max_a` is the longest run of `a`s available, computed up front.  It is the greedy maximum: the most `a*` could possibly take.
-- `for k in range(max_a, -1, -1)` counts downward.  That descending loop is greed: try the longest take first, and give characters back only when forced.  A reluctant `a*?` would count upward from 0 instead, and nothing else about the algorithm would change.
-- Each iteration of that loop revisits one decision point.  The number of iterations before success is the amount of backtracking the engine did.
-- The last line checks the narration against `re.fullmatch`.  This is not only a plausible story; it agrees with the real engine on every input.
+**Reading the code.**  `max_a` is the greedy maximum, the most `a*` could possibly take.  The descending loop `range(max_a, -1, -1)` is greed itself: try the longest take first, and give characters back only when forced.  A reluctant `a*?` would count upward from 0, and nothing else would change.  Each iteration revisits one decision point, so the number of iterations before success is the amount of backtracking the engine did, and the last line confirms the narration agrees with `re.fullmatch` on every input.
 
 > **Watch out.** Backtracking is invisible when a match succeeds quickly, but it is still happening.  On pathological patterns, such as nested quantifiers like `(a+)+` against input that almost matches, the number of decision points explodes and matching can take exponential time.  This is called catastrophic backtracking.  Knowing where decisions accumulate is how you avoid writing such patterns.
 
@@ -328,12 +294,12 @@ Pattern a*ab vs 'aaa':
 Two small edits to `backtrack.py` produce the evidence Questions 7 and 8 ask for.
 
 > **Do this.**
-> 1. Below the existing loop, add a second loop over the same four inputs that prints the verdict of `re.fullmatch(r"a*ab", s)` next to the verdict of `re.fullmatch(r"a+b", s)`, converting each with `bool()`.
-> 2. Run the script again and confirm the two columns agree on every input.
-> 3. Flip the greed: change `range(max_a, -1, -1)` to `range(0, max_a + 1)`, run once more, and count the attempts for `"aaab"` and `"ab"` now.  This is the reluctant `a*?`.
-> 4. Change the range back to `range(max_a, -1, -1)` before you submit, so the file you hand in traces the greedy engine.
+> 1. Below the existing loop, add a second loop over the same four inputs that prints `bool(re.fullmatch(r"a*ab", s))` next to `bool(re.fullmatch(r"a+b", s))`.
+> 2. Run again and confirm the two columns agree on every input.
+> 3. Flip the greed: change `range(max_a, -1, -1)` to `range(0, max_a + 1)`, run once more, and count the attempts for `"aaab"` and `"ab"`.  This is the reluctant `a*?`.
+> 4. Change the range back before you submit, so the file you hand in traces the greedy engine.
 
-> **You should see.** From step 2, four new lines where both patterns say the same thing: match, match, no match, no match.  From step 3, the `'aaab'` block now takes three attempts (holding `''`, then `'a'`, then `'aa'`) and the `'ab'` block takes one, the mirror image of the greedy counts.
+> **You should see.** From step 2, four lines where both patterns agree: match, match, no match, no match.  From step 3, the `'aaab'` block takes three attempts (holding `''`, then `'a'`, then `'aa'`) and the `'ab'` block takes one, the mirror image of the greedy counts.
 
 ### Step 2.3: What to write up
 
@@ -348,18 +314,13 @@ Create `part2.md` and answer these in it:
 
 ## Part 3: Harness and Pattern Starters (30%)
 
-A test harness is a small function that runs your pattern against strings you already know the answer for and reports every disagreement.  The `check()` harness below is the one from the Regex assignment's Part 1, copied verbatim; this lab is where you get it working, so the assignment starts from a running state.  It uses `fullmatch`, which succeeds only when the pattern matches the entire string from first character to last.  That is deliberate: a pattern that matches only the front of `42abc` is too permissive, and `fullmatch` exposes it without you having to write `^` and `$` by hand.
+A test harness is a small function that runs your pattern against strings you already know the answer for and reports every disagreement.  The `check()` harness below is the one from the Regex assignment's Part 1, copied verbatim, so that assignment starts from a running state.  It uses `fullmatch`, which succeeds only when the pattern matches the entire string.  That is deliberate: a pattern that matches only the front of `42abc` is too permissive, and `fullmatch` exposes it without `^` and `$` written by hand.
 
 ### Step 3.1: The walkthrough: one pattern through the harness
 
 > **Do this.**
-> 1. Create `patterns.py` in `cs374-regex` and paste the code below into it.  The harness comes first; P1 `COURSE_CODE` follows it, with its test call.
-> 2. Run it:
->
-> ```bash
-> python3 patterns.py
-> ```
->
+> 1. Create `patterns.py` in `cs374-regex` and paste the code below into it.
+> 2. Run `python3 patterns.py`.
 > 3. Break the pattern on purpose: delete the `-?` from `COURSE_CODE` and run again.  Read what the harness says, then put the `-?` back.
 
 ```python
@@ -389,32 +350,20 @@ check("COURSE_CODE", COURSE_CODE,
       should_not_match=["cs374", "CS37"])
 ```
 
-> **You should see.** One `PASS` line with the case counts.
+> **You should see.** One `PASS` line with the case counts.  With the `-?` removed, the harness prints `FAIL COURSE_CODE:` and names the string that stopped matching, `SHOULD match but did NOT: 'MATH-111'`; restore it and the `PASS` line comes back.  That loop (edit, run, read the failure) is the whole workflow for this part and for the ten patterns in the assignment.
 
 ```text
 PASS COURSE_CODE (3 positive, 2 negative)
 ```
 
-After step 3 (the `-?` removed), the harness names the string that stopped matching.  Restore the `-?` and the `PASS` line comes back.
-
-```text
-FAIL COURSE_CODE:
-  SHOULD match but did NOT: 'MATH-111'
-```
-
-That loop (edit, run, read the failure) is the whole workflow for this part and for the ten patterns in the assignment.
-
 ### Step 3.2: Now you: `INTEGER` and `IDENTIFIER`
 
-Write and test the next two patterns from the assignment's pattern library.  Each needs at least three positive and two negative cases; the starters below give you the minimum, and you may add more.
-
-- P2 `INTEGER`: an optionally signed integer with no leading zeros (`42`, `-7`, `0` accept; `007`, `4.2` reject).  Anchor it: `"42abc"` must not pass.
-- P3 `IDENTIFIER`: a letter or underscore followed by letters, digits, or underscores (`x`, `_tmp`, `total_1` accept; `1st`, `foo-bar` reject).
+Write and test the next two patterns from the assignment's pattern library: P2 `INTEGER` (an optionally signed integer with no leading zeros) and P3 `IDENTIFIER` (a letter or underscore followed by letters, digits, or underscores).  Each needs at least three positive and two negative cases; the starters below give the minimum, and you may add more.
 
 > **Do this.**
 > 1. Append the skeleton below to `patterns.py`, under the `COURSE_CODE` check.
-> 2. Replace each `TODO` pattern with your own.  Keep the raw-string `r"..."` form.
-> 3. Run `python3 patterns.py` after each pattern, and keep editing until all three lines say `PASS`.
+> 2. Replace each `TODO` pattern with your own, keeping the raw-string `r"..."` form.
+> 3. Run `python3 patterns.py` after each pattern until all three lines say `PASS`.
 
 ```python
 # P2 INTEGER: an optionally signed integer with no leading zeros.
@@ -444,7 +393,6 @@ PASS IDENTIFIER (3 positive, 2 negative)
 > - `Should NOT match but DID: '007'`: your integer pattern allows leading zeros.  Zero on its own is a special case; every other integer starts with `1` through `9`.
 > - `SHOULD match but did NOT: '0'`: you excluded zero along with the leading zeros.  Add it back as its own alternative.
 > - `Should NOT match but DID: '42abc'` cannot happen under `fullmatch`; if you see it, you switched the harness to `search` or `match`.  Switch it back.
-> - `re.error`: a character in your pattern has a regex meaning you did not intend.  Escape it with a backslash, or check for an unbalanced bracket.
 
 ### Step 3.3: What to write up
 
@@ -454,25 +402,21 @@ Use raw strings throughout.  Write one sentence per pattern explaining each non-
 
 ## Part 4: One Pattern, Every Token (25%)
 
-A lexer does not run one pattern at a time over the source.  It joins every token pattern into a single master alternation, gives each alternative a named group, and lets `finditer` sweep the input once.  This is why Part 1 spent so long on `finditer`.  After each match, `m.lastgroup` tells you which alternative fired, which is exactly the token type.  `m.start()` tells you where the match was, which is exactly what an error message needs.
+A lexer does not run one pattern at a time over the source.  It joins every token pattern into a single master alternation, gives each alternative a named group, and lets `finditer` sweep the input once.  After each match, `m.lastgroup` names the alternative that fired, which is the token type, and `m.start()` says where it was, which is what an error message needs.
 
 Two rules govern that master pattern, and both bite:
 
-- Order matters.  Alternation takes the first alternative that matches at a position, not the longest.  If `IDENT` comes before `LET`, then `let` lexes as an identifier and your keyword never fires at all.
-- Gaps are not free.  `finditer` silently skips any character no alternative claims.  A lexer that skips unknown characters silently hands the parser a token stream that quietly omits the typo, and you will debug the wrong file for an hour.  Track the end of the previous match, and report anything between it and the start of the next one.
+- Order matters.  Alternation takes the first alternative that matches at a position, not the longest.  If `IDENT` comes before `LET`, then `let` lexes as an identifier and your keyword never fires.
+- Gaps are not free.  `finditer` silently skips any character no alternative claims, and a lexer that does the same hands the parser a token stream that quietly omits the typo.  Track the end of the previous match, and report anything between it and the start of the next one.
 
 ### Step 4.1: The walkthrough: watch `finditer` sweep
 
-Before you write the lexer, watch the raw sweep.  This probe builds the master pattern from an ordered `TOKEN_SPEC` and prints every match, whitespace included, so you can see the gap with your own eyes.
+This probe builds the master pattern from an ordered `TOKEN_SPEC` and prints every match, whitespace included, so you can see the gap with your own eyes.
 
 > **Do this.**
 > 1. Create `mini_lexer.py` in `cs374-regex` and paste the code below into it.
 > 2. Replace the two `TODO` patterns with your `IDENTIFIER` and `INTEGER` patterns from Part 3.  Paste the pattern text itself; do not import `patterns.py`, or its `check()` calls will run every time the lexer starts.
-> 3. Run it:
->
-> ```bash
-> python3 mini_lexer.py
-> ```
+> 3. Run `python3 mini_lexer.py`.
 
 ```python
 import re
@@ -494,7 +438,7 @@ for m in MASTER.finditer(source):
     print(f"  {m.lastgroup:10} {m.group()!r:6} at {m.start()}-{m.end()}")
 ```
 
-> **You should see.** The first line is the joined pattern (yours will show your own `IDENT` and `NUMBER` text).  Then six match lines.  Read the offsets: 5-6 is a space, 7-8 is a space, and nothing claims 6-7.  That is the `=`, and `finditer` dropped it without a word.
+> **You should see.** The joined pattern (showing your own `IDENT` and `NUMBER` text), then six match lines.  Read the offsets: 5-6 is a space, 7-8 is a space, and nothing claims 6-7.  That is the `=`, and `finditer` dropped it without a word.
 
 ```text
   LET        'let'  at 0-3
@@ -506,19 +450,17 @@ for m in MASTER.finditer(source):
 ```
 
 > **If it fails.**
-> - The `IDENT` line shows `'let'` at 0-3 and there is no `LET` line: `IDENT` is ordered before `LET` in `TOKEN_SPEC`.
+> - `IDENT 'let' at 0-3` with no `LET` line: `IDENT` is ordered before `LET` in `TOKEN_SPEC`.
 > - `re.error: redefinition of group name`: two rules share a name.  Every name in `TOKEN_SPEC` must be unique.
-> - A line reading `IDENT 'TODO'` or similar: one of the placeholder patterns is still in place.
 
 ### Step 4.2: Now you: `mini_lex()` with gap detection
 
-Now turn the probe into the skeleton the Regex assignment's Part 2 completes.  `mini_lex()` returns a list of `(token_type, value, start_pos)` tuples, skips whitespace, and reports any character between matches that no rule claims, with its position, instead of dropping it silently.  Your skeleton needs only the three rules you already have: `LET`, `IDENT`, and `NUMBER`.
+Turn the probe into the skeleton the Regex assignment's Part 2 completes.  `mini_lex()` returns a list of `(token_type, value, start_pos)` tuples, skips whitespace, and reports any unclaimed character with its position instead of dropping it.  Three rules are enough here: `LET`, `IDENT`, and `NUMBER`.
 
 > **Do this.**
-> 1. In `mini_lexer.py`, delete the `print("master pattern:", ...)` line and the probe loop, and add the skeleton below in their place.
-> 2. Fill in the three `TODO`s.  The variable `pos` always holds where the previous match ended; a match that starts anywhere else means something was skipped.
-> 3. Run `python3 mini_lexer.py` and check both lines against the box below.
-> 4. Copy the two output lines into a comment or the module docstring at the top of `mini_lexer.py`.  That captured run is part of the deliverable.
+> 1. In `mini_lexer.py`, replace the `print("master pattern:", ...)` line and the probe loop with the skeleton below.
+> 2. Fill in the three `TODO`s.  `pos` always holds where the previous match ended; a match that starts anywhere else means something was skipped.
+> 3. Run `python3 mini_lexer.py`, check both lines against the box below, then copy them into a comment or the module docstring at the top of `mini_lexer.py`.  That captured run is part of the deliverable.
 
 ```python
 def mini_lex(source: str) -> list:
@@ -540,7 +482,7 @@ if __name__ == "__main__":
         print(f"{src!r} -> {mini_lex(src)}")
 ```
 
-> **You should see.** The worked example `let x = 42` gives `LET("let")`, `IDENT("x")`, a gap report for `=`, then `NUMBER("42")`.  The wording of the gap line is yours, but it must name `'='` and position 6.  Then `lets` comes out as one `IDENT`, not `LET` plus `IDENT("s")`.
+> **You should see.** `let x = 42` gives `LET`, `IDENT("x")`, a gap report for `=`, then `NUMBER("42")`.  The wording of the gap line is yours, but it must name `'='` and position 6.  Then `lets` comes out as one `IDENT`, not `LET` plus `IDENT("s")`.
 
 ```text
 GAP: unrecognized '=' at position 6
@@ -549,9 +491,9 @@ GAP: unrecognized '=' at position 6
 ```
 
 > **If it fails.**
-> - `'lets' -> [('LET', 'let', 0), ('IDENT', 's', 3)]`: your keyword rule is missing its boundary check.  `let` on its own happily matches the front of `lets`; the rule needs to insist that no word character follows (a `\b` after `let` is the simplest fix).  This is the ordering lesson the Regex assignment's Part 2 builds on.
+> - `'lets' -> [('LET', 'let', 0), ('IDENT', 's', 3)]`: your keyword rule is missing its boundary check.  `let` on its own matches the front of `lets`; the rule needs to insist that no word character follows (a `\b` after `let` is the simplest fix).  This is the ordering lesson the Regex assignment's Part 2 builds on.
 > - `('IDENT', 'let', 0)` appears: the keyword rule is ordered after the identifier rule.
-> - No gap line at all: the `=` was dropped silently.  Your first `TODO` is not firing; print `pos` and `m.start()` inside the loop to see where they disagree.
+> - No gap line at all: your first `TODO` is not firing.  Print `pos` and `m.start()` inside the loop to see where they disagree.
 
 ### Step 4.3: What to write up
 

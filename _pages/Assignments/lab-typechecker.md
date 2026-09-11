@@ -56,18 +56,12 @@ This **lab** builds the core of the Interpreter assignment's Part 4: a small sta
 
 ## Before You Start
 
-You need three things from earlier in the course and one tool.
-
-- An AST to walk.  Use the node classes from your Parser assignment, or the reference parser and AST described below.
+- An AST to walk: the node classes from your Parser assignment, or the [reference parser and AST]({{ site.baseurl }}/files/reference/reference-parser.zip) released with the Interpreter assignment hand-out.  If your submission builds on a reference component, say so in one line in your submission; that is the entire requirement, and it costs no points.
 - The `Environment` class from your Environments lab.  The type environment you build in Part 1 has the same shape and borrows its method names.
-- Python 3.10 or newer.  Nothing needs to be installed; the checker is standard-library Python.
+- Python 3.10 or newer; `python3 --version` should print `Python 3.10` or later.  Nothing needs to be installed; the checker is standard-library Python.
 - A terminal and an editor.  If the terminal is still new to you, the [Course Development Environment]({{ site.baseurl }}/Tutorials/DevEnvironment) and [Shell Skills for Language Development]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) tutorials cover everything this lab asks you to type.
 
-The [reference parser and AST]({{ site.baseurl }}/files/reference/reference-parser.zip) was released with the Interpreter assignment hand-out, and you may build this lab on it.  If your submission builds on a reference component, say so in one line in your submission; that is the entire requirement, and it costs no points.
-
-### Set Up the Lab Folder
-
-Make one folder for the lab and copy your AST and parser files into it, so `typechecker.py` can import them with a plain `import`.  This is the layout the steps below assume:
+Make one folder for the lab and copy your AST and parser files into it, so `typechecker.py` can import them with a plain `import`.  The steps below assume this layout:
 
 ```text
 cs374-typechecker/
@@ -81,23 +75,12 @@ cs374-typechecker/
   model1_strong.py   # Part 0 worked models (yours to keep; not submitted)
 ```
 
-Confirm your Python version from inside that folder:
-
-```bash
-python3 --version
-```
-
-```text
-Python 3.11.4
-```
-
-Any version that begins `Python 3.10` or later is fine.
-
 ### Your First 15 Minutes
 
-Get one thing running before you read anything long.  Copy the Model 1 script from Part 0 into `model1_strong.py` and run it with `python3 model1_strong.py`.  Six lines print: three operations that pass and three that are refused with a message naming both types.  That output is the whole idea of this lab in miniature.  Your checker in Part 1 produces the same kind of refusal, with two differences: it names a line and column, and it fires before the program runs rather than while it runs.
-
-Then create `typechecker.py` from the skeleton in Step 1.1 and run its smoke test.  Once `TypeEnvironment` can define a name in one scope and find it from a child scope, the rest of Part 1 is filling in the `TODO` branches one node type at a time.
+1. Copy the Model 1 script from Part 0 into `model1_strong.py` and run `python3 model1_strong.py`.  Three operations pass and three are refused with a message naming both types.
+2. That refusal is the whole lab in miniature.  Your checker in Part 1 produces the same kind of message, with two differences: it names a line and column, and it fires before the program runs rather than while it runs.
+3. Create `typechecker.py` from the skeleton in Step 1.1 and run its smoke test.
+4. Once `TypeEnvironment` can define a name in one scope and find it from a child scope, the rest of Part 1 is filling in the `TODO` branches one node type at a time.
 
 This lab lands inside the Interpreter assignment's window; see the course schedule for the assigned and due dates.
 
@@ -107,11 +90,11 @@ This lab lands inside the Interpreter assignment's window; see the course schedu
 
 ## Part 0: Worked Models (read before you code)
 
-Part 0 has two pieces.  The first is a short paper exercise, and it is the graded piece (10%).  The rest is four worked models from the Type Systems class session.  They live here because they are this lab: a runtime checker for the interpreter you are building, traced on compound expressions, followed by inference by hand and a type-error postmortem.  Each model has a script you can run and a set of critical thinking questions to talk through with your partner.  Read all four before you start Part 1.
+Part 0 opens with a short paper exercise, which is the graded piece (10%).  The rest is four worked models from the Type Systems class session: a runtime checker for the interpreter you are building, a trace of it on compound expressions, inference by hand, and a type-error postmortem.  Each model has a script you can run and questions to talk through with your partner.  Read all four before you start Part 1.
 
 ### Type Systems on Paper (10%)
 
-Do this before you write the checker.  Plan on about fifteen minutes with pencil and paper.  The point is to arrive with an example.  Everyone has an opinion about static typing; an example is what makes the argument worth having.
+Plan on about fifteen minutes with pencil and paper.  Everyone has an opinion about static typing; an example is what makes the argument worth having.
 
 > **Do this.**
 > 1. Write a small program and annotate each subexpression with the type you expect it to have.
@@ -123,17 +106,9 @@ Do this before you write the checker.  Plan on about fifteen minutes with pencil
 
 ### Model 1: A Dynamically, Strongly Typed Core
 
-**Intuition for Model 1.**  Your interpreter already evaluates binary expressions like `3.0 + 4.0`.  This model adds a gatekeeper at the top of that evaluation: before you touch the operands, check whether the combination makes sense, and raise a clear error if it does not.  Think of a bouncer who checks IDs before letting values into an operation: `float + float` gets in, `float + string` does not.  The analogy stops there, because a bouncer turns people away quietly while your checker must raise an error that names both types.
+Your interpreter already evaluates binary expressions like `3.0 + 4.0`.  This model adds a gatekeeper at the top of that evaluation: before it touches the operands, it checks whether the combination makes sense and raises an error naming both types if it does not.  The language checks types at runtime and refuses silent coercion, the same choice Python makes.  Coercion is a conversion the language performs on its own, such as turning the number `5` into the string `"5"` so that it can be concatenated.  Refusing to coerce is what makes the typing *strong*; checking while the program runs, rather than before it starts, is what makes it *dynamic*.
 
-Your language checks types at runtime and refuses silent coercion, the same choice Python makes.  Coercion is a conversion the language performs on its own, such as turning the number `5` into the string `"5"` so that it can be concatenated.  Refusing to coerce is what makes the typing *strong*; checking while the program runs, rather than before it starts, is what makes it *dynamic*.  The implementation pattern is short: each evaluated value already carries its Python type, so the binary-operation evaluator checks the operand types before it computes.
-
-> **Do this.**
-> 1. Create `model1_strong.py` in your lab folder and paste the script below into it.
-> 2. Run it:
->
-> ```bash
-> python3 model1_strong.py
-> ```
+> **Do this.**  Create `model1_strong.py` in your lab folder, paste the script below into it, and run `python3 model1_strong.py`.
 
 ```python
 # Adding strong dynamic typing to the BinOp evaluator: check, then compute.
@@ -187,7 +162,7 @@ for l, op, r in [(3.0, "+", 4.0), ("ab", "+", "cd"), (3.0, "+", "cd"),
   3.0 / 0.0 -> ZeroDivisionError: division by zero
 ```
 
-Read the code in this order.  `type_name` turns a Python type into the name your error messages will print.  The first `if` in `eval_binop` handles arithmetic: it allows string concatenation, refuses booleans, computes on two floats, and refuses everything else.  The second `if` handles comparisons, which require both sides to have the same type.  The loop at the bottom runs six operand pairs, three that pass and three that fail.
+`type_name` turns a Python type into the name the error messages print.  The first `if` in `eval_binop` handles arithmetic: it allows string concatenation, refuses booleans, computes on two floats, and refuses everything else.  The second `if` handles comparisons, which require both sides to have the same type.
 
 #### Critical Thinking Questions
 
@@ -195,39 +170,21 @@ Read the code in this order.  `type_name` turns a Python type into the name your
 2.  We licensed `+` for two strings but not `*` for string and number.  Python licenses `"ab" * 3`.  Debate and record your project's policy on string repetition, and add it to `SEMANTICS.md` (the Interpreter assignment's semantics document).
 3.  Where would a *static* checker for your language live in the pipeline (between which two existing stages), and what would it walk?  You already own every data structure it needs; name them.
 
-Python raises a TypeError on `"5" - 1` at the moment the subtraction executes, never silently converting.  On the two axes, Python is therefore:
-
-- Statically and weakly typed
-- Statically and strongly typed
-- Dynamically and strongly typed
-- Dynamically and weakly typed
+Python raises a TypeError on `"5" - 1` at the moment the subtraction executes, never silently converting.  On the two axes, is Python statically and weakly typed, statically and strongly typed, dynamically and strongly typed, or dynamically and weakly typed?
 
 > **Answer.**  Dynamically and strongly typed.
 
-A language that deduces `n: int` from `let n = 5` without requiring the programmer to write the type annotation is using:
-
-- Dynamic typing
-- Weak typing
-- Type inference
-- Duck typing
+A language that deduces `n: int` from `let n = 5` without requiring the programmer to write the type annotation is using dynamic typing, weak typing, type inference, or duck typing?
 
 > **Answer.**  Type inference.
 
-> **Watch out.**  Duck typing (Python's "if it walks like a duck and quacks like a duck, treat it as a duck") is still a form of typing.  It is a dynamic, structural approach: compatibility is checked by whether an object supports the required operations, not by its declared class.  Saying a language "has no types" because it uses duck typing is incorrect.  Duck typing is a deliberate design choice that trades the early-error benefits of nominal or structural static checks for maximum flexibility.
+> **Watch out.**  Duck typing (Python's "if it walks like a duck and quacks like a duck, treat it as a duck") is still a form of typing: a dynamic, structural one, where compatibility is checked by whether an object supports the required operations rather than by its declared class.  Saying a language "has no types" because it uses duck typing is incorrect.
 
 ### Model 2: Tracing the Runtime Checker on a Compound Expression
 
-**Intuition for Model 2.**  A dynamically typed interpreter never checks anything in advance; every check rides along with evaluation itself.  Picture evaluation as water rising from the leaves of the AST: values form at the literals and meet at each operator, and at each meeting point the bouncer from Model 1 checks the pair before combining them.  This model slows that flow to one step at a time, so you can see exactly when each check fires and, just as important, what has already happened by the time a check fails.
+A dynamically typed interpreter never checks anything in advance; every check rides along with evaluation.  Values form at the literals and meet at each operator, and at each meeting point the gatekeeper from Model 1 checks the pair before combining them.  This model slows that to one step at a time, so you can see when each check fires and what has already happened by the time a check fails.
 
-**Worked example.**  Trace the interpreter evaluating `(3.0 + 4.0) < (2.0 * 6.0)`.  Evaluation is bottom-up (innermost first), so the checks fire in this order:
-
-| Step | Node evaluated | Left value : type | Right value : type | Check performed | Result |
-|------|----------------|-------------------|--------------------|-----------------|--------|
-| 1 | `3.0 + 4.0` | `3.0` : number | `4.0` : number | `+` licensed for number, number | `7.0` |
-| 2 | `2.0 * 6.0` | `2.0` : number | `6.0` : number | `*` licensed for number, number | `12.0` |
-| 3 | `7.0 < 12.0` | `7.0` : number | `12.0` : number | `<` requires same type, OK | `True` |
-
-Three checks, three passes, one final value.  Now the same trace for `(3.0 + 4.0) < ("total: " + 12.0)`:
+Evaluation is bottom-up (innermost first).  For `(3.0 + 4.0) < (2.0 * 6.0)` the checks fire at `+`, then `*`, then `<`: three checks, three passes, one final value.  The same trace for `(3.0 + 4.0) < ("total: " + 12.0)`:
 
 | Step | Node evaluated | Left value : type | Right value : type | Check performed | Result |
 |------|----------------|-------------------|--------------------|-----------------|--------|
@@ -235,17 +192,9 @@ Three checks, three passes, one final value.  Now the same trace for `(3.0 + 4.0
 | 2 | `"total: " + 12.0` | `"total: "` : string | `12.0` : number | `+` **not** licensed for string, number | **TypeError** |
 | 3 | `... < ...` | - | - | never reached | - |
 
-Step 1 completed *before* the error, so its work is done and cannot be undone.  The `<` at step 3 never runs at all.  That is dynamic checking in one picture: checks are interleaved with execution, so an error stops the program in flight rather than before takeoff.
+Step 1 completed *before* the error, so its work cannot be undone, and the `<` at step 3 never runs.  That is dynamic checking in one picture: checks are interleaved with execution, so an error stops the program in flight rather than before takeoff.
 
-The program below performs both traces and narrates each check as it fires.
-
-> **Do this.**
-> 1. Create `model2_trace.py` in your lab folder and paste the script below into it.
-> 2. Run it:
->
-> ```bash
-> python3 model2_trace.py
-> ```
+> **Do this.**  Create `model2_trace.py` in your lab folder, paste the script below into it, and run `python3 model2_trace.py`.
 
 ```python
 def type_name(v):
@@ -301,27 +250,9 @@ except TypeError as e:
     print(f"stopped by TypeError: {e}")
 ```
 
-> **You should see.**  The two traces from the tables above, one step per line.  In the second trace, step 1 prints its result before step 2 fails.
+> **You should see.**  Both traces, one step per line.  The first prints three `check OK` lines (`7.0`, `12.0`, `True`) and then `final value: True`.  The second prints `step 1: 3.0 + 4.0  [number + number]  check OK -> 7.0`, then `step 2: 'total: ' + 12.0  [string + number]  check FAILS`, then `stopped by TypeError: operator '+' not defined for string and number`.  Step 1 prints its result before step 2 fails.
 
-```text
-=== (3.0 + 4.0) < (2.0 * 6.0) ===
-  step 1: 3.0 + 4.0  [number + number]  check OK -> 7.0
-  step 2: 2.0 * 6.0  [number * number]  check OK -> 12.0
-  step 3: 7.0 < 12.0  [number < number]  check OK -> True
-final value: True
-
-=== (3.0 + 4.0) < ('total: ' + 12.0) ===
-  step 1: 3.0 + 4.0  [number + number]  check OK -> 7.0
-  step 2: 'total: ' + 12.0  [string + number]  check FAILS
-stopped by TypeError: operator '+' not defined for string and number
-```
-
-An interpreter with dynamic (runtime) checking evaluates `(3.0 + 4.0) < ("a" + 1.0)`.  When is the type error for `"a" + 1.0` detected?
-
-- Before execution begins
-- When the `<` comparison runs
-- At the moment the `+` on `"a"` and `1.0` is evaluated, after `3.0 + 4.0` has already computed
-- Never; dynamic languages coerce automatically
+An interpreter with dynamic (runtime) checking evaluates `(3.0 + 4.0) < ("a" + 1.0)`.  When is the type error for `"a" + 1.0` detected: before execution begins, when the `<` comparison runs, at the moment the `+` on `"a"` and `1.0` is evaluated (after `3.0 + 4.0` has already computed), or never, because dynamic languages coerce automatically?
 
 > **Answer.**  At the moment the `+` on `"a"` and `1.0` is evaluated, after `3.0 + 4.0` has already computed.
 
@@ -331,48 +262,27 @@ An interpreter with dynamic (runtime) checking evaluates `(3.0 + 4.0) < ("a" + 1
 5.  In the failing trace, step 1 finished before the TypeError at step 2.  Suppose step 1 had been `print("charging card...")` instead of an addition.  What does this tell you about *where in a program's lifetime* you would prefer type errors to fire, and which typing discipline delivers that?
 6.  Redo the failing trace as a *static* checker would perform it, before execution: rewrite the table with types only, no values.  Which columns disappear, and which check still fails?
 
-Remember from this model: a runtime check fires only after both operands have been evaluated.  Whatever those evaluations did has already happened when the check fails.
-
 ### Model 3: Type Inference by Hand
 
-**Intuition for Model 3.**  Type inference is the trick where the checker works out every variable's type from context alone: you write `let a = 2` and it deduces `a: int` without you saying so.  Mechanically, it is a tree walk.  Visit each node, compute the type it must produce, and pass that type upward.  When two branches disagree (for example, adding an `int` to a `str`), the checker reports an error *at that node*, which can be far from the actual mistake if the mistake was made pages earlier.
+Type inference is the trick where the checker works out every variable's type from context alone: you write `let a = 2` and it deduces `a: int` without you saying so.  Mechanically, it is a tree walk.  Visit each node, compute the type it must produce, and pass that type upward.  When two branches disagree (for example, adding an `int` to a `str`), the checker reports an error *at that node*, which can be far from the actual mistake.
 
-The program below implements Hindley-Milner style inference in miniature.  Read `infer` from the top: each `if kind == ...` branch is one typing rule, and the `let` branch is where the type environment grows.  This is the closest model to what you build in Part 1.  Your checker walks the same way and keeps the same kind of environment; the difference is that yours reads the type from the annotation on each `let` instead of deducing it from the initializer.
+The script below implements Hindley-Milner style inference in miniature.  Each `if kind == ...` branch of `infer` is one typing rule, and the `let` branch is where the type environment grows.  This is the closest model to what you build in Part 1: your checker walks the same way and keeps the same kind of environment, but reads the type from the annotation on each `let` instead of deducing it from the initializer.
 
-> **Do this.**
-> 1. Create `model3_infer.py` in your lab folder and paste the script below into it.
-> 2. Run it:
->
-> ```bash
-> python3 model3_infer.py
-> ```
+> **Do this.**  Create `model3_infer.py` in your lab folder, paste the script below into it, and run `python3 model3_infer.py`.
 
 ```python
 # Mini type inference: propagate types through a simple expression AST
 
-from dataclasses import dataclass
-from typing import Any, Optional
-
-@dataclass
 class TInt:   pass
-@dataclass
 class TFloat: pass
-@dataclass
 class TStr:   pass
-@dataclass
 class TBool:  pass
-@dataclass
-class TUnknown: pass  # not yet inferred
 
 def type_str(t):
-    return {TInt: "int", TFloat: "float", TStr: "str",
-            TBool: "bool", TUnknown: "?"}[type(t)]
-
-# "Type environment": name -> type
-type_env = {}
+    return {TInt: "int", TFloat: "float", TStr: "str", TBool: "bool"}[type(t)]
 
 def infer(expr, env):
-    """Infer the type of an expression given a type environment."""
+    """Infer the type of an expression given a type environment (name -> type)."""
     kind, *args = expr
     if kind == "int":     return TInt()
     if kind == "float":   return TFloat()
@@ -404,65 +314,23 @@ def infer(expr, env):
         return TBool()
     raise ValueError(f"unknown expression kind {kind!r}")
 
-# Program: let a = 2; let b = a + 3; let c = b < 10; in c
-print("=== Type Inference Trace ===")
+# let a = 2; let b = a + 3; let c = b < 10; in c
 program = ("let", "a", ("int",), ("let", "b", ("add", ("var", "a"), ("int",)),
            ("let", "c", ("lt", ("var", "b"), ("int",)), ("var", "c"))))
-try:
-    result_type = infer(program, {})
-    print(f"Result type: {type_str(result_type)}")
-except TypeError as e:
-    print(f"Type error: {e}")
-
-# Program with error: let a = 2; let d = a + "hello", type error
-print("\n=== Type Error Program ===")
+# let a = 2; a + "hello"        (a type error)
 bad_program = ("let", "a", ("int",), ("add", ("var", "a"), ("str",)))
-try:
-    result_type = infer(bad_program, {})
-    print(f"Result type: {type_str(result_type)}")
-except TypeError as e:
-    print(f"Type error: {e}")
+
+for title, prog in [("Type Inference Trace", program), ("Type Error Program", bad_program)]:
+    print(f"=== {title} ===")
+    try:
+        print(f"Result type: {type_str(infer(prog, {}))}")
+    except TypeError as e:
+        print(f"Type error: {e}")
 ```
 
-> **You should see.**  Three `let` lines and a result type for the good program, then one `let` line and a type error for the bad one.  No value is ever computed; only types move.
+> **You should see.**  Under `=== Type Inference Trace ===`, the lines `let a: int`, `let b: int`, `let c: bool`, and `Result type: bool`.  Under `=== Type Error Program ===`, one line `let a: int` and then `Type error: cannot add int and str`.  No value is ever computed; only types move.
 
-```text
-=== Type Inference Trace ===
-  let a: int
-  let b: int
-  let c: bool
-Result type: bool
-
-=== Type Error Program ===
-  let a: int
-Type error: cannot add int and str
-```
-
-#### Worked Example: Tracing Type Inference Step by Step
-
-Consider the small program: `let a = 2; let b = a + 3; let c = b < 10; in c`
-
-The `infer` function walks this AST top-down and builds a type environment (a mapping from variable names to their inferred types) as it goes:
-
-| Step | Node visited | Type environment before | Result type deduced |
-|------|-------------|------------------------|---------------------|
-| 1 | `let a = ("int",)` | `{}` (empty) | literal `("int",)` -> `TInt` |
-| 2 | Extend env with `a: TInt`; recurse into body | `{a: TInt}` | - |
-| 3 | `let b = ("add", ("var","a"), ("int",))` | `{a: TInt}` | look up `a` -> `TInt`; literal -> `TInt`; `TInt + TInt` -> `TInt` |
-| 4 | Extend env with `b: TInt`; recurse into body | `{a: TInt, b: TInt}` | - |
-| 5 | `let c = ("lt", ("var","b"), ("int",))` | `{a: TInt, b: TInt}` | look up `b` -> `TInt`; literal -> `TInt`; same type -> `TBool` |
-| 6 | Extend env with `c: TBool`; body is `("var","c")` | `{a: TInt, b: TInt, c: TBool}` | look up `c` -> `TBool` |
-| **Final** | whole program | - | **`TBool`** |
-
-Now trace the *error* program: `let a = 2; a + "hello"`
-
-| Step | Node visited | Type environment | Result |
-|------|-------------|-----------------|--------|
-| 1 | `let a = ("int",)` | `{}` | `TInt` |
-| 2 | Extend env; recurse into body `("add", ("var","a"), ("str",))` | `{a: TInt}` | - |
-| 3 | left: look up `a` -> `TInt`; right: `("str",)` -> `TStr` | `{a: TInt}` | `TInt + TStr` -> **TypeError**: `cannot add int and str` |
-
-The error is reported at the `add` node (step 3), but the root cause is the choice made at step 1.  This distance between the error location and the root cause is a recurring problem in type inference, and the reason good inference error messages are hard to write.
+Follow the environment through the good program.  It starts empty; `let a = 2` binds `a: TInt`; `let b = a + 3` looks up `a`, types the literal, applies `TInt + TInt -> TInt`, and binds `b: TInt`; `let c = b < 10` binds `c: TBool`; the body `("var", "c")` looks up `TBool`.  In the error program, the environment holds `{a: TInt}` when `add` finds `TInt + TStr` and raises.  The error is reported at the `add` node, but the root cause is the choice made at the first `let`.  That distance between the error location and the root cause is a recurring problem in type inference, and the reason good inference error messages are hard to write.
 
 #### Critical Thinking Questions
 
@@ -470,21 +338,11 @@ The error is reported at the `add` node (step 3), but the root cause is the choi
 8.  When inference encounters `a + "hello"`, it reports the error at the `add` expression.  But the *root cause* is that `a` was given an int value.  How far is the reported error from the root cause, and what does this say about inference error message quality?
 9.  What would need to change to support `let a = 2; let b = a + 3.0;`?  (Hint: numeric type widening, `int + float -> float`.)  Modify the `infer` function to allow this.
 
-Remember from this model: inference computes a type for every node without running the program, so it is static.  The price is that an error surfaces where the types collide, not where the mistake was made.
-
 ### Model 4: A Type-Error Postmortem
 
-**Intuition for Model 4.**  The danger of weak typing is not crashes; it is the absence of crashes.  When a language coerces instead of refusing, a type mistake does not stop the program.  The mistake flows onward disguised as a plausible-looking value, and the first symptom appears far from the cause, often outside the program entirely.  This model performs a postmortem on one such incident, step by step, with the strong-typing alternative traced alongside for contrast.
+The danger of weak typing is not crashes; it is the absence of crashes.  When a language coerces instead of refusing, a type mistake does not stop the program.  It flows onward disguised as a plausible-looking value, and the first symptom appears far from the cause, often outside the program entirely.
 
-**The incident.**  A checkout system written in a weakly typed language reads a price from a web form.  Form fields always arrive as *strings*, and nobody converted.  Here is the program:
-
-```text
-subtotal = "19.99"                       # from the form: a STRING, not a number
-shipping = 5.00
-total    = (subtotal + shipping) * 1.06  # add shipping, then 6% tax
-```
-
-The intended arithmetic: `(19.99 + 5.00) * 1.06 = 24.99 * 1.06 = 26.49`.  What the weak language actually computes, step by step:
+**The incident.**  A checkout system written in a weakly typed language reads a price from a web form.  Form fields always arrive as *strings*, and nobody converted: `subtotal = "19.99"` is a string, `shipping = 5.00` is a number, and `total = (subtotal + shipping) * 1.06` adds shipping and then 6% tax.  The intended arithmetic is `(19.99 + 5.00) * 1.06 = 26.49`.  What the weak language actually computes, step by step:
 
 | Step | Expression | What a weak language does | Value after | What a strong language does |
 |------|-----------|----------------------------|-------------|------------------------------|
@@ -493,17 +351,9 @@ The intended arithmetic: `(19.99 + 5.00) * 1.06 = 24.99 * 1.06 = 26.49`.  What t
 | 3 | `"19.995" * 1.06` | coerces `"19.995"` -> `19.995`, then multiplies | `21.1947` (number) | never reached |
 | 4 | charge the customer | charges `$21.19` with no error anywhere | wrong by `$5.30` | bug reported at step 2, with a line number |
 
-Note the direction flip.  At step 2 the `+` coerced the *number toward the string*, but at step 3 the `*` coerced the *string toward the number*.  The same pair of types flowed in opposite directions depending on the operator.  That inconsistency, not any single conversion, is what makes weak typing treacherous.  And notice what is missing from the weak column: any error, at any step.  The only symptom is money.
+Note the direction flip: at step 2 the `+` coerced the *number toward the string*, but at step 3 the `*` coerced the *string toward the number*.  That inconsistency, not any single conversion, is what makes weak typing treacherous.  And the weak column contains no error at any step; the only symptom is money.
 
-The program below simulates both disciplines on the same buggy input.
-
-> **Do this.**
-> 1. Create `model4_postmortem.py` in your lab folder and paste the script below into it.
-> 2. Run it:
->
-> ```bash
-> python3 model4_postmortem.py
-> ```
+> **Do this.**  Create `model4_postmortem.py` in your lab folder, paste the script below into it, and run `python3 model4_postmortem.py`.
 
 ```python
 # Simulate both typing disciplines on the same buggy program.
@@ -545,24 +395,9 @@ except TypeError as e:
     print(f"  step 2: TypeError: {e}")
 ```
 
-> **You should see.**  The weak run finishes with the wrong charge and no error.  The strong run stops at step 2.
+> **You should see.**  The weak run prints `step 2: '19.99' + 5.0 -> '19.995'`, `step 3: '19.995' * 1.06 -> 21.1947`, and `charged: $21.19   (intended: $26.49)`, with no error anywhere.  The strong run prints one line, `step 2: TypeError: cannot add str and float`, and stops.
 
-```text
-=== Weak mode: no errors, wrong money ===
-  step 2: '19.99' + 5.0 -> '19.995'
-  step 3: '19.995' * 1.06 -> 21.1947
-  charged: $21.19   (intended: $26.49)
-
-=== Strong mode: stops at the mistake ===
-  step 2: TypeError: cannot add str and float
-```
-
-In a weakly typed language, `"19.99" + 5.0` yields `"19.995"` and `"19.995" * 1.06` yields `21.1947`.  The deepest design problem this postmortem illustrates is:
-
-- Floating-point rounding error
-- The slowness of string operations
-- Silent coercion lets a type mistake flow through the program as plausible-looking wrong values instead of stopping with an error
-- Strings cannot represent decimal numbers
+In a weakly typed language, `"19.99" + 5.0` yields `"19.995"` and `"19.995" * 1.06` yields `21.1947`.  Is the deepest design problem this postmortem illustrates floating-point rounding error, the slowness of string operations, silent coercion letting a type mistake flow through the program as plausible-looking wrong values instead of stopping with an error, or the inability of strings to represent decimal numbers?
 
 > **Answer.**  Silent coercion lets a type mistake flow through the program as plausible-looking wrong values instead of stopping with an error.
 
@@ -573,15 +408,11 @@ In a weakly typed language, `"19.99" + 5.0` yields `"19.995"` and `"19.995" * 1.
 12.  The weak-mode run produces no error at any point; the bug would surface only as customer complaints.  Name two other places in the software pipeline (besides the language's type system) where this bug could have been caught, and what each catch would cost compared to a step-2 TypeError.
 13.  For your project language: which, if any, of these coercions will you allow?  Record the decision in `SEMANTICS.md`, citing this postmortem as evidence for or against.
 
-Remember from this model: a strong type system reports the mistake at the line where the types first disagree.  A weak one lets the mistake travel until something outside the program notices.
-
 ---
 
 ## Part 1: Build the Checker Core (63%)
 
-Implement `check(program) -> None` in `typechecker.py`.  The function walks the class AST (use your Parser assignment's AST nodes, or the reference AST) and reports a type error as soon as it finds one.  A well-typed program produces no output.
-
-The checker carries a type environment as it walks.  A type environment uses the same parent-chaining discipline as the `Environment` class from your Environments lab, but it binds each name to a *type* instead of a value.  Entering a block creates a child environment, and leaving the block discards it.
+Implement `check(program) -> None` in `typechecker.py`.  The function walks the class AST (your Parser assignment's AST nodes, or the reference AST) and reports a type error as soon as it finds one.  A well-typed program produces no output.  The checker carries a type environment as it walks: the same parent-chaining discipline as the `Environment` class from your Environments lab, but each name is bound to a *type* instead of a value.  Entering a block creates a child environment, and leaving the block discards it.
 
 Your checker enforces these rules:
 
@@ -590,7 +421,7 @@ Your checker enforces these rules:
 - **Variables:** a use of `x` looks up its declared type; an undeclared use is a positioned error.
 - **Operators:** `+ - * /` require `Num` operands and yield `Num`; `< <= > >=` require `Num` and yield `Bool`; `== !=` require both sides to have the same type and yield `Bool`; `and`/`or`/`not` require `Bool`.  Every violation is reported as `Type error at line L, col C: ...` naming **both** conflicting types.
 
-The five steps below build the checker in the order that keeps it testable at every stage: environment, literals, declarations and variables, operators, then the full run.  Run the provided programs after each step and keep the output as your run log.
+The five steps below build the checker in the order that keeps it testable at every stage.  Run the provided programs after each step and keep the output as your run log.
 
 ### Step 1.1: Write the type environment
 
@@ -609,20 +440,15 @@ The environment comes first because every later rule either binds into it or loo
 ```python
 # typechecker.py: a small static type checker over the class AST.
 # The checker never evaluates anything; it only compares types.
-# Fill in each TODO in the order the lab's steps give.
-
 import sys
-
 from ast_nodes import (Num, Str, BoolLit, Var, BinOp, UnaryOp, LogicOp,
                        Let, Assign, Print, Block, If, While, Program)
 from parser import parse            # parse(source) -> Program
 
 NUM, STR, BOOL = "Num", "Str", "Bool"   # the three types this checker knows
 
-
 class LangTypeError(Exception):
     """Raised on the first type error found.  str(err) is the graded message."""
-
     def __init__(self, message: str, line: int, col: int):
         super().__init__(message)
         self.line, self.col = line, col
@@ -630,47 +456,41 @@ class LangTypeError(Exception):
     def __str__(self):
         return f"Type error at line {self.line}, col {self.col}: {self.args[0]}"
 
-
 class TypeEnvironment:
     """Same parent chain as Environment, but each name maps to a type name."""
-
     def __init__(self, parent=None):
         self.bindings = {}
         self.parent = parent
 
     def define(self, name: str, typ: str) -> None:
-        # TODO (Step 1.1): bind name to typ in THIS scope; this is what makes
-        #       an inner `let x: Str` shadow an outer `let x: Num`
+        # TODO (Step 1.1): bind name to typ in THIS scope only, so an inner
+        #       `let x: Str` shadows an outer `let x: Num`
         pass
 
     def lookup(self, name: str) -> str:
-        # TODO (Step 1.1): return this scope's binding, else ask the parent;
+        # TODO (Step 1.1): this scope's binding, else ask the parent;
         #       raise KeyError(name) when no scope in the chain has it
         pass
 
-
 def check(program: Program) -> None:
-    """Walk the whole program.  Well typed: return silently.  Ill typed: raise LangTypeError."""
+    """Well typed: return silently.  Ill typed: raise LangTypeError."""
     env = TypeEnvironment()
     for stmt in program.stmts:
         check_stmt(stmt, env)
 
-
 def check_stmt(node, env: TypeEnvironment) -> None:
     if isinstance(node, Let):
-        # TODO (Step 1.3): actual = check_expr(node.value, env); compare with
-        #       node.annotation; on a mismatch raise LangTypeError naming BOTH
-        #       types at node.line, node.col; otherwise env.define(...)
+        # TODO (Step 1.3): actual = check_expr(node.value, env); on a mismatch with
+        #       node.annotation raise LangTypeError naming BOTH types at
+        #       node.line, node.col; otherwise env.define(...)
         pass
     elif isinstance(node, Block):
-        # TODO (Step 1.3): make a child TypeEnvironment(parent=env) and check
-        #       each statement in it; the child is discarded on return
+        # TODO (Step 1.3): check each statement in a child TypeEnvironment(parent=env)
         pass
     else:
         # TODO (Steps 1.3 and 1.4): Assign, Print, If, While: check the
         #       expressions they contain; If and While bodies are Blocks
         pass
-
 
 def check_expr(node, env: TypeEnvironment) -> str:
     """Return the type of an expression, or raise LangTypeError."""
@@ -681,10 +501,8 @@ def check_expr(node, env: TypeEnvironment) -> str:
     # TODO (Step 1.4): BinOp, LogicOp, UnaryOp, one operator family at a time
     raise NotImplementedError(f"no typing rule yet for {type(node).__name__}")
 
-
 if __name__ == "__main__":
     # File driver: python3 typechecker.py programs/some_program.ml
-    # Prints nothing for a well-typed program; one Type error line otherwise.
     source = open(sys.argv[1]).read()
     try:
         check(parse(source))
@@ -697,42 +515,36 @@ if __name__ == "__main__":
 
 > **If it fails.**
 > - `ModuleNotFoundError: No module named 'ast_nodes'` (or `parser`): the AST and parser files are not in the same folder as `typechecker.py`, or their names differ from the `import` lines.
-> - `None` prints instead of `Num`: `lookup` still ends in `pass`, so it returns nothing.
+> - `None` prints instead of `Num`: `lookup` still ends in `pass`.
 > - `KeyError: 'x'`: `lookup` checks this scope but never asks `self.parent`.
 
 ### Step 1.2: Type the literals
 
-Literals are the leaves of every expression, so once they have types, the simplest programs type-check end to end.
-
 > **Do this.**
 > 1. In `check_expr`, add branches for `Str` and `BoolLit` next to the `Num` branch, returning `STR` and `BOOL`.
-> 2. Add the `Print` case to `check_stmt`: call `check_expr` on its expression and discard the result.  (Printing any type is fine; the point is that the expression inside must be well typed.)
-> 3. Create `programs/literals.ml` containing one print statement per literal type, and run the driver on it:
->
-> ```bash
-> python3 typechecker.py programs/literals.ml
-> ```
+> 2. Add the `Print` case to `check_stmt`: call `check_expr` on its expression and discard the result.  Printing any type is fine; the expression inside must be well typed.
+> 3. Create `programs/literals.ml` containing one print statement per literal type, and run `python3 typechecker.py programs/literals.ml`.
 
-> **You should see.**  Nothing at all.  A well-typed program produces no output, and the command returns to the prompt.  If you want proof the checker ran, add a temporary `print` at the top of `check` and remove it afterward.
+> **You should see.**  Nothing at all: a well-typed program produces no output.  If you want proof the checker ran, add a temporary `print` at the top of `check` and remove it afterward.
 
 ### Step 1.3: Check declarations and variable uses
 
 Declarations put names into the environment, variable uses take them back out, and blocks decide which environment is current.  These three together are what the rubric means by "scopes annotations through nested blocks."
+
+> **Watch out.**  The reference AST's `Let` node has the fields `name`, `value`, `line`, and `col`, and the reference `parse_let_stmt` reads `let x = expr;` with no annotation.  The Interpreter assignment's Part 4 says `let` statements carry, or are extended to carry, type annotations.  If you are building on the reference parser (or your own parser has no annotation yet), add an `annotation: str` field to `Let` and teach the `let` rule to read the `: Num` between the name and the `=`.  Budget ten minutes for this before you fill the `Let` branch.
 
 > **Do this.**
 > 1. Fill the `Let` branch of `check_stmt`: type the initializer, compare it with the annotation, raise `LangTypeError` naming both types on a mismatch, and otherwise `define` the name with its annotated type.
 > 2. Fill the `Var` branch of `check_expr`: return `env.lookup(node.name)`.  Catch the `KeyError` and re-raise it as a `LangTypeError` at the variable's line and column, so an undeclared use is a positioned error.
 > 3. Fill the `Block` branch of `check_stmt`: create `TypeEnvironment(parent=env)` and check each statement with it.  Do not bind anything from the block into the outer environment.
 > 4. Add `Assign` to `check_stmt`: the new value's type must equal the variable's declared type, looked up through the chain.
-> 5. Run the driver on the provided shadowing program and on `let x: Num = 1 + true;` once Step 1.4 lands.  For now, test with a well-typed declaration and an undeclared-variable program of your own.
+> 5. Test with a well-typed declaration and an undeclared-variable program of your own.  The provided shadowing program and `let x: Num = 1 + true;` come after Step 1.4.
 
 > **You should see.**  Silence for the well-typed declaration.  For a use of an undeclared `y` on line 2, one line such as `Type error at line 2, col 7: undeclared variable 'y'`, with the column wherever your parser recorded the `Var` node.
 
-> **Watch out.**  The reference AST's `Let` node has the fields `name`, `value`, `line`, and `col`, and the reference `parse_let_stmt` reads `let x = expr;` with no annotation.  The Interpreter assignment's Part 4 says `let` statements carry, or are extended to carry, type annotations.  If you are building on the reference parser (or your own parser has no annotation yet), add an `annotation: str` field to `Let` and teach the `let` rule to read the `: Num` between the name and the `=`.  Budget ten minutes for this before you fill the `Let` branch.
-
 ### Step 1.4: Check the operators, one family at a time
 
-Operators are where most ill-typed programs fail, and they are also where a message that names only one type is easiest to write by accident.  Every operator error names both operand types.
+Operators are where most ill-typed programs fail, and where a message that names only one type is easiest to write by accident.  Every operator error names both operand types.
 
 > **Do this.**
 > 1. Arithmetic first.  In `check_expr`, handle `BinOp` with `op` in `+ - * /`: both operands must be `NUM`, and the result is `NUM`.
@@ -746,7 +558,7 @@ Operators are where most ill-typed programs fail, and they are also where a mess
 
 > **If it fails.**
 > - The message names one type: you formatted the expected type but not the actual one, or the other way around.  Both must appear.
-> - The checker crashes with `NotImplementedError` on a program it should reject: an operator family is still missing.  Read the node name in the message.
+> - `NotImplementedError` on a program it should reject: an operator family is still missing.  Read the node name in the message.
 > - A program with an error on line 5 also prints output from line 1: something is evaluating.  The checker calls no evaluator and prints nothing except the error.
 
 ### Step 1.5: Run the twelve provided programs and keep the log
@@ -772,22 +584,19 @@ Type error at line 1, col 16: '+' requires Num operands, got Num and Bool
 == programs/<the shadowing program>.ml
 ```
 
-> **Checkpoint.**  Two things to remember from this part.  The checker never evaluates anything; it only compares types.  And every error message names the position and both conflicting types.
-
 ---
 
 ## Part 2: Write the Typing Rules on Paper (27%)
 
-In `RULES.md`, state the typing rule for each construct your checker covers, one rule per construct.  A typing rule has premises (what must already be true about the parts) and a conclusion (what then holds for the whole).  Writing the rules after the code is deliberate: the code tells you what you actually enforced, and the rule tells you whether that was what you meant.
+In `RULES.md`, state the typing rule for each construct your checker covers, one rule per construct.  A typing rule has premises (what must already be true about the parts) and a conclusion (what then holds for the whole).  Writing the rules after the code is deliberate: the code tells you what you actually enforced, and the rule tells you whether that was what you meant.  This document becomes the seed of the Interpreter assignment's semantics writeup, and if you later choose the full Hindley-Milner direction (type inference, which works out types with no annotations at all), these rules are exactly what inference generalizes.
 
-This document becomes the seed of the Interpreter assignment's semantics writeup.  If you later choose the full Hindley-Milner direction (type inference, which works out types with no annotations at all), these rules are exactly what inference generalizes.
-
-### Step 2.1: State one rule per construct
+### Step 2.1: State one rule per construct and cite its code
 
 > **Do this.**
 > 1. Create `RULES.md` in your lab folder, with both partners named at the top (below your Part 0 answers, if you typed them there).
 > 2. For each construct the checker covers (each literal type, variable use, `let` declaration, and each operator family), write one rule in either inference-rule layout (premises above a line, conclusion below it) or a disciplined "if... then..." sentence.
-> 3. Check each rule against the matching branch of `check_expr` or `check_stmt`.  If the code enforces a premise the rule does not state, or the rule states one the code does not check, fix whichever is wrong.
+> 3. Under each rule, name the function or branch in `typechecker.py` that implements it (for example, "the `BinOp` branch of `check_expr` for `+ - * /`").
+> 4. Check each rule against its cited code.  If the code enforces a premise the rule does not state, or the rule states one the code does not check, fix whichever is wrong.  Confirm the cited code raises an error naming both types whenever a premise fails.
 
 The two layouts say the same thing.  In inference-rule layout, the rule for `+` is:
 
@@ -799,13 +608,7 @@ e1 : Num    e2 : Num
 
 As a sentence: *if `e1 : Num` and `e2 : Num`, then `e1 + e2 : Num`*.  Either form is acceptable; what is graded is that every premise is stated and none is missing.
 
-### Step 2.2: Cite the code that implements each rule
-
-> **Do this.**
-> 1. Under each rule, name the function or branch in `typechecker.py` that implements it (for example, "the `BinOp` branch of `check_expr` for `+ - * /`").
-> 2. Confirm the cited code raises an error naming both types whenever a premise fails.
-
-### Step 2.3: Answer the two theory questions
+### Step 2.2: Answer the two theory questions
 
 Close `RULES.md` with two theory questions from the Type Systems session:
 
