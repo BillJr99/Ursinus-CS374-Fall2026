@@ -61,7 +61,7 @@ You need:
 
 - Python 3.10 or newer.  The class uses only the standard library.
 - Any editor that saves plain `.py` files, and a terminal you can run `python3` from.  If the terminal is new to you, read the [Dev Environment tutorial]({{ site.baseurl }}/Tutorials/DevEnvironment) and the [Shell for Language Development primer]({{ site.baseurl }}/Tutorials/ShellForLanguageDev) first; both are short.
-- The provided behavior script `test_environment.py` from the course starter repo.
+- The provided behavior script [test_environment.py]({{ site.baseurl }}/files/starters/environments/test_environment.py).
 - The two readings listed above (the Binding and Scope activity and the Environments activity).  Part 0 uses their vocabulary.
 
 Make a folder for this lab and confirm your Python version from inside it (any `3.10` or higher is fine; on Windows, if `python3` is not found, use `python` wherever this page says `python3`):
@@ -264,7 +264,7 @@ The example above prints `51` then `2` even if `lookup` never consults the paren
 5.  Scope restoration: after a child scope is discarded, the outer binding is unchanged.
 
 > **Do this.**
-> 1. Copy `test_environment.py` from the starter repo into `cs374-environments/`, next to `environment.py`, and run `python3 test_environment.py` from that folder.
+> 1. Download [test_environment.py]({{ site.baseurl }}/files/starters/environments/test_environment.py) into `cs374-environments/`, next to `environment.py`, and run `python3 test_environment.py` from that folder.
 > 2. Save the output for your submission: redirect it with `python3 test_environment.py > test_output.txt 2>&1`, or take a screenshot of the terminal.
 
 > **You should see.** All five behaviors passing and no Python traceback.  If the script is built on `unittest`, the last lines are `Ran 5 tests` followed by `OK`.  A `FAILED` line names the behavior that broke; its number in the list above tells you which method to reread.
@@ -278,7 +278,7 @@ The example above prints `51` then `2` even if `lookup` never consults the paren
 
 ## Part 2: Predict and Check the Scope Trace (27%)
 
-Write your predictions in `trace.md` before you run anything.  The test script comes with a short program of three nested blocks that mix `define` and `assign`.  Its shape is below, with every step numbered; if the copy in `test_environment.py` differs from this listing, trace the script's copy and renumber the steps to match it.
+Write your predictions in `trace.md` before you run anything.  The test script comes with a short program of three nested blocks that mix `define` and `assign`.  Its shape is below, with every step numbered; if the copy in [test_environment.py]({{ site.baseurl }}/files/starters/environments/test_environment.py) differs from this listing, trace the script's copy and renumber the steps to match it.
 
 ```text
 let x = 1;               # step 1
@@ -337,7 +337,7 @@ a.assign("y", a.lookup("y") + a.lookup("x"))     # step 5:  y = y + x;
 # TODO: steps 6 through 20, one line each, in the same style.
 ```
 
-> **You should see.** Six lines of output, one per `print`, in the order of steps 12, 14, 15, 17, 19, and 20.  Do not look at the output before your table is filled in.  The prediction is the graded part.
+> **You should see.** Six lines of output, one per `print`, in the order of steps 12, 14, 15, 17, 19, and 20.  The provided script prints the same program step by step when you run `python3 test_environment.py --trace`, so you can check your table against it afterwards.  Do not look at that output before your table is filled in.  The prediction is the graded part.
 
 ### Step 2.3: Answer the Two Theory Questions
 

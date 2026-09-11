@@ -440,7 +440,7 @@ Lazy:   '<b>'
 
 ### Step 3c: Log Parser
 
-In `log_parser.py`, write a `parse_log(log_path: str, config_path: str)` function for the provided server log.  Each line looks like `2026-09-18 08:10:22 WARN disk usage 91% on /dev/sda1`.  The function must:
+In `log_parser.py`, write a `parse_log(log_path: str, config_path: str)` function for the provided server log, [server.log]({{ site.baseurl }}/files/starters/regex/server.log).  Each line looks like `2026-09-18 08:10:22 WARN disk usage 91% on /dev/sda1`.  The function must:
 
 1.  Use one `re.finditer` pattern with named groups to extract `date`, `time`, `level`, and `message` from each log line.
 2.  Report counts by level (how many INFO, WARN, and ERROR lines).
@@ -450,7 +450,7 @@ In `log_parser.py`, write a `parse_log(log_path: str, config_path: str)` functio
 
 The named-group pattern must match the line format `YYYY-MM-DD HH:MM:SS LEVEL message text here` exactly.  Store both the input log path and the output `errors.txt` path in a JSON configuration file rather than in the code.  A JSON file holds data as nested names and values, and Python's `json.load` reads it into a dictionary.
 
-> **Do this.** Paste the two-key object below into `config.json`, and save the provided server log in `cs374-regex/` under the name it points to, `server.log`.  Then paste the skeleton into `log_parser.py`, fill in the pattern and the `# TODO` markers, and run `python3 log_parser.py`.
+> **Do this.** Paste the two-key object below into `config.json`, and save the provided server log, [server.log]({{ site.baseurl }}/files/starters/regex/server.log), in `cs374-regex/` under the name it points to, `server.log`.  Then paste the skeleton into `log_parser.py`, fill in the pattern and the `# TODO` markers, and run `python3 log_parser.py`.
 
 ```json
 {
