@@ -551,7 +551,7 @@ A wrong machine file is the most common bug in this lab.  Your loader checks the
 **You run:** `python3 -c "import simulator; simulator.load_machine('machines/even_ones.json')"`, then the same command on a broken file.
 
 > **Do this.**
-> 1. Create a new file, `simulator.py`, next to `dfa_core.py`.  Type in the skeleton below, and then fill in the `# TODO` lines using the hints after it.
+> 1. Create a new file, `simulator.py`, next to `dfa_core.py`.  Type in the skeleton below.  Then write the body of each function, one `# Step` comment at a time, using the hints after it.
 > 2. `load_machine(path)` reads a JSON file and checks that the start state, the accept states, and every transition refer only to declared states and alphabet symbols.
 > 3. Collect every validation error in a list, then raise one `MachineError` that lists them, one per line.  Do not stop at the first error.
 > 4. Accept both `delta` shapes.  A DFA's `delta` is an object of objects.  An NFA's `delta` (Part 2) has `"state,symbol"` keys with list values, and the symbol half may be the special word `eps`.  Your check must let `eps` through for an NFA and reject every other symbol outside the alphabet.
@@ -566,45 +566,51 @@ class MachineError(Exception):
 
 
 def is_nfa(machine):
-    # An NFA's delta values are lists of states; a DFA's are objects (Part 2).
-    return any(isinstance(v, list) for v in machine["delta"].values())
+    """Return True if machine is an NFA and False if it is a DFA."""
+    # Step 1: Look at the values stored in machine["delta"].  A DFA's values
+    #         are dictionaries, one row per state.  An NFA's values are lists
+    #         of target states (Part 2).
+    # Step 2: Return True if at least one of those values is a list, and
+    #         False otherwise.
+    ...
 
 
 def load_machine(path):
-    with open(path) as f:
-        machine = json.load(f)
-    errors = []
-    states = set(machine["states"])
-    alphabet = set(machine["alphabet"])
+    """Read the JSON machine at path, check it, and return it as a dict.
 
-    # The start state must be declared.  This first check is done for you;
-    # every other check follows the same pattern.
-    if machine["start"] not in states:
-        errors.append(f"start state {machine['start']!r} is not a declared state")
-
-    # TODO: every accept state must be in states
-
-    if is_nfa(machine):
-        # TODO: NFA: every "state,symbol" key must split into a declared state and
-        #       either an alphabet symbol or "eps"; every target must be declared
-        pass
-    else:
-        # TODO: DFA: every (state, symbol) pair over the alphabet must appear, and
-        #       every delta[state][symbol] must name a declared state
-        pass
-
-    if errors:
-        raise MachineError("\n".join(errors))
-    return machine
+    Raise one MachineError that lists every problem, one per line.
+    """
+    # Step 1: Open the file at path and parse it into a dictionary, machine.
+    # Step 2: Start an empty list, errors.  Every check below appends to it.
+    # Step 3: Build a set of the declared states and a set of the alphabet
+    #         symbols, so each check is a quick membership test.
+    # Step 4: If the start state is not a declared state, append an error
+    #         that names it.
+    # Step 5: For each accept state that is not declared, append an error
+    #         that names it.
+    # Step 6: If is_nfa(machine) is true, check every "state,symbol" key.
+    #         Its state half must be declared.  Its symbol half must be in
+    #         the alphabet or be the word "eps".  Every target in its list
+    #         must be declared.
+    # Step 7: Otherwise the machine is a DFA.  For every declared state and
+    #         every alphabet symbol, the pair must appear in delta, and its
+    #         target must be a declared state.  A missing pair and an
+    #         undeclared target are two different errors.
+    # Step 8: If errors is not empty, raise one MachineError whose message is
+    #         every error joined into one string, one per line.  Otherwise,
+    #         return machine.
+    ...
 ```
 
-The worked start-state check shows the pattern for every other check.  Test one condition, and when it fails, append a sentence to `errors` that names the bad value.  `!r` prints the value with quotes around it, so a stray space or a misspelling is easy to see.  Fill in the remaining checks one at a time, and replace each `pass` once its branch has real code:
+Every check follows one pattern.  Test one condition, and when it fails, append a sentence to `errors` that names the bad value.  Nothing raises until Step 8, so one run reports every problem.  Word your messages like the expected output below, so you can compare yours line by line.  Write one `# Step` at a time:
 
-| `# TODO` | How to write it |
+| Step | How to think about it |
 |---|---|
-| accept states | Loop `for state in machine["accept"]:` and append an error for each `state` that is not in `states`. |
-| DFA pairs | Write two nested loops, `for state in machine["states"]:` and `for symbol in machine["alphabet"]:`.  Read the target with `target = machine["delta"].get(state, {}).get(symbol)`.  `.get` returns `None` instead of crashing, so `target is None` means the pair is missing; append an error that names both `state` and `symbol`.  Otherwise, if `target` is not in `states`, append an error that names the target. |
-| NFA keys | Loop `for key, targets in machine["delta"].items():`.  Split the key with `state, _, symbol = key.partition(",")`.  Append an error if `state` is not in `states`, if `symbol` is neither in `alphabet` nor equal to `"eps"`, or if any entry of `targets` is not in `states`. |
+| `is_nfa` | You only need to know whether some value is a list.  `isinstance(value, list)` answers that for one value, and `any(...)` asks it of all of them at once.  Part 2 is the first time it returns `True`. |
+| start and accept (Steps 4 and 5) | Membership in the set of declared states is the whole test.  Inside an f-string, `!r` prints a value with quotes around it, so a stray space or a misspelling is easy to see. |
+| DFA pairs (Step 7) | Loop over the declared states and the alphabet, not over the keys of `delta`.  A row that is missing from `delta` is exactly what you are looking for, and a loop over `delta` would never visit it.  `dict.get` with a default never crashes: a missing row can default to an empty dictionary, and a missing symbol then gives `None`.  `None` means the pair is missing, so name both the state and the symbol.  Otherwise, check that the target is declared. |
+| NFA keys (Step 6) | Visit each key together with its list of targets; `.items()` gives you both.  Each key is one string, so split it at the comma into its state half and its symbol half.  `str.partition` or `str.split` both work.  The symbol test has two ways to pass: in the alphabet, or the word `eps`. |
+| raise once (Step 8) | An empty list is false in an `if`.  `str.join` with a newline turns the list into one message with one problem per line. |
 
 You cannot test the NFA branch until Part 2 gives you an NFA file.  Write it now anyway, because Part 2 relies on it.
 

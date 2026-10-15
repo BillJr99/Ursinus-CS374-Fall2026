@@ -187,7 +187,7 @@ Get one statement through the whole pipeline on day one; the rest of Part 2 is f
 
 1. Copy the node dataclasses from Step 1a into `ast_nodes.py`, reconciling them with your parser's existing nodes.
 2. In `interpreter.py`, write the `Interpreter` class with an `eval_node` method that has one branch per node type (Step 1b), each raising `NotImplementedError` for now.
-3. Fill in only the `Num` branch (`return node.value`), the `Print` branch, and the `Program` branch (walk its statements).
+3. Fill in only three branches.  `Num` hands back the number the node already holds.  `Print` evaluates its expression and prints the result.  `Program` evaluates each of its statements in order.
 4. Run `print 42;` end to end:
 
 ```bash
@@ -429,7 +429,7 @@ The second section is a toy: a real `Environment` is a class, not a dict with a 
 
 #### Write the Dispatch
 
-Create `interpreter.py` with an `Interpreter` class and one `eval_node(node)` method that dispatches on node type using `isinstance`.  Paste the skeleton below and add one `elif` branch per remaining node type from Step 1a, each raising `NotImplementedError` naming the class; the `else` branch raises `InterpreterError("Unknown node type: ...")`.  The `env` parameter arrives in Step 2c; leave the default in place until then.  Before you write any evaluation logic, construct one instance of each class and confirm the `NotImplementedError` message names that class rather than reaching the `else`.
+Create `interpreter.py` with an `Interpreter` class and one `eval_node(node)` method that dispatches on node type using `isinstance`.  Start from the skeleton below (the starter kit's copy is the same) and add one `elif` branch per remaining node type from Step 1a, each raising `NotImplementedError` naming the class; the `else` branch raises `InterpreterError("Unknown node type: ...")`.  The `env` parameter arrives in Step 2c; leave the default in place until then.  Before you write any evaluation logic, construct one instance of each class and confirm the `NotImplementedError` message names that class rather than reaching the `else`.
 
 **You write:** `interpreter.py` - `InterpreterError` and `Interpreter.eval_node`, with one branch per node class
 **You run:** `python3 check_dispatch.py`
@@ -446,14 +446,18 @@ class Interpreter:
             raise NotImplementedError("Str")
         elif isinstance(node, Program):
             raise NotImplementedError("Program")
-        # TODO: one elif branch per remaining node type from Step 1a
+        # Step 1: add one elif branch for each of the thirteen classes not yet listed.
+        # Step 2: give each new branch the same body as the three above, with its own class name.
+        # Step 3: keep the else branch last, so only a non-node ever reaches it.
         else:
             raise InterpreterError(f"Unknown node type: {type(node).__name__}")
 ```
 
-| `# TODO` | How to write it |
+| `# TODO` | How to think about it |
 |---|---|
-| one `elif` branch per remaining node type | Copy the `Str` branch once per class, as in `elif isinstance(node, BoolLit): raise NotImplementedError("BoolLit")`.  The string is the class name, so the message tells you which branch you reached.  Thirteen classes are missing: `BoolLit`, `Var`, `BinOp`, `UnaryOp`, `LogicOp`, `Let`, `Assign`, `Print`, `Block`, `If`, `While`, `Break`, and `Continue`.  Keep the `else` last. |
+| Step 1: one branch per class | Thirteen classes are missing: `BoolLit`, `Var`, `BinOp`, `UnaryOp`, `LogicOp`, `Let`, `Assign`, `Print`, `Block`, `If`, `While`, `Break`, and `Continue`.  Work down the Step 1a list so you can tick each one off. |
+| Step 2: the same body, a new name | The message is the only thing that tells you which branch ran.  So the string must be the class name, spelled exactly as Step 1a spells it.  A copied branch with the old name is the bug the checker below catches. |
+| Step 3: `else` last | Python tries the tests top to bottom.  Anything you put after the `else` can never run. |
 
 Now check the dispatch.  Save this as `check_dispatch.py` (scratch, not submitted).  It builds one node of every class, plus one thing that is not a node at all, and reports which branch each one reached.
 
@@ -511,8 +515,8 @@ for node in samples:
 
 Replace the `NotImplementedError` in each expression branch with the rule below.  Return Python values: numbers as `float` or `int`, strings as `str`, booleans as `bool`.
 
-- `Num`, `Str`, `BoolLit`: return `node.value`.
-- `Var`: call `env.lookup(node.name)`, raising a `LangNameError` if the name is not found.  Include the variable name and source line in the error.
+- `Num`, `Str`, `BoolLit`: return the value the parser already stored on the node.
+- `Var`: look the name up in the environment, raising a `LangNameError` if the name is not found.  Include the variable name and source line in the error.
 - `UnaryOp("-")`: evaluate the operand.  If it is not a number, raise `LangTypeError("unary minus requires a number, got <type>")`.
 - `BinOp`: evaluate both operands, then apply the operator.  The **type rules** are:
   - `+`, `-`, `*`, `/` require both operands to be numbers (otherwise raise `LangTypeError` naming both types).
@@ -522,7 +526,7 @@ Replace the `NotImplementedError` in each expression branch with the rule below.
 
 The error classes (`LangNameError`, `LangTypeError`, `LangZeroDivisionError`) belong to the hierarchy that Step 5a audits, which is required in every Part 5 direction.  Define the whole hierarchy now, exactly as the skeleton below shows it, at the top of `interpreter.py`.  Step 5a does not replace these classes.  It checks that every `raise` in the file uses one of them with a good message and a position.  If you copied the starter kit, its `interpreter.py` already holds them; compare it with the skeleton, because the skeleton adds the `super().__init__` line.
 
-Two pieces of Step 2c are needed already.  `Var` reads from an environment, and the test program below uses `let`.  Paste the `Environment` class from Step 2c now (What You Already Have asks you to bring it on day one).  Then give `Interpreter` an `__init__` that sets `self.globals = Environment()`, start `eval_node` with `if env is None: env = self.globals`, and fill the `Let` branch as Step 2c's first bullet describes.  The rest of Step 2c can wait.
+Two pieces of Step 2c are needed already.  `Var` reads from an environment, and the test program below uses `let`.  Paste the `Environment` class from Step 2c now (What You Already Have asks you to bring it on day one).  Then give `Interpreter` an `__init__` that stores one global `Environment` as `self.globals`, and have `eval_node` fall back to `self.globals` when `env` is `None`.  The starter kit's `interpreter.py` already does both.  Fill the `Let` branch as Step 2c's first bullet describes.  The rest of Step 2c can wait.
 
 **You write:** `interpreter.py` - the error classes, `is_number`, `type_name`, and the `Num`, `Str`, `BoolLit`, `Var`, `UnaryOp("-")`, and `BinOp` branches
 **You run:** the two `python3 -c` commands below
