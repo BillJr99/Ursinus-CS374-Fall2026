@@ -982,7 +982,7 @@ To see a property bite once, break your `or` branch on purpose: move the evaluat
 
 > **If it fails.**
 > - `TypeError: 'RecursiveStrategy' object is not callable`: you wrote `exprs()`.  A strategy is used as `exprs`, without parentheses.
-> - `NotImplementedError: Probe`: the `Probe` branch of `ProbeInterpreter` is still the skeleton line.
+> - `InterpreterError: Unknown node type: Probe`: `ProbeInterpreter.eval_node` hands a `Probe` to the parent class instead of handling it first.
 > - `test_scope_restoration` fails with `Failed: DID NOT RAISE LangNameError`: your `Block` branch runs its statements in `env` instead of `child_env`, so `v` lands in the global scope.  This is the leak the invariant exists to catch.
 
 > **Why this matters.** The same invariants, generalized to your team's language, become the core of the Team Language Project's property-based test suite, so write them to be reusable.

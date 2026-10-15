@@ -124,26 +124,26 @@ Solution code and test code live in separate files.  Your functions go in `highe
 
 ### Your First 30 Minutes
 
-1. Open `higher_order.py` and type in `total_length` below, together with the `from functools import reduce` line above it.  This is the one finished function on this page, and it exercises the whole Part 1 toolkit, so read it line by line before you run it.
+1. Open `higher_order.py` and type in `total_length` below, together with the `from functools import reduce` line above it.  This is the one worked example in the core, and it exercises the whole Part 1 toolkit, so read it line by line before you run it.
 
-```python
-# higher_order.py
-from functools import reduce
+   ```python
+   # higher_order.py
+   from functools import reduce
 
-# total_length: list[str] -> int
-# Total characters across the words longer than three letters.
-def total_length(words):
-    return reduce(lambda acc, n: acc + n,
-                  map(len, filter(lambda w: len(w) > 3, words)),
-                  0)
-```
+   # total_length: list[str] -> int
+   # Total characters across the words longer than three letters.
+   def total_length(words):
+       return reduce(lambda acc, n: acc + n,
+                     map(len, filter(lambda w: len(w) > 3, words)),
+                     0)
+   ```
 
-- `from functools import reduce`: `map` and `filter` are built in, but `reduce` lives in the `functools` module, so you import it.
-- The two comments: the type signature (a list of strings in, an integer out) and a one-sentence description.  Every Part 1 function needs both, because the rubric checks for them.
-- `filter(lambda w: len(w) > 3, words)`: keeps only the words longer than three letters.  It is lazy, so nothing runs yet.
-- `map(len, ...)`: turns each surviving word into its length, also lazily.
-- `reduce(lambda acc, n: acc + n, ..., 0)`: pulls the lengths through one at a time and adds each one to the running total `acc`, which starts at the seed `0`.
-- `return`: the whole body is one expression.  Read it from the inside out: filter, then map, then reduce.  There is no loop and no variable to update.
+   - `from functools import reduce`: `map` and `filter` are built in, but `reduce` lives in the `functools` module, so you import it.
+   - The two comments: the type signature (a list of strings in, an integer out) and a one-sentence description.  Every Part 1 function needs both, because the rubric checks for them.
+   - `filter(lambda w: len(w) > 3, words)`: keeps only the words longer than three letters.  It is lazy, so nothing runs yet.
+   - `map(len, ...)`: turns each surviving word into its length, also lazily.
+   - `reduce(lambda acc, n: acc + n, ..., 0)`: pulls the lengths through one at a time and adds each one to the running total `acc`, which starts at the seed `0`.
+   - `return`: the whole body is one expression.  Read it from the inside out: filter, then map, then reduce.  There is no loop and no variable to update.
 
 2. Open `test_functional.py` and give it two lines: the import `from higher_order import total_length`, and the first assertion from the test file in Step 1.1.
 3. Run `python3 test_functional.py` from your project folder.  A silent exit means the assertion held.
@@ -695,7 +695,7 @@ Strict (eager) evaluation computes every element of a sequence immediately.  Laz
 **You run:** `python3 test_functional.py`, then `python3 generators.py` for the timing.
 
 > **Do this.**
-> 1. Create `generators.py` from the skeleton below.  Every function that produces a sequence must use `yield`, and the two infinite generators must run indefinitely in O(1) extra memory.
+> 1. Create `generators.py` from the specification below.  Every function that produces a sequence must use `yield`, and the two infinite generators must run indefinitely in O(1) extra memory.
 > 2. Test with `take`, never with `list()`, on the infinite generators.  If a test hangs, a generator is being consumed to the end: the usual culprits are `list(naturals())`, a `for` loop over an infinite generator with no `break`, or a `take` that loops on the iterator instead of stopping after `n` items.
 > 3. Build the lazy pipeline below: the first 10 perfect squares that are also even, using only `gen_map`, `gen_filter`, `naturals`, and `take`, with no list comprehensions and no intermediate lists.
 > 4. Strict vs. lazy: find the first Fibonacci number greater than 1000 two ways, first by materializing a large list, then lazily one element at a time.  Time both with `time.perf_counter()`.
@@ -957,7 +957,7 @@ Substitution replaces a free variable with a term, and it is capture-avoiding wh
 **You run:** `python3 test_functional.py`
 
 > **Do this.**
-> 1. Create `lambda_calc.py` from the skeleton below: the three AST dataclasses and `free_vars`.
+> 1. Create `lambda_calc.py` with the three provided AST dataclasses below, then write `free_vars` from its specification.
 > 2. Implement capture-avoiding substitution and run the three adversarial tests before you write the reducer.
 > 3. Implement the single-step normal-order reducer (leftmost-outermost redex first) and the `normalize` driver, which reduces to normal form under a configurable step limit with an optional step-by-step trace.
 
@@ -1114,7 +1114,7 @@ The hand reductions come first, and they are the answers your reducer must repro
 **You run:** `python3 test_functional.py`
 
 > **Do this.**
-> 1. Create `birds.py` from the skeleton below.  Application is left-associative, so `S K K` is `App(App(Prim("S"), Prim("K")), Prim("K"))`.
+> 1. Create `birds.py` with the two provided dataclasses below, then write the reducer from its specification.  Application is left-associative, so `S K K` is `App(App(Prim("S"), Prim("K")), Prim("K"))`.
 > 2. Implement outermost-first reduction (the analog of normal order) as the default, with innermost-first selectable via `config.json` alongside `max_steps` (default 1000) and `trace`, for example `{"strategy": "outermost", "max_steps": 1000, "trace": false}` (the key names are yours to choose; document them in your readme).  If no normal form is reached within the step limit, print a location-prefixed diagnostic and stop; do not crash.
 > 3. Verify on $$\mathbf{I}\ 42$$, $$\mathbf{K}\ \mathbf{I}\ a\ b$$, $$\mathbf{S}\ \mathbf{K}\ \mathbf{K}\ x$$, $$\mathbf{B}\ f\ g\ x$$, and the diverging $$\mathbf{M}\ \mathbf{M}$$.
 
@@ -1131,28 +1131,26 @@ class App:
     rator: object
     rand: object
 
+# step_outermost: term -> term | None; contract the leftmost-outermost redex, or None
 def step_outermost(term):
-    ...  # TODO: find the leftmost-outermost redex (a Prim applied to enough arguments)
-         # and contract it by its rule; return None when no rule fires
+    ...
 
+# step_innermost: term -> term | None; contract a redex only after its arguments
+# can no longer step (the analog of applicative order), or None
 def step_innermost(term):
-    ...  # TODO: same contract, but contract a redex only after its arguments can no
-         # longer step (the analog of applicative order)
+    ...
 
+# reduce_term: (term, dict) -> term; reduce under the strategy, limit, and trace in config
 def reduce_term(term, config):
-    ...  # TODO: strategy from config; loop up to config["max_steps"], printing each step
-         # when config["trace"]; on the limit, print a location-prefixed diagnostic and stop
+    ...
 ```
 
-With the example key names above, `config["strategy"]` is `"outermost"` or `"innermost"`, and `reduce_term` picks `step_outermost` or `step_innermost` from it.  Read the file once with `json.load(open("config.json"))` and pass the resulting dictionary in.
+The specification for the reducer:
 
-| `# TODO` | How to write it |
-|---|---|
-| finding a redex | Unwind the spine.  Follow `.rator` from the top `App` down to the head, collecting each `.rand` on the way, then reverse them; `S K K x` unwinds to head `Prim("S")` with arguments `[K, K, x]`.  A rule fires when the head is a bird with at least as many arguments as its rule needs: 1 for `I` and `M`, 2 for `K` and `W`, 3 for `S`, `B`, and `C`. |
-| contracting | Build the right-hand side of the rule from the first few arguments, then re-apply any leftover arguments with `App`, left to right. |
-| `step_outermost`, no rule at the head | Try each argument in turn, left to right, and rebuild the term around the first argument that steps.  Return `None` if none does. |
-| `step_innermost` | Try the arguments first, left to right; contract the head's rule only if no argument steps. |
-| `reduce_term` | Loop `for i in range(config["max_steps"]):`; stop and return when the step function returns `None`.  If the loop runs out, print a diagnostic that starts with a location such as `birds.py: reduce_term:`, names the limit and the term, and return the term. |
+- A redex is a bird applied to at least as many arguments as its rule needs: 1 for `I` and `M`, 2 for `K` and `W`, 3 for `S`, `B`, and `C`.  Contracting it replaces those arguments with the rule's right-hand side; any extra arguments stay applied, in order.  An atom such as `Prim("a")` never fires.
+- Each step function contracts exactly one redex and returns the new term, or returns `None` when no rule fires anywhere.
+- With the example key names above, `config["strategy"]` is `"outermost"` or `"innermost"`, and `reduce_term` picks the matching step function.  Read `config.json` once with the `json` module and pass the resulting dictionary in.
+- `reduce_term` returns the normal form.  With `trace` on, it prints each step.  If `max_steps` steps run without reaching normal form, it prints a diagnostic that starts with a location such as `birds.py: reduce_term:`, names the limit and the term, and returns the term.
 
 > **You should see.** $$\mathbf{I}\ 42$$ reduces to `42` in one step and $$\mathbf{S}\ \mathbf{K}\ \mathbf{K}\ x$$ to `x` in two; $$\mathbf{M}\ \mathbf{M}$$ prints 1000 identical steps under `trace` and then a diagnostic such as a step-limit message naming the term, and the program keeps running.
 
@@ -1170,17 +1168,15 @@ As callables, the birds take one argument at a time, so `K(1)(2)` is $$\mathbf{K
 import operator
 from functools import partial
 
-I = lambda a: a
-K = lambda a: lambda b: a
-S = ...  # TODO: one lambda per argument, following S's rule above; likewise B, C, W, M
+I = ...  # all seven birds: I, K, S, B, C, W, M, each following its rule above
 
 double = partial(operator.mul, 2)      # helpers built without lambda or def
 negate = operator.neg
 
-double_then_negate = ...  # TODO: point-free, from the birds, negate, and double
+double_then_negate = ...  # point-free, from the birds, negate, and double
 ```
 
-To check one bird before you use it: `K(1)(2)` returns `1`.
+Each bird is a curried callable: it takes one argument and returns a function waiting for the next, until it has as many as its rule needs.  To check one bird before you use it: `K(1)(2)` returns `1`.
 
 1. `double_then_negate`: double, then negate.
 2. `apply_twice(f)`: apply `f` twice.  (Which bird duplicates?)
@@ -1230,11 +1226,12 @@ class LamApp:
 # translate: lambda term -> Prim | App
 # The SKI equivalent of term: no LamAbs remains, and every LamVar becomes a Prim atom.
 def translate(term):
-    ...  # TODO: apply the three bracket rules until no lambda remains
+    ...
 
-# size: any term -> int; the number of nodes, for the expansion-ratio comparison
+# size: any term -> int; the number of nodes, counting every leaf and every
+# application node, for the expansion-ratio comparison
 def size(term):
-    ...  # TODO: 1 for a leaf; 1 plus the sizes of both children for an application
+    ...
 ```
 
 To test identity, apply the translation to an atom and reduce: `reduce_term(App(translate(LamAbs("x", LamVar("x"))), Prim("a")), config)` should return `Prim(name='a')`.
@@ -1261,7 +1258,7 @@ The Google MapReduce paper (Dean and Ghemawat, 2004) opens with one observation:
 
 ### E.1: The sequential baseline
 
-`word_frequencies(line) -> dict[str, int]` is your map function; argue in writing that it is pure (no global reads, no shared mutation, and the same output for the same input every time).  `merge_counts(a, b) -> dict` is your reduce function; argue that it is pure *and associative*, and say why associativity matters for parallelism.  `top_n(counts, n)` returns the most frequent words.  Implement the three from the skeleton, test each on two or three short hand-made lines in `test_functional.py`, then run `python3 pipeline.py` on the full corpus and record total words, unique words, the top 20, and the runtime.  Put the code that starts a `Pool` under `if __name__ == "__main__":`; on macOS and Windows, worker processes re-import your module, and without that guard each worker starts its own pool and the program never finishes.  The map function must be defined at module level so that Python can pickle it (serialize it to send to another process).
+`word_frequencies(line) -> dict[str, int]` is your map function; argue in writing that it is pure (no global reads, no shared mutation, and the same output for the same input every time).  `merge_counts(a, b) -> dict` is your reduce function; argue that it is pure *and associative*, and say why associativity matters for parallelism.  `top_n(counts, n)` returns the most frequent words.  Implement the three from the specification below, test each on two or three short hand-made lines in `test_functional.py`, then run `python3 pipeline.py` on the full corpus and record total words, unique words, the top 20, and the runtime.  Put the code that starts a `Pool` under `if __name__ == "__main__":`; on macOS and Windows, worker processes re-import your module, and without that guard each worker starts its own pool and the program never finishes.  The map function must be defined at module level so that Python can pickle it (serialize it to send to another process).
 
 **You write:** `pipeline.py` - `word_frequencies`, `merge_counts`, `top_n`, and the sequential run under `if __name__ == "__main__":`; `test_functional.py` - two or three hand-made lines per function.
 **You run:** `python3 test_functional.py`, then `python3 pipeline.py`.
@@ -1273,27 +1270,27 @@ from multiprocessing import Pool
 
 # word_frequencies: str -> dict[str, int]
 def word_frequencies(line):
-    ...  # TODO: pure map function; no global reads, no shared mutation
+    ...
 
 # merge_counts: (dict, dict) -> dict
 def merge_counts(a, b):
-    ...  # TODO: pure and associative; return a new dict, never mutate a or b
+    ...
 
 # top_n: (dict, int) -> list
 def top_n(counts, n):
-    ...  # TODO
+    ...
 
 if __name__ == "__main__":
-    ...  # TODO: read the corpus into lines; run the sequential pipeline; then the Pool
+    ...  # read the corpus into lines; run the sequential pipeline; then the Pool
          # version; assert the two results are equal before you time anything
 ```
 
-| `# TODO` | How to write it |
+| Function | Required behavior and edge cases |
 |---|---|
-| `word_frequencies` | Lowercase the line and split it into words; one simple choice is `re.findall(r"[a-z']+", line.lower())`.  Count them into a dictionary created inside the function, with `counts.get(word, 0) + 1`, or with `collections.Counter`.  Document your word rule in the readme. |
-| `merge_counts` | Start from a copy, `merged = dict(a)`.  Loop over `b.items()` and add each count with `merged.get(word, 0) + count`.  Return `merged`; `a` and `b` stay unchanged. |
-| `top_n` | `sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:n]`.  Sorting ties by word makes the output the same on every run. |
-| the main block | Read the lines with `open("moby_dick.txt", encoding="utf-8").read().splitlines()`.  The sequential result is `reduce(merge_counts, map(word_frequencies, lines), {})`. |
+| `word_frequencies(line)` | A dictionary mapping each word in `line` to how many times it appears.  Case does not matter, so `The` and `the` are the same word.  The word rule (what counts as a word, and what happens to punctuation) is yours; document it in the readme.  An empty line gives an empty dictionary.  It reads no globals and changes nothing outside itself. |
+| `merge_counts(a, b)` | A NEW dictionary holding every word from either input, with the two counts added for a word in both.  `a` and `b` are unchanged afterward.  Merging with an empty dictionary gives back the same counts. |
+| `top_n(counts, n)` | A list of the `n` most frequent `(word, count)` pairs, most frequent first.  Ties are broken alphabetically by word, so the output is the same on every run.  If there are fewer than `n` words, return them all. |
+| the main block | Reads `moby_dick.txt` from the project folder as UTF-8 and splits it into lines.  The sequential result is the reduce of `merge_counts` over the `word_frequencies` of every line, seeded with an empty dictionary. |
 
 ### E.2: The parallel map
 
@@ -1302,25 +1299,27 @@ Replace `map(word_frequencies, lines)` with `multiprocessing.Pool.map` and asser
 **You write:** `pipeline.py` - `parallel_counts` and `time_config`, and the timing table in the main block.
 **You run:** `python3 pipeline.py`
 
-A timing harness keeps every configuration measured the same way.  This skeleton is one way to write it:
+A timing harness keeps every configuration measured the same way.  These two signatures are one way to shape it:
 
 ```python
 import os
 import timeit
 
 # parallel_counts: (list[str], int, int | None) -> dict
+# The same counts as the sequential pipeline, with the map step run on a Pool of
+# `workers` processes, handing them `chunksize` lines at a time.
 def parallel_counts(lines, workers, chunksize=None):
-    ...  # TODO: with Pool(workers) as pool: map word_frequencies over lines with
-         # pool.map(..., chunksize=chunksize), then reduce the results with merge_counts
+    ...
 
 # time_config: (list[str], int, int | None, int) -> float
-# Mean wall-clock seconds over `runs` runs of parallel_counts.
+# Mean wall-clock seconds over `runs` separate runs of parallel_counts.
 def time_config(lines, workers, chunksize=None, runs=5):
-    ...  # TODO: timeit.repeat(lambda: parallel_counts(lines, workers, chunksize),
-         # number=1, repeat=runs) returns a list of times; return their mean
+    ...
 
 # In the main block, os.cpu_count() gives "the maximum available" worker count.
 ```
+
+The pool must be closed when each run ends, so that one run's processes do not linger into the next.  The `timeit` module can repeat a zero-argument call and hand back each run's time.
 
 > **You should see.** The equality assertion passes on the first try if `word_frequencies` is pure; if it fails, look for a global or a mutable default argument.  With one worker the parallel version is usually slower than the sequential baseline (process start-up and pickling are pure overhead there), and speedup grows, then flattens, as workers increase.
 
@@ -1331,7 +1330,7 @@ The sequential `reduce(merge_counts, results, {})` performs $$O(n)$$ merges one 
 **You write:** `pipeline.py` - `tree_reduce`; `test_functional.py` - the empty, single-document, and odd-length cases.
 **You run:** `python3 test_functional.py`, then `python3 pipeline.py`.
 
-`Pool.map` passes one argument to its function, so merge each pair through a module-level helper such as `merge_pair(pair)` that returns `merge_counts(*pair)`.  `zip(results[0::2], results[1::2])` gives the adjacent pairs, and when the length is odd, `results[-1]` is the element to carry forward.
+With `merge_counts`, `tree_reduce` should match the sequential reduce on the edge cases too: an empty list of results gives an empty dictionary, and a one-element list gives that element.  `Pool.map` passes exactly one argument to its function, and that function must be defined at module level, so plan a helper that merges one pair.
 
 ### E.4: Amdahl's Law analysis
 
@@ -1373,7 +1372,7 @@ Warm up with a family knowledge base: `parent/2` facts, then `grandparent/2`, `s
 **You run:** each query in the SWISH query pane, pressing `;` until it reports `false`.
 
 > **Do this.**
-> 1. Open SWISH, paste the starter below into the program pane, and run `?- grandparent(tom, Who).`, `?- parent(bob, Child).`, and `?- ancestor(tom, X).` in the query pane one at a time.
+> 1. Open SWISH, paste the starter facts below into the program pane, and add your rules from the specification after them.  Then run `?- grandparent(tom, Who).`, `?- parent(bob, Child).`, and `?- ancestor(tom, X).` in the query pane one at a time.
 > 2. After each query, press `;` (or the Next button) until SWISH reports `false`, so you see every answer backtracking finds.
 > 3. Copy each query and its answers into `logic_session.md` as you go.
 
@@ -1381,11 +1380,15 @@ Warm up with a family knowledge base: `parent/2` facts, then `grandparent/2`, `s
 % logic.pl
 parent(tom, bob).
 parent(bob, ann).
-% TODO: more parent/2 facts, enough for a grandparent, a sibling pair, and a three-generation chain
-
-grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
-% TODO: sibling/2 and the recursive ancestor/2
+% Add more parent/2 facts: enough for a grandparent, a sibling pair,
+% and a three-generation chain.
 ```
+
+The rules, as a specification:
+
+- `grandparent(X, Z)` holds when `X` is a parent of someone who is a parent of `Z`.
+- `sibling(X, Y)` holds when `X` and `Y` share a parent and are not the same person.
+- `ancestor(X, Z)` holds when `X` is a parent of `Z`, or a parent of an ancestor of `Z`.  It is recursive, so give it a base clause and a recursive clause.
 
 > **You should see.** `Who = ann` for the first query.  For a query with several answers, SWISH shows one binding at a time and waits for `;`.  If a query answers `false` when you expected a binding, the usual cause is a spelling mismatch between a fact and a rule, or a variable that starts with a lowercase letter (Prolog reads that as an atom, not a variable).
 

@@ -179,7 +179,7 @@ Token(type='LET', value='let', line=1, col=1, decoded=None)
 
 1. Draft the expression tiers of your grammar on paper (Part 1 gives you the ladder).
 2. Fill in every dataclass in the Step 2a skeleton for `ast_nodes.py`, including the two short `Assign` and `Print` classes.  Write them all now, because `parser.py` imports them, and a missing name stops the import before any of your code runs.
-3. Start `parser.py` from the Step 2a skeleton.  Fill in `ParseError` and `expect`, then write just the `INT` and `IDENT` cases of `parse_primary` from its algorithm, plus the final `raise`.  The other cases can wait until Step 2a.
+3. Start `parser.py` from the Step 2a skeleton.  Fill in `ParseError` and `expect`, then write just the `INT` and `IDENT` cases of `parse_primary` from its algorithm, plus the final `raise`.  The other cases can wait until you reach Step 2a.
 4. Create a scratch file `try_primary.py` in `cs374-parser/` with these three lines, then run `python3 try_primary.py`:
 
    ```python
