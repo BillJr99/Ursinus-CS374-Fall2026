@@ -979,28 +979,29 @@ class LApp:
     rator: "LVar | LLam | LApp"
     rand: "LVar | LLam | LApp"
 
+# free_vars: term -> set[str]; the names that occur free in term
 def free_vars(term) -> set[str]:
-    ...  # TODO: one case per constructor
+    ...
 
+# subst: (term, str, term) -> term; every free occurrence of var replaced, capture-avoiding
 def subst(term, var: str, replacement):
-    ...  # TODO: the three standard cases; when term is LLam and its param is free
-         # in replacement, rename the binder to a fresh name first
+    ...
 
+# step_normal: term -> term | None; one normal-order step, or None in normal form
 def step_normal(term):
-    ...  # TODO: contract the leftmost-outermost redex; return None if term is in normal form
+    ...
 
+# normalize: term -> term; step until normal form or until max_steps steps have run
 def normalize(term, max_steps=1000, trace=False):
-    ...  # TODO: repeat step_normal until None or until max_steps fires; print each step if trace
+    ...
 ```
 
-| `# TODO` | How to write it |
-|---|---|
-| `free_vars` | `match term:` with one `case` per class.  `LVar(name)` gives `{name}`; `LLam(param, body)` gives `free_vars(body) - {param}`; `LApp(rator, rand)` gives the union `\|` of both sides. |
-| `subst`, variables | `LVar(name)` becomes `replacement` if `name == var`, and stays `term` otherwise. |
-| `subst`, applications | Substitute into both sides and build a new `LApp`. |
-| `subst`, abstractions | If `param == var`, the binder shadows `var`, so return `term` unchanged.  If `param` is in `free_vars(replacement)`, pick a fresh name (add `'` or a counter until the name is in neither term's free variables), rename the binder and its occurrences in `body` with `subst(body, param, LVar(fresh))`, then continue.  Otherwise build `LLam(param, subst(body, var, replacement))`. |
-| `step_normal` | If `term` is `LApp(LLam(p, b), arg)`, it is the outermost redex: return `subst(b, p, arg)`.  Otherwise try the rator first, then the rand, then (for an `LLam`) the body, and rebuild the node around the first one that steps.  Return `None` when nothing steps. |
-| `normalize` | Loop up to `max_steps` times; call the step function; stop and return the term when it returns `None`.  If the loop finishes without that, print a message that names the limit and the last term, then return. |
+The specification for each function:
+
+- `free_vars` returns a new set and never changes `term`.  A variable is free unless an enclosing `LLam` binds its name.
+- `subst` follows the standard definition, one case per constructor.  A binder with the same name as `var` shadows it, so substitution stops there.  When a binder's name is free in `replacement`, rename the binder (and its uses in the body) to a fresh name that is free in neither term, then continue.
+- `step_normal` contracts exactly one redex, the leftmost-outermost one, and returns the new term.  It returns `None` when `term` has no redex.
+- `normalize` returns the normal form.  With `trace=True`, it prints each intermediate term.  If `max_steps` steps run without reaching normal form, it prints a message naming the limit and the last term, then returns that term without crashing.
 
 **Adversarial substitution tests**: your substitution must pass these capture traps, and your writeup must display them:
 
@@ -1022,9 +1023,9 @@ Each encoding is a value built from the three constructors.  Application is left
 ```python
 from functools import reduce
 
-TRUE  = LLam("t", LLam("f", LVar("t")))     # λt.λf.t
-FALSE = ...  # TODO: λt.λf.f
-# TODO: AND, OR, NOT, IF; ZERO through FOUR, SUCC, ADD, MUL; PAIR, FST, SND
+TRUE  = LLam("t", LLam("f", LVar("t")))     # λt.λf.t, written in the AST
+FALSE = ...  # λt.λf.f
+# Also: AND, OR, NOT, IF; ZERO through FOUR, SUCC, ADD, MUL; PAIR, FST, SND
 
 # app: (term, term, ...) -> term; left-associative application, app(f, a, b) == LApp(LApp(f, a), b)
 def app(*terms):
@@ -1033,10 +1034,10 @@ def app(*terms):
 # alpha_equiv: (term, term) -> bool
 # True when the two terms differ only in the names of bound variables.
 def alpha_equiv(t1, t2, env1=None, env2=None) -> bool:
-    ...  # TODO: walk both terms together.  env1 and env2 map each bound name to the depth
-         # of its binder; two variables match if both are bound at the same depth, or
-         # both are free with the same name.
+    ...
 ```
+
+For `alpha_equiv`, `env1` and `env2` are yours to define; one workable strategy records, for each bound name, how deep its binder sits.
 
 For example, `normalize(app(TRUE, LVar("a"), LVar("b")))` must return `LVar(name='a')`.
 
@@ -1056,13 +1057,16 @@ Implement applicative-order reduction (arguments first) behind the same interfac
 "The same interface" means the two step functions are interchangeable: each takes a term and returns the next term, or `None` in normal form.  `normalize` then takes the strategy as an argument, with normal order as the default, so every earlier call still works.
 
 ```python
+# step_applicative: term -> term | None; one applicative-order step, or None in normal form
 def step_applicative(term):
-    ...  # TODO: same contract as step_normal, but in LApp(LLam(p, b), arg), step arg
-         # (and the rator) to normal form first; contract the redex only when arg cannot step
+    ...
 
+# normalize: as in C.1, but it advances with the step function it is given
 def normalize(term, max_steps=1000, trace=False, step=step_normal):
-    ...  # TODO: as before, but call step(term) instead of step_normal(term)
+    ...
 ```
+
+Applicative order contracts a redex only after its argument can no longer step.  Otherwise its contract matches `step_normal`'s.
 
 > **You should see.** Under normal order, $$\lambda y.\, y$$ in one step.  Under applicative order, a step-limit report (for example, a message naming the limit and the last term) and a clean return, not a `RecursionError` or a hang.
 

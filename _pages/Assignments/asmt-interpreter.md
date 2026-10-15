@@ -99,7 +99,7 @@ You need:
 > 2. Create the deliverable files up front so each part has a home: `interpreter.py` (evaluator, Environment, error hierarchy), `mylang.py` (file runner and REPL, Part 3), `typechecker.py` (Part 4), `SEMANTICS.md` (Part 5), and `test_interpreter.py`.  Rather than transcribing them, copy the [starter kit]({{ site.baseurl }}/files/starters/interpreter/) from `files/starters/interpreter/`: it holds those four Python files with every skeleton from this page already in place, and every `TODO` still yours to fill.  The seeded tests fail until you implement the branches they exercise, which is how you know they are running.
 Your file runner is `mylang.py` and your programs end in `.ml`; the reference pipeline ships a `mylang.py` and `samples/*.ml` so the commands in this assignment work unchanged against it.
 
-The starter kit matches this page: every skeleton below, including the error hierarchy, the signal classes, the `Environment`, and `mylang.py`'s `run_source`, is already in it, with every `TODO` still yours.
+The starter kit matches this page: every signature below, including the error hierarchy, the signal classes, the `Environment`, and `mylang.py`'s `run_source`, is already in it, with every `TODO` still yours.
 
 > 3. From inside the folder, confirm your Python version, install Hypothesis, and confirm the pipeline is connected:
 >
@@ -1066,7 +1066,7 @@ Save one program per stage, so each stage's message has been seen at least once.
 > **If it fails.**
 > - A Python traceback instead of a staged message: the exception escaped the `try` for its stage.  Check that each stage's `except` names the right class.
 > - `Runtime error` for a misspelled keyword: that is a lexical or syntax error and must be caught at its own stage, before evaluation begins.
-> - `AttributeError: 'ParseError' object has no attribute 'message'`: your Parser's error class stores `expected` and `found`.  Build the text from those, as the hint table shows.
+> - `AttributeError: 'ParseError' object has no attribute 'message'`: your Parser's error class stores `expected` and `found`.  Build the text from those, as the parse row of the table above says.
 > - `NameError: name 'repl' is not defined` when you run `python3 mylang.py` with no file: expected until Step 3b.
 
 ### Step 3b: Build the REPL
@@ -1187,7 +1187,7 @@ The checker walks the AST once, maintaining a type environment that mirrors your
 Create `typechecker.py`, starting from your Type Checker Starter lab code, and shape it around this skeleton.  Then write one ill-typed program per bullet above (three files) and one well-typed program, and add each to `test_interpreter.py`.
 
 **You write:** `typechecker.py` - `TypeEnv.define`, `TypeEnv.lookup`, and one `check` branch per node class; three ill-typed programs, one well-typed program, and their tests in `test_interpreter.py`
-**You run:** the two `python3 -c` commands below the hint table
+**You run:** the two `python3 -c` commands below the typing rules
 
 Your lab's names may differ from the skeleton's: `TypeEnvironment` for `TypeEnv`, or separate `check_stmt` and `check_expr` functions.  Keep whichever you have, provided `mylang.py` can call one function on the whole tree.
 
@@ -1536,16 +1536,7 @@ def infer(node, type_env, subst):
 
 Wire it into `mylang.py` as a stage: `python3 mylang.py --typed program.ml` (or make it the default; document your choice) lexes, parses, **type-checks**, and only then evaluates.  The stage label `Type error` keeps the staged-error format of Step 4c: `Type error at line L, col C: <message>`.  Run `python3 mylang.py --typed shadow.ml` and confirm it still prints `51` then `2`: a well-typed program must pass through the new stage unchanged.
 
-One way to read the flag, replacing the last two lines of `mylang.py`:
-
-```python
-if __name__ == "__main__":
-    args = sys.argv[1:]
-    typed = "--typed" in args                  # Step T.2: run infer before evaluation
-    paths = [a for a in args if a != "--typed"]
-    # TODO: pass typed into run_file and run_source, and call infer there when it is set
-    run_file(paths[0]) if paths else repl()
-```
+The flag changes the `__main__` block of `mylang.py`.  `--typed` may appear anywhere on the command line, and whatever argument is left is the program path.  With no path, the REPL starts, as before.  `run_file` and `run_source` learn whether the flag was given, and `run_source` runs `infer` over the whole tree, as its own stage, only when it was.
 
 ### Step T.3: Positioned Type Errors
 
@@ -1606,19 +1597,15 @@ Create `intcode.py` in the project folder from the skeleton below and implement 
 from interpreter import LangRuntimeError
 def run(program, inputs):
     """Execute an Intcode program; return the list of outputs."""
-    mem = program                # the program is its own memory; run in place
-    pc = 0                       # (copy it first if you prefer, and say so in INTCODE.md)
-    outputs = []
-    inputs = list(inputs)
-    while True:
-        instr = mem[pc]
-        opcode = instr % 100
-        # TODO: decode parameter modes from instr // 100
-        # TODO: dispatch on opcode (dict of handlers or match statement)
-        # TODO: opcode 99 -> return outputs
-        # TODO: unknown opcode -> raise LangRuntimeError(f"illegal opcode {opcode}", line=pc)
-        ...
+    ...
 ```
+
+What `run` must do:
+
+- It starts at `pc` 0 and executes one instruction at a time until opcode `99`, then returns the outputs in the order produced.
+- `inputs` is consumed front to back, one value per opcode `3`.
+- The program is its own memory, and the run changes `program` in place.  The Day 2 check below reads `p[0]` after the run, so it relies on this.  You may copy it first instead; say so in `INTCODE.md`, and make the copy reachable so the Day 2 check can read it.
+- An unknown opcode raises `LangRuntimeError` with a message such as `illegal opcode 42`, and with the `pc` at fault passed as its `line`.
 
 Run the Day 2 sample:
 

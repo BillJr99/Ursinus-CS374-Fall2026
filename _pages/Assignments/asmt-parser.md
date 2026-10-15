@@ -1263,15 +1263,9 @@ print(sorted({"+", ")", "$"}))
 >
 > **Predict** before you move on: which item tuple stands for `E -> T .`, and is it a completed item?
 
-> **Do this.** Write a helper that renders an item the way the activity does, so that every checkpoint below is something you can read rather than squint at.
+> **Do this.** Write a helper, `show_item(item)`, that renders an item the way the activity does, so that every checkpoint below is something you can read rather than squint at.
 
-```python
-def show_item(item):
-    """Render (prod, dot) as 'E -> E . + T', matching the activity's notation."""
-    lhs, rhs = PRODUCTIONS[item[0]]
-    body = rhs[:item[1]] + ["."] + rhs[item[1]:]
-    return "%s -> %s" % (lhs, " ".join(body))
-```
+`show_item` takes an item `(production_index, dot)` and returns one string: the production's left-hand side, then ` -> `, then the right-hand side's symbols with a `.` inserted at the dot position, all separated by single spaces.  So `show_item((1, 1))` returns `E -> E . + T`, `show_item((0, 0))` returns `E' -> . E`, and `show_item((5, 1))` returns `F -> num .`.
 
 ### Step 4a: Implement `closure`
 
@@ -1280,35 +1274,7 @@ The rule is one sentence: if the dot sits immediately before a non-terminal, add
 **You write:** `lr.py` - `closure`, and a `main` function that grows one block per step.
 **You run:** `python3 lr.py`
 
-```python
-def closure(items):
-    """Close a set of items under the dot-before-a-nonterminal rule.
-
-    Fixed point: keep adding until one full pass adds nothing, because an item
-    added on this pass can itself put the dot before another non-terminal.
-    """
-    result = set(items)
-    changed = True
-    while changed:
-        changed = False
-        for prod_index, dot in list(result):
-            lhs, rhs = PRODUCTIONS[prod_index]
-            if dot >= len(rhs):
-                continue                      # completed item, nothing after the dot
-            symbol = rhs[dot]
-            if symbol not in NONTERMINALS:
-                continue                      # dot before a terminal, closure adds nothing
-            # TODO: for every production whose left-hand side is `symbol`,
-            #       add (that production's index, 0). Set changed = True when
-            #       you actually add something new.
-    return frozenset(result)
-```
-
-| `# TODO` | How to write it |
-|---|---|
-| add the productions for `symbol` | `for j, (other_lhs, _) in enumerate(PRODUCTIONS):`, then `if other_lhs == symbol and (j, 0) not in result:`, then `result.add((j, 0))` and `changed = True`.  Checking membership first is what keeps `changed` honest. |
-
-The loop walks `list(result)`, a copy, because Python refuses to let a loop add to the very set it is walking.
+`closure(items)` takes any collection of items and returns a `frozenset`: the input items plus every item the rule adds, directly or through items it added earlier.  Items whose dot is at the end, or before a terminal, add nothing.  It must never add an item twice, and it must stop.  The strategy is a fixed-point loop: keep passing over the set until a whole pass adds nothing new.
 
 > **Do this.** Close the single item `E' -> . E` and print the result.  Put the printing in a `main` function at the bottom of `lr.py`.  Each later step adds one block to `main`, and at the end one run of `python3 lr.py` prints everything `lr_output.txt` needs.
 
@@ -1340,25 +1306,17 @@ if __name__ == "__main__":
 
 > **If it fails.**
 > - Four items instead of seven: your loop is a single pass.  `E -> . T` puts the dot before `T`, which only then pulls in the two `T` productions, which only then pull in the two `F` productions.  Keep looping until a full pass adds nothing.
-> - An infinite loop: you are setting `changed = True` on every iteration instead of only when the set actually grew.  Compare sizes, or check membership before adding.
+> - An infinite loop: your loop decides that something changed on every pass, instead of only when the set actually grew.  Compare sizes, or check membership before adding.
+> - `RuntimeError: Set changed size during iteration`: you add to the same set your `for` loop is walking.  Walk a copy of it instead.
 
 ### Step 4b: Implement `goto`
 
 `goto(state, X)` advances the dot past `X` in every item that has the dot before `X`, then takes the closure of the result.
 
-**You write:** `lr.py` - `goto` (complete below), and the Step 4b block in `main`.
+**You write:** `lr.py` - `goto`, and the Step 4b block in `main`.
 **You run:** `python3 lr.py`
 
-```python
-def goto(state, symbol):
-    """Advance the dot past `symbol` in every item that has the dot before it."""
-    moved = set()
-    for prod_index, dot in state:
-        lhs, rhs = PRODUCTIONS[prod_index]
-        if dot < len(rhs) and rhs[dot] == symbol:
-            moved.add((prod_index, dot + 1))
-    return closure(moved) if moved else frozenset()
-```
+`goto(state, symbol)` takes a state and one grammar symbol, terminal or non-terminal.  It returns the closure of the moved items as a `frozenset`.  When no item in the state has the dot before `symbol`, it returns an empty `frozenset`, which Step 4c reads as "no edge on this symbol".
 
 > **Do this.** Compute `goto(I0, "T")` and print it.  Add this block to the end of `main`:
 
@@ -1387,42 +1345,19 @@ Now enumerate every reachable state.  Start from `I0`, and for every state and e
 **You write:** `lr.py` - `build_states`, the `show_state` helper below it, and the Step 4c block in `main`.
 **You run:** `python3 lr.py`
 
-```python
-def build_states():
-    """Return (states, transitions): the canonical collection and the goto edges.
+`build_states()` takes no arguments and returns a pair `(states, transitions)`:
 
-    states[i] is a frozenset of items. transitions[(i, symbol)] = j.
-    Discovery order fixes the numbering, so walk symbols in a stable order.
-    """
-    start = closure({(0, 0)})
-    states = [start]
-    index = {start: 0}
-    transitions = {}
-    symbols = ["E", "T", "F", "num", "(", "+", "*", ")"]   # this order numbers states 0-7 as the activity does
-    worklist = [0]
-    while worklist:
-        i = worklist.pop(0)
-        for symbol in symbols:
-            target = goto(states[i], symbol)
-            if not target:
-                continue
-            # TODO: if `target` is new, append it to states, record its index,
-            #       and add that index to the worklist. Then record
-            #       transitions[(i, symbol)] = index[target].
-    return states, transitions
+- `states` is a list of `frozenset`s.  `states[0]` is `closure({(0, 0)})`, and each state's index in the list is its number.
+- `transitions` is a `dict` that maps `(i, symbol)` to `j` whenever `goto(states[i], symbol)` is state `j`.  It holds an edge for every non-empty `goto`, whether the target was new or already known.
 
+The numbering has to match the activity's, so two choices are fixed for you:
 
-def show_state(state):
-    """Render a state as its items on one line, sorted, separated by ' , '."""
-    return " , ".join(sorted(show_item(item) for item in state))
-```
+- Process states first-in, first-out.  A new state goes on the back of a worklist, and you always take the next state from the front.
+- For each state, try the symbols in exactly this order: `["E", "T", "F", "num", "(", "+", "*", ")"]`.  This order numbers states 0 to 7 as the activity does.
 
-| `# TODO` | How to write it |
-|---|---|
-| a new state | `if target not in index:`, then `index[target] = len(states)`, `states.append(target)`, and `worklist.append(index[target])`.  Set the index before you append, so the new state's number is the old length of the list. |
-| the edge | After that `if`, and for old and new states alike: `transitions[(i, symbol)] = index[target]`. |
+A new state gets the next unused number, which is the length of the list just before you add it.  Keep a `dict` from state to number, so you can tell in one lookup whether a `goto` result is new.
 
-`worklist.pop(0)` takes the oldest state first, so states are processed in the order they were found.  That order, together with the order of `symbols`, fixes every state number.
+Also write `show_state(state)`.  It returns the state's items, each rendered by `show_item`, sorted as strings, and joined with ` , ` (a space, a comma, a space).
 
 > **Do this.** Print how many states you found, then print the item set of every state.  Add this block to the end of `main`:
 
@@ -1471,43 +1406,14 @@ Compute FIRST first, then FOLLOW, both as fixed-point loops.  Seed `FOLLOW(E')` 
 
 Both functions return a `dict` from each non-terminal to a `set` of terminals.  `FIRST(A)` is the set of terminals that can begin a string derived from `A`.  `FOLLOW(A)` is the set of terminals, plus `$`, that can come right after `A`.  No production in this grammar has an empty right-hand side, so you never need ε here.  The FIRST of a sequence of symbols is just the FIRST of its first symbol, and the FIRST of a terminal is the terminal itself.
 
-```python
-def first_sets():
-    """Return {nonterminal: set of terminals that can begin it}."""
-    first = {nt: set() for nt in NONTERMINALS}
-    changed = True
-    while changed:
-        changed = False
-        for lhs, rhs in PRODUCTIONS:
-            head = rhs[0]
-            # TODO: new = first[head] if head is a non-terminal, else {head}
-            # TODO: if new holds anything not yet in first[lhs], add it and set changed
-    return first
+`first_sets()` takes no arguments.  `follow_sets(first)` takes the `dict` that `first_sets` returns.  Both read `PRODUCTIONS` and `NONTERMINALS`, and both return a `dict` with one entry per non-terminal, each starting as an empty set.
 
+The rules each one applies, over and over, until a whole pass over the productions changes nothing:
 
-def follow_sets(first):
-    """Return {nonterminal: set of terminals that can follow it}, seeded with $."""
-    follow = {nt: set() for nt in NONTERMINALS}
-    follow["E'"].add("$")
-    changed = True
-    while changed:
-        changed = False
-        for lhs, rhs in PRODUCTIONS:
-            for k, symbol in enumerate(rhs):
-                if symbol not in NONTERMINALS:
-                    continue
-                # TODO: if a symbol comes after position k, new is its FIRST
-                #       (a terminal's FIRST is itself); otherwise new is follow[lhs]
-                # TODO: if new holds anything not yet in follow[symbol], add it and set changed
-    return follow
-```
+- **FIRST.** For every production `A -> X ...`, everything in the FIRST of `X` belongs in `FIRST(A)`.
+- **FOLLOW.** Start with `$` in `FOLLOW(E')`.  For every production, and every non-terminal `B` in its right-hand side: if a symbol `Y` comes right after `B`, the FIRST of `Y` belongs in `FOLLOW(B)`.  If `B` is the last symbol, everything in the FOLLOW of the production's left-hand side belongs in `FOLLOW(B)`.
 
-| `# TODO` | How to write it |
-|---|---|
-| `new` in `first_sets` | `new = first[head] if head in NONTERMINALS else {head}`. |
-| growing a set | `if not new <= first[lhs]:` (the `<=` operator asks "is a subset of"), then `first[lhs] \|= new` and `changed = True`.  `\|=` adds every member of `new` in place. |
-| `new` in `follow_sets` | `if k + 1 < len(rhs):`, then `nxt = rhs[k + 1]` and `new = first[nxt] if nxt in NONTERMINALS else {nxt}`.  Otherwise `symbol` is last in the production, so `new = follow[lhs]`. |
-| growing `follow[symbol]` | The same subset test and `\|=` as in `first_sets`. |
+Each set only ever grows, and it can hold only terminals, so the loop must stop.  Python's subset test on sets, `<=`, tells you in one step whether a pass actually added something.
 
 > **Do this.** Print `FOLLOW(E)`, `FOLLOW(T)`, and `FOLLOW(F)`.  Add this block to the end of `main`.  It also sets up the two orders that every table printout below uses:
 
@@ -1551,51 +1457,17 @@ That fourth rule is the point of this step.  A generator that silently picks one
 **You write:** `lr.py` - `build_tables`, the `show_action` helper, and the Step 4e block in `main`.
 **You run:** `python3 lr.py`
 
-```python
-def build_tables(states, transitions, follow):
-    """Return (action, goto_table, conflicts).
+`build_tables(states, transitions, follow)` returns a triple `(action, goto_table, conflicts)`:
 
-    action[i][terminal] = ("s", j) | ("r", p) | ("acc",)
-    goto_table[i][nonterminal] = j
-    conflicts is a list of (state, token, existing_action, proposed_action).
-    """
-    action, goto_table, conflicts = {}, {}, []
-
-    def put(i, terminal, act):
-        """Write act into action[i][terminal], or record a conflict (rule 4)."""
-        row = action.setdefault(i, {})
-        # TODO: rule 4 - if `terminal` is already in `row` with a different action,
-        #       append (i, terminal, row[terminal], act) to conflicts; otherwise store act
-
-    for i, state in enumerate(states):
-        for prod_index, dot in sorted(state):
-            lhs, rhs = PRODUCTIONS[prod_index]
-            if dot < len(rhs):
-                # TODO: rule 1 - if rhs[dot] is a terminal, put a shift to transitions[(i, rhs[dot])]
-                pass
-            elif prod_index == 0:
-                # TODO: rule 3 - put ("acc",) on "$"
-                pass
-            else:
-                # TODO: rule 2 - put ("r", prod_index) on every terminal in follow[lhs]
-                pass
-        for nt in NONTERMINAL_ORDER:
-            if (i, nt) in transitions:
-                goto_table.setdefault(i, {})[nt] = transitions[(i, nt)]
-    return action, goto_table, conflicts
-
-
-def show_action(act):
-    """Render ("s", 7) as 's7', ("r", 2) as 'r2', and ("acc",) as 'acc'."""
-    return act[0] if act[0] == "acc" else f"{act[0]}{act[1]}"
-```
-
-| `# TODO` | How to write it |
+| Name | Shape |
 |---|---|
-| rule 4, inside `put` | `if terminal in row and row[terminal] != act:` then `conflicts.append((i, terminal, row[terminal], act))`; `else:` then `row[terminal] = act`.  Writing the same action twice is not a conflict, which is why the test compares the two actions. |
-| rule 1 | `symbol = rhs[dot]`; `if symbol in TERMINALS:` then `put(i, symbol, ("s", transitions[(i, symbol)]))`.  A dot before a non-terminal adds nothing to ACTION; the GOTO loop below the item loop handles it. |
-| rule 3 | `put(i, "$", ("acc",))`.  The comma inside `("acc",)` makes it a one-element tuple. |
-| rule 2 | `for terminal in sorted(follow[lhs]):` then `put(i, terminal, ("r", prod_index))`.  `sorted` only fixes the order in which conflicts are found. |
+| `action` | a `dict` of `dict`s: `action[i][terminal]` is `("s", j)` for a shift, `("r", p)` for a reduce by production `p`, or `("acc",)` for accept |
+| `goto_table` | a `dict` of `dict`s: `goto_table[i][nonterminal]` is `j` for every edge in `transitions` whose symbol is a non-terminal |
+| `conflicts` | a list of 4-tuples `(state, token, existing_action, proposed_action)`, one per cell where rule 4 fired |
+
+A state with no actions or no gotos may simply have no row.  The printing code below reads rows with `.get(i, {})` for that reason.  Writing the *same* action into a cell twice is not a conflict, so record a conflict only when the two actions differ.
+
+Also write `show_action(act)`.  It renders `("s", 7)` as `s7`, `("r", 2)` as `r2`, and `("acc",)` as `acc`.
 
 > **Do this.** Build the tables and print `conflicts`, then print your ACTION and GOTO rows.  Add this block to the end of `main`:
 
@@ -1652,47 +1524,18 @@ Keep a stack of state numbers alongside a stack of symbols, and read one token o
 **You write:** `lr.py` - `drive`, the `show_production` helper, and the Step 4f block in `main`.
 **You run:** `python3 lr.py`, then `python3 lr.py > lr_output.txt` to save the run you submit.
 
-The driver's input is a list of token names, not source text, and it ends with the end marker `$`.  For `num + num * num`, that list is `"num + num * num $".split()`, which is `['num', '+', 'num', '*', 'num', '$']`.  The three `print` lines in the skeleton are complete, so every row of your trace has the same layout as the one below.
+The driver's input is a list of token names, not source text, and it ends with the end marker `$`.  For `num + num * num`, that list is `"num + num * num $".split()`, which is `['num', '+', 'num', '*', 'num', '$']`.
 
-```python
-def show_production(p):
-    """Render production p as 'T -> T * F'."""
-    lhs, rhs = PRODUCTIONS[p]
-    return f"{lhs} -> {' '.join(rhs)}"
+`drive(tokens, action, goto_table)` takes that list of token names and the two tables, and parses the tokens, printing one row per step.  Its contract:
 
+- It keeps two stacks: one of state numbers, which starts as `[0]`, and one of grammar symbols, which starts empty.  The top of the state stack is the current state.  The token at the current position is the lookahead.
+- On a reduce, it looks up the GOTO target from the state that the pops exposed, not from the state it was in before.
+- Each row prints three columns: the symbol stack joined by single spaces and left-justified in 14 characters, then `| `, then the remaining tokens (lookahead included) joined by spaces and left-justified in 18 characters, then `| `, then the action.  Print the row *before* you change the stacks.
+- The action text is `shift`, `reduce` followed by a space and the production, `accept`, or `error`.
+- On accept, it prints the row and returns `True`.
+- When the table has no entry, it prints an `error` row and raises a `SyntaxError` whose message names the state and the token.
 
-def drive(tokens, action, goto_table):
-    """Shift-reduce parse a list of token names ending in "$", printing one row per step."""
-    states = [0]       # the state stack; its top is the current state
-    symbols = []       # the symbol stack, printed in the Stack column
-    pos = 0            # tokens[pos] is the lookahead
-    while True:
-        state = states[-1]
-        token = tokens[pos]
-        act = action.get(state, {}).get(token)
-        stack_text = " ".join(symbols)
-        input_text = " ".join(tokens[pos:])
-        if act is None:
-            print(f"{stack_text:<14}| {input_text:<18}| error")
-            raise SyntaxError(f"no action in state {state} on token {token!r}")
-        if act[0] == "s":
-            print(f"{stack_text:<14}| {input_text:<18}| shift")
-            # TODO: push act[1] and token onto the two stacks, and move pos forward
-        elif act[0] == "r":
-            lhs, rhs = PRODUCTIONS[act[1]]
-            print(f"{stack_text:<14}| {input_text:<18}| reduce {show_production(act[1])}")
-            # TODO: pop len(rhs) entries from both stacks, then push lhs and
-            #       its GOTO target from the newly exposed state
-        else:
-            print(f"{stack_text:<14}| {input_text:<18}| accept")
-            return True
-```
-
-| `# TODO` | How to write it |
-|---|---|
-| shift | `states.append(act[1])`, `symbols.append(token)`, and `pos += 1`. |
-| reduce, the pop | `del states[len(states) - len(rhs):]` and the same for `symbols`.  The slice removes the last `len(rhs)` entries.  Every right-hand side here has at least one symbol, so the slice never removes everything by accident. |
-| reduce, the push | `states.append(goto_table[states[-1]][lhs])` and `symbols.append(lhs)`.  Read `states[-1]` after the pop: that is the newly exposed state. |
+Also write `show_production(p)`.  It renders production `p` as its left-hand side, ` -> `, and its right-hand side joined by single spaces, as in `T -> T * F`.
 
 > **Do this.** Parse `num + num * num` and print the stack-input-action table as you go, one row per step.  Add this block to the end of `main`:
 
@@ -1769,7 +1612,7 @@ for state, token, old, new in conflicts:
 > **You should see.** A shift-reduce conflict from the first edit and a reduce-reduce conflict from the second.  These are the same two conflict types you explained on paper in Step 1c; now your own table generator finds them.
 
 > **If it fails.**
-> - `conflicts: 0` with more than twelve states: `put` stores the new action over the old one.  Check rule 4 in Step 4e.
+> - `conflicts: 0` with more than twelve states: your table builder stores the new action over the old one.  Check rule 4 in Step 4e.
 > - `states: 12  conflicts: 0`: the grammar did not change.  Check that the `added production` line printed, and that you ran `try_conflicts.py`, not `lr.py`.
 > - `IndexError: list index out of range` on `sys.argv[1]`: you left off the `1` or `2` after the file name.
 
