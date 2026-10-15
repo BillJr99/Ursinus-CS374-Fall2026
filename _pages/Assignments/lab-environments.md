@@ -203,7 +203,7 @@ Look back at your Part 0 chains, such as `E1{x=2} -> E0{}`.  Each box is a table
 | the arrow to the enclosing scope | `self._parent`, another `Environment` | the outer scope's object |
 | the end of the chain (`E0` has no arrow) | `self._parent is None` | `None` |
 | "is `x` bound in this box?" | `name in self._bindings` | `True` or `False` |
-| "follow the arrow and ask again" | `self._parent.lookup(name)` | whatever the outer scope answers |
+| "follow the arrow and ask again" | the same method, called on the object in `self._parent` | whatever the outer scope answers |
 
 A lookup walks the chain one box at a time.  It checks the current box first and stops at the first box that has the name, which is exactly why an inner binding shadows an outer one.  If it reaches a box whose parent is `None` without finding the name, the name is unbound.
 
@@ -251,7 +251,7 @@ The skeleton below names every method and includes the two error classes, so the
 
 > **Do this.**
 > 1. Create `environment.py` in your `cs374-environments/` folder, paste in the skeleton below, and run `python3 environment.py` once.  A clean run prints nothing, and that is the point: a skeleton that runs and prints nothing has no syntax errors.  A `SyntaxError` or `IndentationError` means the paste went wrong.
-> 2. Replace each `raise NotImplementedError(...)` with the code the `# TODO` comments describe.  In `lookup` and `assign`, let the recursive call on `self._parent` do the walking; you do not need a loop.
+> 2. Replace each `raise NotImplementedError(...)` with the code the `# Step` comments describe.  In `lookup` and `assign`, let the recursive call on `self._parent` do the walking; you do not need a loop.
 > 3. Give each `LangNameError` a message that includes the variable name, such as `Undefined variable 'y'` for `lookup` and `Cannot assign to undefined variable 'y'` for `assign`.
 > 4. Run `python3 environment.py` again and confirm it still prints nothing.
 
