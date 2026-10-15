@@ -124,7 +124,27 @@ Solution code and test code live in separate files.  Your functions go in `highe
 
 ### Your First 30 Minutes
 
-1. Open `higher_order.py` and paste in `total_length` from Step 1.1, together with the `from functools import reduce` line above it.  It exercises the whole Part 1 toolkit: `filter` keeps the words longer than three letters, `map` turns each word into its length, and `reduce` combines the lengths.
+1. Open `higher_order.py` and type in `total_length` below, together with the `from functools import reduce` line above it.  This is the one finished function on this page, and it exercises the whole Part 1 toolkit, so read it line by line before you run it.
+
+```python
+# higher_order.py
+from functools import reduce
+
+# total_length: list[str] -> int
+# Total characters across the words longer than three letters.
+def total_length(words):
+    return reduce(lambda acc, n: acc + n,
+                  map(len, filter(lambda w: len(w) > 3, words)),
+                  0)
+```
+
+- `from functools import reduce`: `map` and `filter` are built in, but `reduce` lives in the `functools` module, so you import it.
+- The two comments: the type signature (a list of strings in, an integer out) and a one-sentence description.  Every Part 1 function needs both, because the rubric checks for them.
+- `filter(lambda w: len(w) > 3, words)`: keeps only the words longer than three letters.  It is lazy, so nothing runs yet.
+- `map(len, ...)`: turns each surviving word into its length, also lazily.
+- `reduce(lambda acc, n: acc + n, ..., 0)`: pulls the lengths through one at a time and adds each one to the running total `acc`, which starts at the seed `0`.
+- `return`: the whole body is one expression.  Read it from the inside out: filter, then map, then reduce.  There is no loop and no variable to update.
+
 2. Open `test_functional.py` and give it two lines: the import `from higher_order import total_length`, and the first assertion from the test file in Step 1.1.
 3. Run `python3 test_functional.py` from your project folder.  A silent exit means the assertion held.
 4. Break it on purpose: in `higher_order.py`, change `> 3` to `> 5`, run the test file again, and read the traceback.  It ends with the assertion line and then a bare `AssertionError`, because no word is now long enough to count and the total is `0`.  Change it back.  That loop (edit, run, read the failure) is the whole workflow for the core.
@@ -150,11 +170,13 @@ See the course schedule for the assigned and due dates.  Choose your direction o
 
 ## Part 1 (Core): Pure Functions and Higher-Order Functions
 
-The constraints for this entire part: no `for` loops, no `while` loops, and no assignment statements (no `=`) inside solution function bodies.  You may use `map`, `filter`, `functools.reduce`, `lambda`, recursion, and `return`.  The constraints apply to solution bodies only; your test code in `test_functional.py` may loop freely.  All Part 1 code lives in `higher_order.py`.  Give every function its type signature as a comment and a one-sentence description, because the rubric checks for both; the comment above each function in the skeletons below is its contract.
+The constraints for this entire part: no `for` loops, no `while` loops, and no assignment statements (no `=`) inside solution function bodies.  You may use `map`, `filter`, `functools.reduce`, `lambda`, recursion, and `return`.  The constraints apply to solution bodies only; your test code in `test_functional.py` may loop freely.  All Part 1 code lives in `higher_order.py`.  Give every function its type signature as a comment and a one-sentence description, because the rubric checks for both; the comment above each `def` line below is its contract, so copy it into your file.
+
+From here on, the page gives you each function's contract and its algorithm in plain steps, and you write the Python.
 
 ### Step 1.1: Write the Basic Combinators
 
-These four functions are the vocabulary of the paradigm.  Each one is a short chain of `filter`, `map`, and `reduce`, and each has an edge case (an empty list, a tie) that you must decide and document.  `total_length` is done for you.
+These four functions are the vocabulary of the paradigm.  Each one is a short chain of `filter`, `map`, and `reduce`, and each has an edge case (an empty list, a tie) that you must decide and document.  `total_length`, from your first 30 minutes, is the worked example; the other three are yours.
 
 **You write:** `higher_order.py` - `product_of_odds`, `longest`, and `flatten_once`; `test_functional.py` - their assertions.
 **You run:** `python3 test_functional.py`
@@ -182,7 +204,7 @@ This part is ungraded, and it takes about ten minutes.  Every Part 1 function tr
 | 2 | `5` | `5` | `10` |
 | end | | | returns `10` |
 
-If the list is empty, `reduce` never calls the function and returns the seed.  That is why every `reduce` on this page passes a seed: without one, `reduce` on an empty list raises `TypeError: reduce() of empty iterable with no initial value`.
+If the list is empty, `reduce` never calls the function and returns the seed.  That is why a `reduce` should pass a seed unless an earlier check has already ruled out the empty list: without one, `reduce` on an empty list raises `TypeError: reduce() of empty iterable with no initial value`.
 
 To see all of this in action, save the lines below as `explore_functional.py`, a scratch file you do not submit, and run `python3 explore_functional.py` from your project folder.  The scratch file uses `=` freely; the no-assignment rule applies only to solution bodies.
 
@@ -234,7 +256,7 @@ print(hello("Ada"), "/", howdy("Ada"))
 > **Predict** before you move on: `make_greeter` has already returned by the time `hello("Ada")` runs.  Where does `hello` find the word `Hello`?
 
 > **Do this.**
-> 1. In `higher_order.py`, implement the four functions from the skeleton below, replacing each `TODO`.
+> 1. In `higher_order.py`, below `total_length`, write the three functions from the contracts and algorithms below.
 > 2. In `test_functional.py`, import them and write at least three assertions per function, starting from the test file below.
 > 3. Run the tests from your project folder:
 >
@@ -243,42 +265,47 @@ print(hello("Ada"), "/", howdy("Ada"))
 > ```
 
 ```python
-# higher_order.py
-from functools import reduce
-
-# total_length: list[str] -> int
-# Total characters across the words longer than three letters.
-def total_length(words):
-    return reduce(lambda acc, n: acc + n,
-                  map(len, filter(lambda w: len(w) > 3, words)),
-                  0)
+# higher_order.py, below total_length
 
 # product_of_odds: list[int] -> int
 # Product of the odd numbers; 1 for the empty list (the multiplicative identity).
 def product_of_odds(nums):
-    ...  # TODO: filter the odds, then reduce with multiplication, seeded with 1
+    ...
 
 # longest: list[str] -> str
 # The longest word, found with a single reduce; the first one (left to right) on a tie;
 # ValueError on an empty list.
 def longest(words):
-    ...  # TODO: guard the empty list, then one reduce that keeps the longer word
+    ...
 
 # flatten_once: list[list] -> list
 # One level of flattening, using reduce; no itertools.
 def flatten_once(lists):
-    ...  # TODO: reduce with list concatenation
+    ...
 ```
 
-Each `# TODO` is one `return` line, plus a guard for `longest`.  `total_length` above shows the shape: a `filter` or `map` goes inside, and `reduce` goes outermost.
+Each body is one `return` of a `reduce`, plus a guard for `longest`.  `total_length` shows the shape: a `filter` or `map` goes inside, and `reduce` goes outermost.
 
-| `# TODO` | How to write it |
-|---|---|
-| `product_of_odds` | The odd test is `n % 2 == 1` (it also holds for negative odds in Python).  Pass `filter(<that test as a lambda>, nums)` as the second argument of `reduce`, use a two-argument `lambda` that multiplies, and give `1` as the seed. |
-| `longest`, the guard | `if not words:` then `raise ValueError("longest() of an empty list")`.  An `if` and a `raise` are not assignments, so they are allowed. |
-| `longest`, the reduce | `reduce(lambda best, w: ..., words)`.  Fill the body with a conditional expression, `w if <w is strictly longer> else best`.  Strictly longer (`>`, not `>=`) is what keeps the first word on a tie. |
-| `flatten_once` | `reduce` with a `lambda` that returns `acc + xs` (list concatenation) and the seed `[]`. |
-| the test file's `TODO` | Write each new `assert` above the `print` line.  For the empty-list error, test code may use `try:`, call `longest([])`, then `assert False`, and catch the error with `except ValueError: pass`. |
+**`product_of_odds`, step by step:**
+
+1. Keep only the odd numbers.  A number is odd when its remainder after dividing by 2 is 1, and in Python that test also holds for negative odd numbers.
+2. Combine the numbers that survive by multiplying them, two at a time.
+3. Seed the combination with `1`.  A list with no odd numbers never multiplies anything, so the seed comes back, and that is the contract's answer for the empty list.
+
+**`longest`, step by step:**
+
+1. If the list is empty, raise a `ValueError` whose message names the function.  An `if` and a `raise` are not assignments, so they are allowed.
+2. Otherwise, combine the words with a single `reduce`.  The accumulator is "the best word so far," and each step compares it with the next word.
+3. At each step, keep the next word only if it is strictly longer than the best so far; otherwise keep the best.  Strictly longer, not "longer or equal," is what keeps the first word on a tie.
+4. Step 1 already ruled out the empty list, so you may leave out the seed here.  The first word then starts as the best.
+
+**`flatten_once`, step by step:**
+
+1. Combine the inner lists with `reduce`.  The accumulator is the flat list built so far.
+2. At each step, join the next inner list onto the end of the accumulator with list concatenation.  That joins one level only; a list inside an inner list stays a list.
+3. Seed with the empty list, so that `flatten_once` of an empty list is an empty list.
+
+**The test file.**  Write each new `assert` above the `print` line.  To test the empty-list error, test code may use a `try` block: call `longest` on an empty list, follow the call with an assertion that always fails (it runs only if no error was raised), and catch the `ValueError` so the file keeps going.
 
 ```python
 # test_functional.py (starts like this and grows with every step)
@@ -304,7 +331,7 @@ Replace the one-name import from your first 30 minutes with the four-name import
 > **If it fails.**  An `AssertionError` names a line; start there.  The most common causes:
 > - `map` or `filter` returned a lazy object that you compared to a list.  `map(...) == [...]` is always `False`, so consume the iterator with `reduce` or `list()` first.
 > - The failing line calls a function you have not finished.  A body of `...` returns `None`, and `None` equals nothing you are testing for.  Replace the `...` with a `return` line.
-> - `longest` lost the tie rule.  The left word must win, so the comparison must be `>`, not `>=`.
+> - `longest` lost the tie rule.  The left word must win, so the comparison must ask "strictly longer," not "longer or equal."
 > - A `for` loop or an `=` crept into a solution body.  Remove it, even if the test passes; the rubric checks for it.
 
 ### Step 1.2: Compose Functions
@@ -315,11 +342,14 @@ Replace the one-name import from your first 30 minutes with the four-name import
 **You run:** `python3 test_functional.py`
 
 ```python
+# higher_order.py
 # compose: (*Callable) -> Callable
 # Left-to-right composition: compose(f, g, h)(x) == h(g(f(x))).
 def compose(*fns):
-    ...  # TODO: reduce over fns, wrapping each function around the one before it
+    ...
+```
 
+```python
 # in test_functional.py, below the first import line:
 from higher_order import compose
 
@@ -328,13 +358,14 @@ strip_lower_len = compose(str.strip, str.lower, len)
 assert strip_lower_len("  Hello  ") == 5
 ```
 
-`compose` is a closure factory.  It returns a function, and that function remembers the functions it was built from, just like `make_greeter` in the Before You Code section.  The `reduce` builds the pipeline one function at a time.  Its `acc` is "everything composed so far," a function, and each step wraps the next function around it:
+`compose` is a closure factory.  It returns a function, and that function remembers the functions it was built from, just like `make_greeter` in the Before You Code section.  The `reduce` builds the pipeline one function at a time, and its accumulator is itself a function: "everything composed so far."
 
-| `# TODO` | How to write it |
-|---|---|
-| the combining function | `lambda f, g: lambda x: ...`.  It takes the pipeline so far (`f`) and the next function (`g`), and it returns a new one-argument function.  Left to right means `f` runs first and `g` runs on its result. |
-| the seed | The pipeline before any function is added does nothing: `lambda x: x`.  Passing it as the seed also answers what `compose()` returns. |
-| the description | Say in the comment that `compose()` returns the identity function. |
+**`compose`, step by step:**
+
+1. Start from the identity function, a one-argument function that hands back its argument unchanged.  It is the pipeline before any function is added, so it is the seed.  It is also what `compose()` returns, so say so in the description comment.
+2. Reduce over `fns`.  The combining step receives two functions: the pipeline so far, and the next function in `fns`.
+3. The combining step returns a NEW one-argument function.  Given `x`, that new function runs the pipeline so far on `x` first, then runs the next function on that result.  Left to right means the pipeline so far goes first.
+4. Return what the `reduce` produces, without calling it.  `compose` returns a function, not a value.
 
 Trace `compose(str.strip, str.lower, len)` on paper before you run it.  After the first step, `acc` is "identity, then `strip`."  After the second, it is "that, then `lower`."  After the third, it is "that, then `len`."
 
@@ -347,9 +378,9 @@ Trace `compose(str.strip, str.lower, len)` on paper before you run it.  After th
 > The line is the same as before, and that is the point: the new assertions passed silently above it.
 
 > **If it fails.**
-> - `TypeError: descriptor 'lower' for 'str' objects doesn't apply to a 'int' object`: the functions run right to left.  `len` ran first and handed `9` to `str.lower`.  Swap `f` and `g` inside the inner `lambda`.
-> - `TypeError: reduce() of empty iterable with no initial value`, from `compose()`: the seed is missing.  Pass the identity `lambda` as `reduce`'s third argument.
-> - `TypeError: descriptor 'strip' for 'str' objects doesn't apply to a 'function' object`: the combining function calls `g(f)` right away instead of returning a new `lambda x: ...`.  It handed the pipeline itself, a function, to `str.strip`.
+> - `TypeError: descriptor 'lower' for 'str' objects doesn't apply to a 'int' object`: the functions run right to left.  `len` ran first and handed `9` to `str.lower`.  In the new function your combining step builds, the pipeline so far must run first and the next function second.
+> - `TypeError: reduce() of empty iterable with no initial value`, from `compose()`: the seed is missing.  `reduce` needs the identity function as its starting value.
+> - `TypeError: descriptor 'strip' for 'str' objects doesn't apply to a 'function' object`: the combining step calls the next function right away, on the pipeline itself, instead of returning a new one-argument function.  It handed a function to `str.strip`.
 
 ### Step 1.3: Write my_map and my_reduce Recursively
 
@@ -359,31 +390,34 @@ Implement `my_map(f, xs)` and `my_reduce(f, xs, seed)` recursively, with no loop
 **You run:** `python3 test_functional.py`
 
 ```python
+# higher_order.py
 # my_map: (Callable, list) -> list
-# A recursive map: [f(x) for each x in xs], built without a loop.
+# A recursive map: f applied to each x in xs, in order, built without a loop.
 def my_map(f, xs):
-    """Base case: empty list -> []. Recursive: f(head) consed onto my_map(f, tail)."""
-    # TODO: base case: if xs is empty, return []
-    # TODO: recursive case: a one-element list holding f of the head, + my_map on the tail
     ...
 
 # my_reduce: (Callable, list, Any) -> Any
 # A recursive left fold: combine seed with each element of xs, left to right.
 def my_reduce(f, xs, seed):
-    """Base case: empty list -> seed. Recursive: apply f to seed and head, recurse on tail."""
-    # TODO: base case: if xs is empty, return seed
-    # TODO: recursive case: recurse on the tail with f(seed, head) as the new seed
     ...
 ```
 
-In Python, the head of a list is `xs[0]` and the tail is `xs[1:]`, a new list holding everything after the head.  The tail of a one-element list is `[]`, so every recursive call is on a shorter list and the recursion reaches the base case.
+In Python, the head of a list is `xs[0]` and the tail is `xs[1:]`, a new list holding everything after the head.  The tail of a one-element list is `[]`, so every recursive call is on a shorter list and the recursion reaches the base case.  An empty list is falsy, which gives you a short test for "is this list empty?"
 
-| `# TODO` | How to write it |
-|---|---|
-| `my_map` base case | `if not xs:` then `return []`.  An empty list is falsy, so `not xs` is true exactly when `xs` is empty. |
-| `my_map` recursive case | `[f(xs[0])]` is a one-element list holding the mapped head.  Join it to the recursive call on the tail with `+`, which is the "cons" in the docstring, and `return` the result. |
-| `my_reduce` base case | `if not xs:` then `return seed`.  When the list runs out, the seed holds the whole answer. |
-| `my_reduce` recursive case | One `return` of a call to `my_reduce` on `xs[1:]`.  Its new seed is `f(seed, xs[0])`; keep that argument order, accumulator first, to match `functools.reduce`. |
+**`my_map`, step by step:**
+
+1. Base case: if `xs` is empty, return an empty list.  Mapping over nothing gives nothing.
+2. Recursive case: apply `f` to the head, and put that one result in a one-element list.
+3. Call `my_map` with the same `f` on the tail.  Trust it to map the rest of the list.
+4. Join the two lists with list concatenation, the mapped head first, and return the result.  This joining is the "cons" of the functional world: one item on the front of a smaller list.
+
+**`my_reduce`, step by step:**
+
+1. Base case: if `xs` is empty, return `seed`.  When the list runs out, the seed holds the whole answer.
+2. Recursive case: combine the seed with the head by calling `f`.  Pass the accumulator first and the element second, to match `functools.reduce`.
+3. Return the result of calling `my_reduce` on the tail, with that combined value as the new seed.  Nothing happens after the recursive call returns; the seed carries all the work forward.
+
+**Predict** before you run it: in `my_reduce`, how many times is `f` called on a list of five items, and what is `seed` on the last call?
 
 Then add the property test below to `test_functional.py` and run `python3 test_functional.py` again.  A property test checks that two implementations agree on many inputs instead of checking one hand-computed answer; the `for` loop is fine here because it is test code, not a solution body.
 
@@ -406,9 +440,9 @@ print("All my_map and my_reduce properties hold.")
 > ```
 
 > **If it fails.**
-> - `IndexError: list index out of range`: the base case does not `return`.  An `if not xs: []` without `return` falls through to `xs[0]` on an empty list.
-> - `RecursionError: maximum recursion depth exceeded`: a recursive call passes `xs` instead of `xs[1:]`, so the list never gets shorter.
-> - The addition test passes even if `f`'s arguments are swapped, because `a + b == b + a`.  To catch that bug, also compare the two with `lambda a, b: a - b`, or with `lambda acc, x: acc + [x]` and the seed `[]`.
+> - `IndexError: list index out of range`: the base case does not `return`.  The function checks for the empty list, then falls through and reads the head of that empty list.
+> - `RecursionError: maximum recursion depth exceeded`: a recursive call passes the whole list instead of its tail, so the list never gets shorter.
+> - The addition test passes even if `f`'s arguments are swapped, because `a + b == b + a`.  To catch that bug, also compare the two with a subtraction function, or with a function that appends each item to an accumulator list seeded with `[]`.
 
 ### Step 1.4: Answer the Functional Theory Questions (in your writeup)
 
@@ -428,7 +462,7 @@ Answer three written questions in your writeup, `readme.md`.  They draw on the P
 
 ## Part 2 (Core): Recursive Data Structures
 
-Both structures in this part are recursive: a tree contains smaller trees, and a list contains a smaller list.  A fold is the one operation that visits the whole structure and combines what it finds, and you will define the other operations in terms of it.  All Part 2 code lives in `recursive_structures.py`, and its tests go in `test_functional.py` alongside Part 1's.  The comment above each function in the skeletons is its contract, and the rubric's proficient row asks that every operation take a function argument and work for any operation (not hardcoded to addition).
+Both structures in this part are recursive: a tree contains smaller trees, and a list contains a smaller list.  A fold is the one operation that visits the whole structure and combines what it finds, and you will define the other operations in terms of it.  All Part 2 code lives in `recursive_structures.py`, and its tests go in `test_functional.py` alongside Part 1's.  Each step gives you a specification: what every function takes, what it returns, and its edge cases.  The algorithm is yours to design, using the Part 1 recursion pattern.  Copy each function's contract into a type-signature comment and a one-sentence description above it, as in Part 1.  The rubric's proficient row asks that every operation take a function argument and work for any operation (not hardcoded to addition).
 
 ### Step 2.1: Build the Binary Tree and Its Fold
 
@@ -502,53 +536,20 @@ print(p)
 > **Predict** before you move on: what is the smallest change that makes `count_nodes` compute the sum of the values instead of the number of nodes?
 
 > **Do this.**
-> 1. In `recursive_structures.py`, define the `BTree` dataclass and implement the four operations from the skeleton below.  `tree_map` must not modify the original tree (it is a pure function), and `tree_depth` and `tree_flatten` must be written in terms of `tree_fold`.
-> 2. In `test_functional.py`, import them and test every operation on all four test trees listed after the skeleton.
+> 1. In `recursive_structures.py`, define the `BTree` dataclass and implement the four operations in the specification below.  `tree_map` must not modify the original tree (it is a pure function), and `tree_depth` and `tree_flatten` must be written in terms of `tree_fold`.
+> 2. In `test_functional.py`, import them and test every operation on all four test trees listed after the specification.
 > 3. Run `python3 test_functional.py`.
 
-```python
-# recursive_structures.py
-from dataclasses import dataclass
-from typing import Optional, Any
+**`BTree`** is a `@dataclass` with three fields, in this order: `value` (any type), then `left` and `right` (each an optional `BTree`, defaulting to `None`).  The Before You Code scratch file defines exactly this class, with the imports it needs.
 
-@dataclass
-class BTree:
-    value: Any
-    left: Optional['BTree'] = None
-    right: Optional['BTree'] = None
+| Function | Takes | Returns | Required behavior and edge cases |
+|---|---|---|---|
+| `tree_map(f, tree)` | a function and an optional `BTree` | a NEW optional `BTree` | The same shape, with every value replaced by `f` of that value; the original tree is unchanged.  `None` maps to `None`.  Doubling `BTree(1, BTree(2), BTree(3))` gives `BTree(2, BTree(4), BTree(6))`. |
+| `tree_fold(f, tree, seed)` | a three-argument function, an optional `BTree`, and a seed | one value | At each node, the result is `f` called with the left child's fold, the node's value, and the right child's fold, in that order.  A `None` tree folds to `seed`.  With a function that adds its three arguments and the seed `0`, the fold is the sum of all values. |
+| `tree_depth(tree)` | an optional `BTree` | an `int` | The number of nodes on the longest path from the root down to a leaf.  `None` has depth 0, and a leaf has depth 1.  Written as one call to `tree_fold`. |
+| `tree_flatten(tree)` | an optional `BTree` | a list | All values in in-order traversal: the left subtree, then the root, then the right subtree.  `None` flattens to `[]`.  Written as one call to `tree_fold`. |
 
-# tree_map: (Callable, Optional[BTree]) -> Optional[BTree]
-# Apply f to every node's value and return a NEW tree with the same structure, e.g.
-# tree_map(lambda x: x*2, BTree(1, BTree(2), BTree(3))) -> BTree(2, BTree(4), BTree(6)).
-def tree_map(f, tree):
-    ...  # TODO: None -> None; otherwise a new BTree with f(value) and mapped children
-
-# tree_fold: (Callable, Optional[BTree], Any) -> Any
-# Reduce the tree to one value by applying f(left_result, value, right_result) at each
-# node; a None node yields seed.  With f = lambda l, v, r: l + v + r and seed 0, the
-# fold computes the sum of all node values.
-def tree_fold(f, tree, seed):
-    ...  # TODO: None -> seed; otherwise f(fold(left), value, fold(right))
-
-# tree_depth: Optional[BTree] -> int
-# Depth of None is 0; depth of a leaf is 1.  Implemented via tree_fold.
-def tree_depth(tree):
-    ...  # TODO: one tree_fold call; the combining function takes max of the children plus 1
-
-# tree_flatten: Optional[BTree] -> list
-# All node values in in-order traversal (left, root, right).  Implemented via tree_fold.
-def tree_flatten(tree):
-    ...  # TODO: one tree_fold call; the combining function concatenates left, [value], right
-```
-
-Every function has the same two cases as `count_nodes`.  Check `tree is None` first, and only then read `tree.value`, `tree.left`, and `tree.right`.
-
-| `# TODO` | How to write it |
-|---|---|
-| `tree_map` | `if tree is None:` then `return None`.  Otherwise `return BTree(...)` with three arguments: `f(tree.value)`, and `tree_map(f, ...)` on each child.  Building a new node, instead of assigning to `tree.value`, is what keeps the original tree unchanged. |
-| `tree_fold` | `if tree is None:` then `return seed`.  Otherwise call `f` with three arguments: the fold of `tree.left`, then `tree.value`, then the fold of `tree.right`.  Each recursive fold passes the same `f` and the same `seed`. |
-| `tree_depth` | `return tree_fold(lambda l, v, r: ..., tree, 0)`.  Here `l` and `r` are the depths of the two children, already computed.  The body is one more than the larger of them, using `max`. |
-| `tree_flatten` | `return tree_fold(lambda l, v, r: ..., tree, [])`.  Here `l` and `r` are the two children's flattened lists.  In-order means the left list, then `[v]`, then the right list, joined with `+`. |
+Every function has the same two cases as `count_nodes`: one for `None`, and one for a node that recurses on both children.
 
 **Test trees to use:** the empty tree `None` (every function returns its seed or identity value); the single node `BTree(42)` (map doubles it, fold sums it, depth is 1); the full tree `BTree(1, BTree(2, BTree(4), BTree(5)), BTree(3))`; and the right-skewed tree `BTree(1, None, BTree(2, None, BTree(3)))`.
 

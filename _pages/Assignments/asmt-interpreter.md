@@ -557,37 +557,38 @@ def type_name(value):
 
 # Inside Interpreter.eval_node, replacing the expression branches from Step 1b:
         if isinstance(node, Num):
-            return node.value
-        # TODO: Str and BoolLit, the same way
+            # Step 1: hand back the literal's stored value.
+            raise NotImplementedError("Num")
+        # Step 2: give Str and BoolLit the same treatment as Num.
         elif isinstance(node, Var):
-            # TODO: return env.lookup(node.name); re-raise its LangNameError with this node's position
+            # Step 3: look the name up in env.
+            # Step 4: if the lookup fails, raise its LangNameError again, now with this node's line and col.
             raise NotImplementedError("Var")
         elif isinstance(node, UnaryOp):
-            value = self.eval_node(node.operand, env)
-            if node.op == "-":
-                # TODO: raise LangTypeError unless is_number(value); otherwise return -value
-                raise NotImplementedError("unary minus")
-            raise NotImplementedError("not")          # Step 2b fills this in
+            # Step 5: evaluate the operand in env.
+            # Step 6: for "-", raise LangTypeError unless the operand is a number; otherwise return its negation.
+            # Step 7: leave this last line for "not"; Step 2b replaces it.
+            raise NotImplementedError("not")
         elif isinstance(node, BinOp):
-            left = self.eval_node(node.left, env)
-            right = self.eval_node(node.right, env)
-            # TODO: "+" on two strings concatenates (if you allow it)
-            # TODO: + - * / < <= > >= need numbers on both sides, else LangTypeError naming both types
-            # TODO: "/" with a zero right operand raises LangZeroDivisionError
-            # TODO: == and != compare any pair; decide what a cross-type pair gives
+            # Step 8: evaluate the left operand, then the right, both in env.
+            # Step 9: if you allow it, "+" on two strings concatenates them.
+            # Step 10: for + - * / < <= > >=, raise LangTypeError naming both types unless both are numbers.
+            # Step 11: for "/", raise LangZeroDivisionError when the right operand is zero, before dividing.
+            # Step 12: apply the operator and return the result.
+            # Step 13: == and != compare any pair; decide what a cross-type pair gives.
             raise NotImplementedError("BinOp")
 ```
 
-| `# TODO` | How to write it |
+| `# TODO` | How to think about it |
 |---|---|
-| `is_number` | `isinstance` accepts a tuple of classes: `isinstance(value, (int, float))`.  Add a second test, `and not isinstance(value, bool)`.  Without it `true + 1` quietly returns `2`, because Python treats `True` as the integer `1`. |
-| `Str` and `BoolLit` | Two more branches that `return node.value`.  Or fold all three literals into one test, `isinstance(node, (Num, Str, BoolLit))`. |
-| `Var` | `env.lookup(node.name)` raises a `LangNameError` that has no position.  Put the lookup in `try:`, catch it with `except LangNameError as err:`, and `raise LangNameError(err.message, node.line, node.col) from None`.  The `from None` hides the first, position-less traceback. |
-| unary minus | Test `if not is_number(value):` and raise `LangTypeError` with the message from the bullet above, built with `type_name(value)`.  The last two arguments are always `node.line, node.col`. |
-| `+` on two strings | `isinstance(left, str) and isinstance(right, str)`, tested before the number rule, returning `left + right`. |
-| numbers on both sides | Test membership first, `if node.op in ("+", "-", "*", "/", "<", "<=", ">", ">="):`, then raise when `not (is_number(left) and is_number(right))`.  Build the message as `f"'{node.op}' requires numbers, got {type_name(left)} and {type_name(right)}"`.  To pick the operation, a dict from operator string to `lambda a, b: a + b` (and so on) is one lookup instead of eight `if`s. |
-| `/` by zero | Test `node.op == "/" and right == 0` before you divide, and raise `LangZeroDivisionError("division by zero", node.line, node.col)`.  Python's own `ZeroDivisionError` must never escape. |
-| `==` and `!=` | Python's `left == right` already compares any pair, but it says `true == 1` is `True`.  If you want that to be false, compare `type_name(left)` with `type_name(right)` first, and treat any two numbers as one kind with `is_number`.  `!=` is the negation of whatever `==` decides. |
+| `is_number` | `isinstance` accepts a tuple of classes, so one call can test for both `int` and `float`.  The trap is `bool`: Python treats `True` as the integer `1`, so `isinstance(True, int)` holds.  Without a second test that rules out `bool`, `true + 1` quietly returns `2`. |
+| Steps 1 and 2: literals | The parser already did the work, so there is nothing to compute.  You may write three branches, or fold all three classes into one `isinstance` test with a tuple. |
+| Steps 3 and 4: `Var` | `Environment.lookup` raises a `LangNameError`, but the environment has no idea where in the source you are, so its error says line 0.  Catch it here, where `node` is in hand, and raise a new one with the same message and this node's position.  Ending the `raise` with `from None` hides the first, position-less traceback. |
+| Steps 5 and 6: unary minus | Use `is_number` for the test and `type_name` to build the message from the bullet above.  Every `raise` in `eval_node` passes the node's line and col as its last two arguments. |
+| Step 9: two strings | Order matters.  Test for two strings before the number rule, or the number rule rejects them first. |
+| Step 10: numbers on both sides | Check membership in the operator group first, then check both operands.  The message names the operator and both type names, as in the `You should see` below.  To pick the operation in Step 12, a dict from operator string to a two-argument `lambda` is one lookup instead of eight `if`s. |
+| Step 11: division by zero | Test before you divide.  Python's own `ZeroDivisionError` must never escape, because it has no position and no stage. |
+| Step 13: `==` and `!=` | Python's `==` already compares any pair, but it says `True == 1`.  If you want `true == 1` to be false, compare the two type names first, and treat any two numbers as one kind.  `!=` is the opposite of whatever `==` decides, so write the rule once. |
 
 Now run `print 1 + 2;` through the pipeline the same way as in Your First 30 Minutes, followed by the two-statement program `let x = "hello"; let y = x + 1;`:
 
@@ -624,32 +625,28 @@ Truthiness policy (document it in SEMANTICS.md): which values count as false in 
 
 Put the policy in one method, `truthy`, and call it from every place that needs a yes-or-no answer.  `LogicOp`, `not`, `If`, and `While` all use it, so a change to your policy is a change to one method.
 
-```python
-    def truthy(self, value):
-        """Your truthiness policy from Part 0, in one place so it stays consistent."""
-        # TODO: a bool is itself; a number is true unless zero; a string is true unless empty
-        # TODO: anything else is true
-        raise NotImplementedError("truthy")
+You write three pieces here.
 
-# Inside eval_node:
-        elif isinstance(node, LogicOp):
-            left = self.eval_node(node.left, env)
-            # TODO: "and": if left is falsy, return left; otherwise evaluate and return the right
-            # TODO: "or": if left is truthy, return left; otherwise evaluate and return the right
-            raise NotImplementedError("LogicOp")
-# ...and in the UnaryOp branch, replacing raise NotImplementedError("not"):
-            if node.op == "not":
-                # TODO: the boolean complement of truthy(value)
-                raise NotImplementedError("not")
-```
+**`truthy(self, value)`**, a method on `Interpreter`, returns a Python `bool`.  The starter kit already declares it.
 
-| `# TODO` | How to write it |
+1. If `value` is a boolean, return it unchanged.  Test this case first, because a Python `bool` is also an `int`.
+2. If `value` is a number, it is true unless it equals zero.  `0` and `0.0` are both false.
+3. If `value` is a string, it is true unless it is empty.
+4. Anything else is true.  If your Part 0 policy differs from the minimum above, this method is the one place to change it.
+
+**The `LogicOp` branch** of `eval_node`:
+
+1. Evaluate the left operand in `env`.
+2. For `"and"`: if the left value is falsy, return the left value itself.  For `"or"`: if it is truthy, return it.
+3. Otherwise, and only now, evaluate the right operand in `env` and return its value.
+
+**The `not` case** of the `UnaryOp` branch replaces the line Step 2a left for it.  The operand is already evaluated by then.  Return the boolean opposite of its truthiness.
+
+| Piece | How to think about it |
 |---|---|
-| bool, number, string | Test `isinstance(value, bool)` first, because `True` is also an `int`.  Then `is_number(value)` leads to `value != 0`, and `isinstance(value, str)` leads to `value != ""`. |
-| anything else | `return True`.  If your Part 0 policy differs from the minimum above, this method is the one place to change it. |
-| `"and"` | Test `self.truthy(left)` and return `left` itself, not `True` or `False`.  Call `self.eval_node(node.right, env)` only on the path where the left did not decide the answer. |
-| `"or"` | The mirror image of `"and"`: return `left` when it is truthy. |
-| `not` | Python's own `not` applied to `self.truthy(value)`.  `not` always gives a real boolean, even though `and` and `or` give back an operand. |
+| `truthy` | Every `if`, `while`, `and`, `or`, and `not` asks this one method.  So a change to your policy is a change in one place, and the four constructs can never disagree. |
+| `"and"` and `"or"` | Return the *operand*, not `True` or `False`.  `0 or "x"` gives `"x"`.  The right operand is evaluated on one path only.  If any code path evaluates it before the truthiness test, the bomb test below catches you. |
+| `not` | `not` always gives a real boolean, even though `and` and `or` give back an operand.  That asymmetry is on purpose; theory question 2 below asks about it. |
 
 **Bomb test**: include the program `let safe = true or (1 / 0);` in your test suite and verify that it does not raise an error, since the right side must never be evaluated.  Create `test_interpreter.py` with the bomb test as its first test, then run `python3 -m pytest test_interpreter.py`:
 
@@ -708,68 +705,42 @@ class Environment:
             raise LangNameError(f"Cannot assign to undefined variable '{name}'")
 ```
 
-Give `Interpreter` a global environment (`self.globals = Environment()` in `__init__`), have `eval_node` use it when `env` is `None`, and pass `env` through every recursive call so blocks can hand their child environment down.  You did the first two in Step 2a.  Then implement the statements:
+Give `Interpreter` a global environment (`self.globals`, made in `__init__`), have `eval_node` use it when `env` is `None`, and pass `env` through every recursive call so blocks can hand their child environment down.  You did the first two in Step 2a.  Then implement the statements:
 
 - `Let`: evaluate the initializer, then call `env.define(node.name, value)`.
 - `Assign`: evaluate the value, then call `env.assign(node.name, value)`.  This updates the binding wherever it lives; it does *not* create a new one.
 - `Print`: evaluate the expression and print the result to stdout.  Booleans print as `true`/`false`, not `True`/`False`.
-- `Block`: create a child environment `child_env = Environment(parent=env)`, then evaluate each statement in the block using `child_env`.  When the block finishes, discard `child_env` (it goes out of scope naturally).
+- `Block`: create a child environment whose parent is `env`, then evaluate each statement in the block using the child.  When the block finishes, discard the child (it goes out of scope naturally).
 - `If`: evaluate the condition and convert it to a boolean with your truthiness rule.  Execute `then_branch` if truthy, and `else_branch` (if present) otherwise.
 - `While`: evaluate the condition and execute the body while it is truthy.  Document whether the loop body creates a per-iteration scope (both choices are valid; pick one and write it in SEMANTICS.md).  Catch `BreakSignal` to exit early; catch `ContinueSignal` to restart the loop.
 
-Here are those branches as a skeleton, with the `Let` branch you wrote in Step 2a for comparison.  The signals in the last bullet wait for Step 2d.
+Here is each piece as a signature or a branch name, with its algorithm.  The signals in the last bullet wait for Step 2d.
 
-```python
-def format_value(value):
-    """How print shows a value: true/false for booleans, str() for everything else."""
-    # TODO: a bool becomes "true" or "false"; every other value becomes str(value)
-    raise NotImplementedError("format_value")
+**`format_value(value)`**, a module-level function next to `type_name`, returns the string `print` shows.
 
-# Inside eval_node:
-        elif isinstance(node, Let):
-            env.define(node.name, self.eval_node(node.value, env))   # from Step 2a
-        elif isinstance(node, Assign):
-            # TODO: evaluate node.value, then env.assign; re-raise LangNameError with this node's position
-            raise NotImplementedError("Assign")
-        elif isinstance(node, Print):
-            # TODO: print the evaluated value through format_value
-            raise NotImplementedError("Print")
-        elif isinstance(node, Block):
-            child_env = Environment(parent=env)
-            # TODO: evaluate each statement in node.stmts with child_env
-            raise NotImplementedError("Block")
-        elif isinstance(node, If):
-            # TODO: truthy condition -> then_branch; otherwise else_branch, if it is not None
-            raise NotImplementedError("If")
-        elif isinstance(node, While):
-            # TODO: loop while the condition is truthy, evaluating the body (see the scope choice below)
-            raise NotImplementedError("While")
-```
+1. If `value` is a boolean, return `"true"` or `"false"`.  Test this first, for the same reason `truthy` does.
+2. Otherwise return Python's ordinary string form of the value.
 
-| `# TODO` | How to write it |
+**The statement branches** of `eval_node`, each returning nothing:
+
+- **`Assign`.**  (1) Evaluate the new value in `env`.  (2) Ask `env` to assign it to the name.  (3) If that raises `LangNameError`, raise it again with this node's line and col, the same way `Var` does in Step 2a.
+- **`Print`.**  (1) Evaluate the expression in `env`.  (2) Pass the value through `format_value`.  (3) Print the resulting string.
+- **`Block`.**  (1) Make one child `Environment` whose parent is `env`.  (2) Evaluate each statement of the block, in order, in the child.  The child is never stored anywhere, so it disappears when the branch returns.
+- **`If`.**  (1) Evaluate the condition in `env` and ask `truthy` about it.  (2) If true, evaluate the then branch.  (3) Otherwise, if the else branch is not `None`, evaluate it.
+- **`While`.**  (1) Evaluate the condition in `env` and ask `truthy` about it.  (2) If false, stop.  (3) Otherwise run the body, as your scope choice below says, and go back to (1).
+
+| Piece | How to think about it |
 |---|---|
-| `format_value` | Test `isinstance(value, bool)` first.  The conditional expression `"true" if value else "false"` picks the word. |
-| `Assign` | The same shape as `Var` in Step 2a.  Call `env.assign(node.name, value)` inside `try:`, and re-raise the `LangNameError` with `node.line, node.col`. |
-| `Print` | Wrap the evaluated value in `format_value(...)` before you hand it to Python's `print`.  The version from Your First 30 Minutes called `print` directly, so booleans came out as `True`. |
-| `Block` | A `for stmt in node.stmts:` loop that calls `self.eval_node(stmt, child_env)`.  Pass `child_env`, never `env`, and never store it in `self.globals`. |
-| `If` | `if self.truthy(self.eval_node(node.condition, env)):` evaluates the then branch.  Then use `elif node.else_branch is not None:`.  An `else_branch` that is itself an `If` needs no special case, because `eval_node` already handles `If`. |
-| `While` | `while self.truthy(self.eval_node(node.condition, env)):` evaluates the condition again on every pass.  The body line depends on your scope choice, shown next. |
+| `format_value` | Your First 30 Minutes printed values directly, so booleans came out as `True`.  Routing every `print` through one function fixes that in one place. |
+| `Assign` | `Let` and `Assign` look alike but do opposite things to the environment.  `Let` always makes a binding in the current scope.  `Assign` never makes one; it finds the nearest existing binding and changes it. |
+| `Block` | Pass the child down, never `env`, and never replace `self.globals` with it.  Either mistake makes an inner `let` leak out, and the shadowing program below prints the wrong thing. |
+| `If` | An `else_branch` that is itself an `If` (an `else if` chain) needs no special case.  Evaluating it reaches the `If` branch again. |
+| `While` | The condition is evaluated again on every pass, not once before the loop.  That is what lets the body change the answer. |
 
-The scope choice comes down to where the child environment is made.  Your `While` body is a `Block`, and Step 2c's `Block` branch makes a fresh child environment every time it runs.  So the plain recursive call gives you a per-iteration scope for free.  The alternative makes one child environment before the loop and runs the body's statements in it directly:
+The scope choice comes down to where the child environment is made.  Your `While` body is a `Block`, and Step 2c's `Block` branch makes a fresh child environment every time it runs.
 
-```python
-# Choice A: a per-iteration scope.  Each pass through the Block branch
-# makes a new child Environment, so a `let` in the body starts fresh.
-            while self.truthy(self.eval_node(node.condition, env)):
-                self.eval_node(node.body, env)
-
-# Choice B: one scope for the whole loop.  Make the child once, then run
-# the body's statements in it, skipping the Block branch.
-            loop_env = Environment(parent=env)
-            while self.truthy(self.eval_node(node.condition, env)):
-                for stmt in node.body.stmts:
-                    self.eval_node(stmt, loop_env)
-```
+- **Choice A, a per-iteration scope.**  Evaluate the body as an ordinary node in `env` on each pass.  The `Block` branch makes a new child every time, so a `let` in the body starts fresh on each pass.
+- **Choice B, one scope for the whole loop.**  Make one child environment before the loop starts.  On each pass, evaluate the body's statements directly in that child, skipping the `Block` branch.
 
 In both choices, a `let` inside the body does not survive the loop.  Differential program 4 in Step 5c probes this.  **Can you write a program whose output differs between Choice A and Choice B?**
 
@@ -830,24 +801,22 @@ class ContinueSignal(Exception):
     def __init__(self, line=0):
         super().__init__("continue")
         self.line = line
-
-# Inside eval_node:
-        elif isinstance(node, Break):
-            # TODO: raise the break signal, carrying this node's line
-            raise NotImplementedError("Break")
-        elif isinstance(node, Continue):
-            # TODO: raise the continue signal, carrying this node's line
-            raise NotImplementedError("Continue")
-        elif isinstance(node, While):
-            while self.truthy(self.eval_node(node.condition, env)):
-                # TODO: wrap the body in try; a BreakSignal leaves the loop, a ContinueSignal starts the next pass
-                self.eval_node(node.body, env)
 ```
 
-| `# TODO` | How to write it |
+Then three branches change:
+
+- **`Break`.**  Raise a `BreakSignal` that carries this node's line.  The branch never returns.
+- **`Continue`.**  The same, with a `ContinueSignal`.
+- **`While`.**  Keep your Step 2c loop, and change only how one pass runs the body:
+  1. Run the body exactly as Step 2c does, but guard that one action with a `try`.
+  2. If a `BreakSignal` arrives, leave the loop at once.  Nothing else in the loop runs.
+  3. If a `ContinueSignal` arrives, skip the rest of this pass and go straight back to the condition.
+  4. If the body finishes normally, go back to the condition as before.
+
+| Piece | How to think about it |
 |---|---|
-| raise the break or continue signal | `raise` the matching class, passing `node.line` as its argument.  The branch never returns. |
-| wrap the body in `try` | Put `try:` around the one body line, followed by `except BreakSignal:` with Python's `break` and `except ContinueSignal:` with Python's `continue`.  These work because the `except` clauses sit inside the Python `while`. |
+| `Break` and `Continue` | The signal may start many calls deep, inside an `If` inside a `Block` inside the body.  Every call in between unwinds on its own, the same way `deep(3)` did in the evaluator tour. |
+| where the `try` goes | The `try` must sit *inside* the Python loop, around the one body action.  Then catching `ContinueSignal` can start the next pass.  Put it around the whole loop and both signals end the loop. |
 
 A signal that escapes every `While` needs nothing here.  It travels up to `run_source` in Step 3a, which turns it into a staged `Runtime error`.
 
@@ -956,48 +925,47 @@ def test_determinism(tree):
     second = run(tree)
     assert first == second, f"same tree gave {first!r} then {second!r}"
 
-@given(e=exprs)
-def test_scope_restoration(e):
-    interp = Interpreter()
-    tree = Program([Block([Let("v", Num(0)), Print(e)])])
-    # TODO: evaluate tree with interp, hiding the printed output and ignoring a LangError
-    # TODO: assert that interp.globals.lookup("v") now raises LangNameError
-
 @dataclass
 class Probe:
     """Test-only node: the side-effecting built-in.  Records that it ran, then returns its value."""
     value: Any
-
-class ProbeInterpreter(Interpreter):
-    """An Interpreter that also understands Probe."""
-    def __init__(self):
-        super().__init__()
-        self.fired = []          # one entry per Probe evaluation
-    def eval_node(self, node, env=None):
-        if isinstance(node, Probe):
-            # TODO: record node.value in self.fired, then return it
-            raise NotImplementedError("Probe")
-        return super().eval_node(node, env)
-
-@given(left=exprs, op=st.sampled_from(["and", "or"]))
-def test_short_circuit_non_evaluation(left, op):
-    interp = ProbeInterpreter()
-    # TODO: evaluate left alone; discard this example if that raises a LangError
-    # TODO: discard it unless left decides op (falsy for "and", truthy for "or")
-    # TODO: evaluate LogicOp(op, left, Probe(1)) and assert interp.fired == []
-
-# TODO: at least one more invariant, e.g. test_arithmetic_agreement over + - * trees
 ```
 
-| `# TODO` | How to write it |
+The other three tests are yours.  Here is each one's signature and algorithm.
+
+**`test_scope_restoration(e)`**, decorated with `@given(e=exprs)`:
+
+1. Make one `Interpreter` and keep it in a variable, so you can inspect its globals afterward.
+2. Build the tree `Program([Block([Let("v", Num(0)), Print(e)])])`.  It binds `v` inside a block, then prints `e`.
+3. Evaluate the tree with that interpreter.  Hide what it prints, and treat a `LangError` as a legal outcome rather than a failure.
+4. Assert that looking up `"v"` in the interpreter's globals now raises `LangNameError`.  pytest's `raises` context manager asserts that a block raises.
+
+**`ProbeInterpreter`**, a subclass of `Interpreter` that also understands `Probe`:
+
+1. Its `__init__` runs the parent's `__init__`, then sets `self.fired` to an empty list.
+2. Its `eval_node(self, node, env=None)` checks for a `Probe` first.  For a `Probe`, it records the node's value in `self.fired` and returns that value.
+3. For every other node, it hands the work to the parent class's `eval_node`.
+
+**`test_short_circuit_non_evaluation(left, op)`**, decorated with `@given(left=exprs, op=st.sampled_from(["and", "or"]))`:
+
+1. Make one `ProbeInterpreter`.
+2. Evaluate `left` alone with it.  If that raises a `LangError`, discard this example with `assume(False)`.
+3. Decide whether `left` settles the answer by itself.  For `"or"` it does when its value is truthy; for `"and"`, when it is falsy.  Discard the example with `assume` if it does not.
+4. Evaluate `LogicOp(op, left, Probe(1))` with the same interpreter.
+5. Assert that `fired` is still empty.
+
+**One more invariant**, such as `test_arithmetic_agreement(tree)`:
+
+1. Write a second strategy, `int_exprs`, built like `exprs` but with only `Num` leaves and only `BinOp` over `"+"`, `"-"`, and `"*"`.
+2. Write a small recursive helper, `python_value(tree)`, that computes the same tree with Python's own arithmetic.
+3. Decorate the test with `@given(tree=int_exprs)` and assert that your evaluator and `python_value` agree.
+
+| Test | How to think about it |
 |---|---|
-| evaluate, hiding output and ignoring a `LangError` | `with redirect_stdout(io.StringIO()):` around `try: interp.eval_node(tree)` and `except LangError: pass`.  A generated `e` may divide by zero, and that is not a scope bug. |
-| assert the lookup raises | `with pytest.raises(LangNameError):` around `interp.globals.lookup("v")`.  The test fails if the lookup succeeds, which is exactly a leaked `let`. |
-| record and return the `Probe` | `self.fired.append(node.value)`, then `return node.value`.  Your `Interpreter` makes every recursive call through `self.eval_node`, so a `Probe` anywhere in a tree reaches this method. |
-| evaluate `left` alone | `try: left_value = interp.eval_node(left)` and `except LangError: assume(False)`.  `assume(False)` tells Hypothesis to throw this example away and draw another. |
-| `left` decides `op` | For `"or"` the left decides when `interp.truthy(left_value)` holds; for `"and"`, when it does not.  Store that in a variable and call `assume(...)` on it. |
-| evaluate and assert | `interp.eval_node(LogicOp(op, left, Probe(1)))`, then the `assert`.  Positions default to 0, so you can build nodes by hand. |
-| one more invariant | For arithmetic agreement, write a second strategy, `int_exprs`, with only `Num` leaves and `BinOp` over `["+", "-", "*"]`.  Then write a small recursive `python_value(tree)` that uses a dict from operator to `lambda a, b: ...`.  Assert `Interpreter().eval_node(tree) == python_value(tree)`. |
+| scope restoration | A generated `e` may divide by zero, and that is not a scope bug, so step 3 swallows it.  The test should fail only when the lookup *succeeds*, because that is exactly a leaked `let`. |
+| `ProbeInterpreter` | This works only because your `Interpreter` makes every recursive call through its own `eval_node` method.  So a `Probe` buried anywhere in a tree still reaches the subclass's version. |
+| short-circuit | Discarding an example tells Hypothesis to throw it away and draw another.  Steps 2 and 3 keep only the examples where the right side must stay unevaluated.  Positions default to 0, so you can build nodes by hand. |
+| arithmetic agreement | Python is the oracle here.  Restricting to `+ - *` on integers keeps away the cases where your language and Python disagree on purpose, such as division and booleans. |
 
 > **You should see.** After `python3 -m pytest -v test_interpreter.py`, each property test listed as passed, or a `Falsifying example` block showing the smallest program that breaks the invariant (Hypothesis shrinks a failure to the minimal offending program).  Recent Hypothesis versions label that block `Failing test case:` instead.  A passing run includes these four lines among your other tests, each followed by a percentage:
 >
@@ -1010,7 +978,7 @@ def test_short_circuit_non_evaluation(left, op):
 >
 > In your `readme.md`, report one invariant that caught a real bug, or a reasoned all-clear with your properties and the generator shown.
 
-To see a property bite once, break your `or` branch on purpose: move `self.eval_node(node.right, env)` above the truthiness test, run the suite, and put the line back.  The bomb test fails, and so does `test_short_circuit_non_evaluation`, with a shrunk example such as `left=Num(1), op='or'`.
+To see a property bite once, break your `or` branch on purpose: move the evaluation of the right operand above the truthiness test, run the suite, and put it back.  The bomb test fails, and so does `test_short_circuit_non_evaluation`, with a shrunk example such as `left=Num(1), op='or'`.
 
 > **If it fails.**
 > - `TypeError: 'RecursiveStrategy' object is not callable`: you wrote `exprs()`.  A strategy is used as `exprs`, without parentheses.
