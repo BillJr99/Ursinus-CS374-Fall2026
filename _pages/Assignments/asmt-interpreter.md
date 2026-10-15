@@ -1472,11 +1472,11 @@ This direction replaces Steps 5b-5c.  You grow Part 4's annotation checker into 
 
 ### Step T.1: Type Terms, Substitution, and Unification (`hm_types.py`)
 
-Create `hm_types.py` in the project folder from the skeleton below.  Define frozen dataclasses `TVar(name)` and `TCon(name)` (and `TFun(param, ret)` if you cover functions), with `apply(subst, typ)` and `free_vars(typ)` helpers.  Implement `unify(t1, t2, subst) -> subst`:
+Create `hm_types.py` in the project folder from the skeleton below.  Define frozen dataclasses `TVar(name)` and `TCon(name)` (and `TFun(param, ret)` if you cover functions), with `apply(subst, typ)` and `free_vars(typ)` helpers, and implement `unify(t1, t2, subst) -> subst`.  A substitution is a dict from type-variable name to type.
 
-1.  Apply the current substitution to both types.  If they are now identical, return the substitution unchanged.
-2.  If one is a type variable `α` that does not occur in the other, extend the substitution with `{α: other}`.  The **occurs check** (refusing to bind `α` to a type containing `α`) is what prevents infinite types.  Raise a `LangTypeError` naming both types if it fires.
-3.  Recurse componentwise on matching constructors.  Otherwise raise a `LangTypeError` naming both conflicting types.
+- **`apply(subst, typ)`** returns `typ` with every type variable that `subst` binds replaced by its binding, all the way down, so the result mentions no bound variable.
+- **`free_vars(typ)`** returns the set of type-variable names that appear in `typ`.
+- **`unify(t1, t2, subst)`** returns the most general substitution, extending `subst`, under which `t1` and `t2` become the same type.  Two types that are already equal under `subst` leave it unchanged.  Two different constants, such as `Num` and `Bool`, raise a `LangTypeError` naming both types.  So does the **occurs check**: binding a variable `α` to a type that contains `α` would make an infinite type, so `unify` refuses and raises.  With `TFun`, two function types unify when their parameter types and their return types do.
 
 **You write:** `hm_types.py` - `TVar`, `TCon`, `apply`, `free_vars`, and `unify`, plus three tests in `test_interpreter.py`
 **You run:** `python3 -m pytest test_interpreter.py`
@@ -1493,15 +1493,9 @@ class TVar:
 class TCon:
     name: str             # a type constant: "Num", "Bool", or "Str"
 TNum, TBool, TStr = TCon("Num"), TCon("Bool"), TCon("Str")
-def apply(subst, typ):
-    # TODO: replace every TVar bound in subst, recursively
-    ...
-def free_vars(typ):
-    # TODO: the set of TVar names appearing in typ
-    ...
-def unify(t1, t2, subst):
-    # TODO: the three rules above; return the extended substitution
-    ...
+def apply(subst, typ): ...
+def free_vars(typ): ...
+def unify(t1, t2, subst): ...
 ```
 
 Add these tests to `test_interpreter.py`, at minimum: `unify(TVar("a"), TNum, {})` binds `a`; unifying `TNum` with `TBool` raises; and an occurs-check case raises.  If the occurs-check test hangs, you have found the infinite type it exists to prevent; add the check before the bind.
@@ -1529,21 +1523,16 @@ from interpreter import LangNameError, LangTypeError
 from hm_types import TVar, TCon, TNum, TBool, TStr, apply, unify
 from typechecker import TypeEnv          # reuse Part 4's scope chain
 
-_count = 0
 def fresh():
     """Return a type variable that no other part of the program uses."""
-    global _count
-    _count += 1
-    return TVar(f"t{_count}")
+    ...
 
 def infer(node, type_env, subst):
     """Return (subst, type) for an expression, or (subst, None) for a statement."""
-    if isinstance(node, Num):
-        return subst, TNum
-    # TODO: one isinstance branch per node type eval_node handles, threading subst
-    #       through every recursive call:  subst, t = infer(child, type_env, subst)
-    raise NotImplementedError(f"no inference rule yet for {type(node).__name__}")
+    ...
 ```
+
+`fresh()` returns a new `TVar` each call, and no two calls ever return the same name.  `infer` follows the rules in the list above.  Every recursive call takes the current substitution and hands back the updated one, and the next call starts from that updated one, so no solved variable is ever lost.
 
 Wire it into `mylang.py` as a stage: `python3 mylang.py --typed program.ml` (or make it the default; document your choice) lexes, parses, **type-checks**, and only then evaluates.  The stage label `Type error` keeps the staged-error format of Step 4c: `Type error at line L, col C: <message>`.  Run `python3 mylang.py --typed shadow.ml` and confirm it still prints `51` then `2`: a well-typed program must pass through the new stage unchanged.
 

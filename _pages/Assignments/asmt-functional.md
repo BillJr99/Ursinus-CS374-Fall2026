@@ -891,26 +891,15 @@ Add a `Callcc(fun)` AST node.  In the CPS interpreter, the current continuation 
 @dataclass
 class Callcc:
     fun: object                    # an expression that evaluates to a one-parameter Closure
-
-class ContinuationEscape(Exception):
-    def __init__(self, k, value):
-        self.k, self.value = k, value
-
-class Continuation:
-    def __init__(self, k):
-        self.k = k                 # the k in hand when Callcc was evaluated
-    def __call__(self, value):
-        ...  # TODO: raise ContinuationEscape carrying self.k and value
-
-# In interp_k:
-#   case Callcc(fun):  TODO: evaluate fun to a Closure c; run c.body in a child of c.env
-#                      with c.param bound to Continuation(k), and with k as its continuation
-#   case App(...):     TODO: if the function value is a Continuation, call it with the argument
-
-def run(expr, env=None):
-    ...  # TODO: call interp_k(expr, env or Env(), lambda v: v) inside try;
-         #       on ContinuationEscape as esc, resume with esc.k(esc.value)
 ```
+
+The rest of B.3, as a specification:
+
+- `ContinuationEscape` is an `Exception` subclass that carries two attributes, `k` and `value`.
+- `Continuation(k)` stores the `k` that was in hand when `Callcc` was evaluated.  Calling a `Continuation` with a value raises a `ContinuationEscape` carrying that stored `k` and the value.
+- The `Callcc(fun)` case of `interp_k` evaluates `fun` to a closure and runs that closure's body with its parameter bound to `Continuation(k)`.  The body's continuation is the same `k`, so a body that never uses its parameter behaves as a normal call.
+- The `App` case must also accept a `Continuation` as the function value, and call it with the argument.
+- `run(expr, env=None)` evaluates `expr` with the identity continuation, in `env` or a fresh `Env`.  When a `ContinuationEscape` reaches it, `run` resumes the computation by handing the escape's value to the escape's `k`, and returns what that produces.
 
 Demonstrate each of the following as a hand-built AST run through `run`:
 
@@ -933,13 +922,13 @@ These two signatures are one workable shape, written as plain CPS Python functio
 # the next item, or break_fn(v) to leave the loop with v.  When the items run out, the
 # loop passes None to k.  break_fn is the loop's own k: escaping means skipping the rest.
 def for_until(items, body, k):
-    ...  # TODO: empty items -> k(None); otherwise body(head, k, a continuation that loops on the tail)
+    ...
 
 # with_handler: (Callable, Callable, Callable) -> Any
 # body(raise_fn, k) runs normally and passes its value to k.  raise_fn(err) abandons the
 # body and runs handler(err, k) instead.  A handler may call an outer raise_fn to re-raise.
 def with_handler(body, handler, k):
-    ...  # TODO: call body with a raise_fn that sends err to handler, and with k
+    ...
 ```
 
 With these shapes, `for_until([1, 2, 5, 7], lambda x, brk, cont: brk(x) if x > 3 else cont(None), lambda v: v)` returns `5`, and the same loop over `[1, 2]` returns `None`.
