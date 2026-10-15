@@ -578,9 +578,9 @@ print("Part 2 tree tests pass.")
 
 > **If it fails.**
 > - `RecursionError: maximum recursion depth exceeded`: a recursive case never reaches `None`.  Check that every recursive call is on `tree.left` or `tree.right`, not on `tree` itself.
-> - `AttributeError: 'NoneType' object has no attribute 'value'`: the `None` check is missing or comes after a line that reads `tree.value`.  Put `if tree is None:` first.
-> - `TypeError: <lambda>() takes 2 positional arguments but 3 were given`: `tree_fold` calls `f` with three values, so every combining function needs three parameters, `l, v, r`, even if it ignores `v`.
-> - `tree_flatten` returns the values in the wrong order: the combining function put `[v]` first instead of between the two child lists.
+> - `AttributeError: 'NoneType' object has no attribute 'value'`: the `None` check is missing or comes after a line that reads `tree.value`.  The `None` case must be checked before any field is read.
+> - `TypeError: <lambda>() takes 2 positional arguments but 3 were given`: `tree_fold` calls `f` with three values, so every combining function needs three parameters (left result, value, right result), even if it ignores the value.
+> - `tree_flatten` returns the values in the wrong order: the combining function put the node's value first instead of between the two child lists.
 
 ### Step 2.2: Build the Linked List and Its Fold
 
@@ -590,57 +590,20 @@ A linked list is either empty, written `None`, or a node holding one value (`hea
 **You run:** `python3 test_functional.py`
 
 > **Do this.**
-> 1. Add the `LLNode` dataclass and the four operations below to `recursive_structures.py`.  The linked list is the same pattern with one child instead of two, and it closes the loop with Part 1: import `my_reduce` from `higher_order.py` and build `list_from_python` from it (no loops).
+> 1. Add the `LLNode` dataclass and the four operations below to `recursive_structures.py`.  The linked list is the same pattern with one child instead of two, and it closes the loop with Part 1: import `my_reduce` from `higher_order.py` at the top of `recursive_structures.py`, and build `list_from_python` from it (no loops).
 > 2. Test each operation in `test_functional.py` on at least four inputs, including the empty list (`None`) and a single node.
 > 3. Run `python3 test_functional.py`.
 
-```python
-from higher_order import my_reduce
+**`LLNode`** is a `@dataclass` with two fields, in this order: `head` (any type), then `tail` (an optional `LLNode`, defaulting to `None`).  `None` represents the empty list.
 
-@dataclass
-class LLNode:
-    head: Any
-    tail: Optional['LLNode'] = None  # None represents the empty list
-
-# list_map: (Callable, Optional[LLNode]) -> Optional[LLNode]
-# Apply f to every element and return a new linked list.
-def list_map(f, node):
-    ...  # TODO: None -> None; otherwise LLNode(f(head), list_map(f, tail))
-
-# list_fold: (Callable, Optional[LLNode], Any) -> Any
-# Left fold, accumulating from left to right, e.g.
-# list_fold(lambda acc, x: acc + x, LLNode(1, LLNode(2, LLNode(3))), 0) -> 6.
-def list_fold(f, node, seed):
-    ...  # TODO: None -> seed; otherwise fold the tail with f(seed, head) as the new seed
-
-# list_to_python: Optional[LLNode] -> list
-# Convert to a Python list, via list_fold.
-def list_to_python(node):
-    ...  # TODO: one list_fold call
-
-# list_from_python: list -> Optional[LLNode]
-# Convert a Python list to a linked list, via my_reduce from Part 1.
-def list_from_python(lst):
-    ...  # TODO: my_reduce over lst; think about which end the nodes must be built from
-```
-
-Move the `from higher_order import my_reduce` line up to the imports at the top of `recursive_structures.py`.  Then fill in the four `# TODO`s:
-
-| `# TODO` | How to write it |
-|---|---|
-| `list_map` | `if node is None:` then `return None`.  Otherwise `return LLNode(...)` with `f(node.head)` and the recursive `list_map` of `node.tail`.  This is `tree_map` with one child. |
-| `list_fold` | `if node is None:` then `return seed`.  Otherwise `return` the recursive `list_fold` on `node.tail`, passing `f(seed, node.head)` as the new seed.  This is `my_reduce` from Step 1.3, with `node.head` and `node.tail` in place of `xs[0]` and `xs[1:]`. |
-| `list_to_python` | `return list_fold(lambda acc, x: ..., node, [])`.  The body returns a new list: `acc` with `[x]` joined onto its end by `+`. |
-| `list_from_python` | `LLNode(x, acc)` puts `x` in front of the list built so far, so the last element must be placed first.  Reduce over the reversed list, `lst[::-1]`, with the seed `None` (the empty list) and a combining `lambda acc, x:` that returns that new node. |
-
-Here is `list_from_python([1, 2, 3])` by hand, so you can check your combining function:
-
-| Step | `acc` before | `x` | `LLNode(x, acc)` |
+| Function | Takes | Returns | Required behavior and edge cases |
 |---|---|---|---|
-| start | `None` (the seed) | | |
-| 1 | `None` | `3` | the list 3 |
-| 2 | the list 3 | `2` | the list 2, 3 |
-| 3 | the list 2, 3 | `1` | the list 1, 2, 3 |
+| `list_map(f, node)` | a function and an optional `LLNode` | a NEW optional `LLNode` | Every element replaced by `f` of that element, in the same order; the original list is unchanged.  `None` maps to `None`. |
+| `list_fold(f, node, seed)` | a two-argument function, an optional `LLNode`, and a seed | one value | A left fold: `f` combines the accumulator (first argument) with each element (second argument), from left to right, starting at `seed`.  `None` folds to `seed`.  Folding addition over the list 1, 2, 3 with the seed `0` gives `6`. |
+| `list_to_python(node)` | an optional `LLNode` | a Python list | The same elements in the same order.  `None` gives `[]`.  Written as one call to `list_fold`. |
+| `list_from_python(lst)` | a Python list | an optional `LLNode` | The same elements in the same order.  `[]` gives `None`.  Written as one call to `my_reduce` from Part 1, with no loops. |
+
+For `list_from_python`, notice that a new node always goes on the front of the list built so far.  Which element of `lst` must be placed first?
 
 Start the list tests at the bottom of `test_functional.py`:
 
@@ -664,7 +627,7 @@ print("Part 2 list tests pass.")
 > ```
 
 > **If it fails.**
-> - `list_to_python(list_from_python([1, 2, 3]))` gives `[3, 2, 1]`: you reduced over `lst` instead of `lst[::-1]`, so the first element ended up at the back.
+> - `list_to_python(list_from_python([1, 2, 3]))` gives `[3, 2, 1]`: the nodes were placed in the order the elements appear in `lst`, and each new node went on the front, so the first element ended up at the back.
 > - `ImportError: cannot import name 'my_reduce' from 'higher_order'`: either `my_reduce` is misspelled in `higher_order.py`, or `higher_order.py` imports from `recursive_structures.py` (a circular import).  The import goes one way only, from Part 2 to Part 1.
 > - `AttributeError: 'NoneType' object has no attribute 'head'`: the `None` check is missing or comes too late, exactly as in Step 2.1.
 
@@ -682,55 +645,25 @@ Two files, `closures.py` and `generators.py`.  In the first you write function f
 
 A closure is a function that captures variables from the scope where it was created.  When a factory function creates and returns an inner function, the inner function keeps access to the factory's local variables even after the factory has returned.  Every call to a factory must produce an independent function.
 
-**You write:** `closures.py` - `make_multiplier`, `make_between`, `make_counter`, `make_once`, and `memoize`; `test_functional.py` - the closure tests, at the bottom of the file.
+**You write:** `closures.py` - `make_adder`, `make_multiplier`, `make_between`, `make_counter`, `make_once`, and `memoize`; `test_functional.py` - the closure tests, at the bottom of the file.
 **You run:** `python3 test_functional.py`
 
 > **Do this.**
-> 1. Create `closures.py` from the skeleton below.  `make_adder` is done for you; it shows the capture.
-> 2. Implement the other four factories, then `memoize`.  For `make_counter`, keep the state in a list or a mutable default argument; Python's `nonlocal` also works, but a list demonstrates the capture directly.
+> 1. Create `closures.py` with the five factories and `memoize` from the specification below.  `make_greeter`, in Part 1's Before You Code section, shows the capture.
+> 2. For `make_counter`, keep the state in a list or a mutable default argument; Python's `nonlocal` also works, but a list demonstrates the capture directly.
 > 3. Test each one in `test_functional.py`, including the independence checks and the decorator form shown below.
 > 4. In your writeup, draw an ASCII diagram (or describe in prose) showing what each closure returned by `make_adder(5)` and `make_adder(10)` captures internally, and why the two closures do not share state.
 
-```python
-# closures.py
-from typing import Callable
+Every factory returns a function; none of them returns a value directly.  Give each one its type signature in a comment, as in Part 1, and import `Callable` from `typing` for the annotations.
 
-# make_adder: int -> Callable; a function that adds n to its argument
-def make_adder(n: int) -> Callable:
-    def add(x):
-        return x + n      # n is captured from make_adder's scope
-    return add
-
-# make_multiplier: int -> Callable; a function that multiplies its argument by n
-def make_multiplier(n: int) -> Callable:
-    ...  # TODO
-
-# make_between: (int, int) -> Callable; a predicate for the closed interval [lo, hi]
-def make_between(lo: int, hi: int) -> Callable:
-    ...  # TODO
-
-# make_counter: int -> Callable; returns the next integer on each call, starting from start
-def make_counter(start: int = 0) -> Callable:
-    ...  # TODO: keep the count in a list (or nonlocal) that the returned function captures
-
-# make_once: Callable -> Callable; calls f at most once, then returns the cached first result
-def make_once(f: Callable) -> Callable:
-    ...  # TODO
-
-# memoize: Callable -> Callable; caches f's results by argument, for any hashable arguments
-def memoize(f: Callable) -> Callable:
-    ...  # TODO: the cache dict is created once, outside the inner function
-```
-
-Every factory has the shape of `make_adder`: define an inner function that uses the factory's parameters, then `return` it without calling it.
-
-| `# TODO` | How to write it |
-|---|---|
-| `make_multiplier` | `make_adder` with `*` in place of `+`. |
-| `make_between` | The inner function takes `x` and returns the comparison chain `lo <= x <= hi`. |
-| `make_counter` | Before the inner function, create `count = [start]`.  The inner function saves `count[0]`, adds one to `count[0]`, and returns the saved value.  Changing an item inside the list is not rebinding the name `count`, so no `nonlocal` is needed. |
-| `make_once` | Keep a list such as `result = []` outside the inner function.  If it is empty, call `f` and append the answer; either way, return `result[0]`.  A list avoids confusing "never called" with "`f` returned `None`." |
-| `memoize` | Create `cache = {}` in `memoize`, not in the wrapper.  The wrapper takes `*args`; if `args` is not in `cache`, store `f(*args)` under it; then return `cache[args]`.  A tuple of hashable values is a valid dictionary key, which is why the docstring says "any hashable arguments." |
+| Function | Takes | Returns | Required behavior and edge cases |
+|---|---|---|---|
+| `make_adder(n)` | an `int` | a one-argument function | The returned function adds `n` to its argument. |
+| `make_multiplier(n)` | an `int` | a one-argument function | The returned function multiplies its argument by `n`. |
+| `make_between(lo, hi)` | two `int`s | a one-argument predicate | The predicate is `True` when its argument lies in the closed interval from `lo` to `hi`, both ends included. |
+| `make_counter(start=0)` | an optional `int` | a zero-argument function | Each call returns the next integer, beginning with `start`.  Two counters never share a count. |
+| `make_once(f)` | a function | a function | The first call runs `f` and returns its result; every later call returns that same first result without running `f` again.  This holds even when `f` returns `None`. |
+| `memoize(f)` | a function | a function | Returns what `f` returns, but computes `f` only once per distinct set of arguments, for any hashable arguments.  It must work as a decorator. |
 
 Add the tests below to the bottom of `test_functional.py`:
 
@@ -752,7 +685,7 @@ assert fib(30) == 832040
 print("Direction A closure tests pass.")
 ```
 
-> **You should see.** The four core lines, then `Direction A closure tests pass.`, and `fib(30)` returns in well under a second.  If it takes several seconds, `memoize` is not caching (a common cause is building the cache inside the wrapper, so every call starts with an empty dictionary).
+> **You should see.** The four core lines, then `Direction A closure tests pass.`, and `fib(30)` returns in well under a second.  If it takes several seconds, `memoize` is not caching.  A common cause is building the cache inside the returned function, so every call starts with an empty dictionary.
 
 ### A.2: Lazy Sequences with Generators
 
@@ -767,43 +700,33 @@ Strict (eager) evaluation computes every element of a sequence immediately.  Laz
 > 3. Build the lazy pipeline below: the first 10 perfect squares that are also even, using only `gen_map`, `gen_filter`, `naturals`, and `take`, with no list comprehensions and no intermediate lists.
 > 4. Strict vs. lazy: find the first Fibonacci number greater than 1000 two ways, first by materializing a large list, then lazily one element at a time.  Time both with `time.perf_counter()`.
 
+| Function | Takes | Produces | Required behavior and edge cases |
+|---|---|---|---|
+| `naturals(start=0)` | an optional `int` | a generator | Yields `start`, `start + 1`, `start + 2`, and so on forever, in O(1) extra memory. |
+| `fibonacci()` | nothing | a generator | Yields `0, 1, 1, 2, 3, 5, 8, ...` forever, in O(1) extra memory. |
+| `take(n, it)` | an `int` and any iterable | a list | The first `n` elements of `it`, in order.  If `it` runs out before `n` elements, return the ones it had, without an error. |
+| `gen_map(f, it)` | a function and any iterable | a generator | Lazily yields `f(x)` for each `x` in `it`, computing each one only when asked. |
+| `gen_filter(pred, it)` | a predicate and any iterable | a generator | Lazily yields only the `x` in `it` for which `pred(x)` is true. |
+
+Loops are allowed in this direction.  A loop inside a generator runs one step each time someone asks for the next value, which is what makes it lazy.
+
+The timing harness below is provided.  Fill in the two marked lines, using only your own functions plus a way to pull the first matching value out of an iterator.
+
 ```python
-# generators.py
-def naturals(start=0):
-    ...  # TODO: yield start, start+1, ... forever, in O(1) extra memory
-
-def fibonacci():
-    ...  # TODO: yield 0, 1, 1, 2, 3, 5, 8, ... forever
-
-def take(n, it):
-    ...  # TODO: consume the first n elements of any iterator and return them as a list
-
-def gen_map(f, it):
-    ...  # TODO: lazily yield f(x) for each x in it
-
-def gen_filter(pred, it):
-    ...  # TODO: lazily yield only the x for which pred(x) is true
-
+# generators.py, at the bottom
 if __name__ == "__main__":
     import time
     start = time.perf_counter()
-    # TODO strict: fibs = take(20_000, fibonacci()); strict_answer = the first x in fibs over 1000
+    # TODO strict: build a list of the first 20,000 Fibonacci numbers, then set
+    #              strict_answer to the first one in that list over 1000
     strict_time = time.perf_counter() - start
     start = time.perf_counter()
-    # TODO lazy: lazy_answer = next(...) on a gen_filter over fibonacci() that keeps x > 1000
+    # TODO lazy: set lazy_answer to the first Fibonacci number over 1000, computing
+    #            only as many Fibonacci numbers as it takes to find it
     lazy_time = time.perf_counter() - start
     print(f"strict: {strict_answer} in {strict_time:.6f} s")
     print(f"lazy:   {lazy_answer} in {lazy_time:.6f} s")
 ```
-
-| `# TODO` | How to write it |
-|---|---|
-| `naturals` | `n = start`, then `while True:` with `yield n` and `n += 1`.  Only `n` is stored, which is the O(1) memory. |
-| `fibonacci` | Keep two numbers, `a, b = 0, 1`.  Inside `while True:`, `yield a`, then `a, b = b, a + b`. |
-| `take` | Call `iter(it)` once.  Then loop `n` times with `range(n)`, call `next(...)` on that iterator, and append each value to a list.  Catch `StopIteration` and stop early, so a finite iterator shorter than `n` also works. |
-| `gen_map`, `gen_filter` | `for x in it:` then `yield f(x)`, or `yield x` only `if pred(x)`.  The loop is fine here; it runs one element at a time, only when asked. |
-| strict | `take(20_000, fibonacci())` builds the whole list first.  Then find the answer with `next(x for x in fibs if x > 1000)`. |
-| lazy | `next(gen_filter(lambda x: x > 1000, fibonacci()))` computes Fibonacci numbers only until the first one passes. |
 
 The `if __name__ == "__main__":` guard keeps the timing code from running when `test_functional.py` imports `generators.py`.  Add the tests below to the bottom of `test_functional.py`:
 
@@ -851,7 +774,7 @@ In a direct-style interpreter, every recursive call returns a value that waits o
 > 2. Smoke-test it on `(λx. x + 1)(41)` -> `42.0` and `let y = 10 in y * y` -> `100.0` before you change anything.
 > 3. Copy it to `interp_k(expr, env, k)` and transform one case at a time, re-running the equivalence tests after each case.
 
-Start the direct-style half from this skeleton.  The field order of each node matters, because `match` patterns such as `BinOp(op, left, right)` and the hand-built ASTs in B.3 (`Lam("k", ...)`, `App(Var("k"), ...)`) read the fields in that order.  `Env` is your Interpreter's `Environment` under a shorter name.
+Start the direct-style half from these provided AST nodes.  The field order of each node matters, because `match` patterns such as `BinOp(op, left, right)` and the hand-built ASTs in B.3 (`Lam("k", ...)`, `App(Var("k"), ...)`) read the fields in that order.  `Env` is your Interpreter's `Environment` under a shorter name.
 
 ```python
 # continuations.py
@@ -907,10 +830,10 @@ class Env:
         self._parent = parent
 
     def define(self, name, value):
-        ...  # TODO: bind name in THIS scope
+        ...  # binds name in THIS scope only
 
     def lookup(self, name):
-        ...  # TODO: this scope, then the parent chain; NameError if not found
+        ...  # the value bound to name here or in an enclosing scope; NameError if none
 
 @dataclass
 class Closure:
@@ -919,62 +842,41 @@ class Closure:
     env: Env           # the environment where the Lam was evaluated
 
 def interp(expr, env):
-    match expr:
-        case Num(n):
-            return float(n)
-        # TODO: Bool, Var, BinOp (OPS[op]), If, Let (a child Env), Lam (a Closure),
-        #       App (evaluate fn and arg, then the body in a child of the closure's env)
+    ...  # the value of expr in env, one case per AST node
 
 if __name__ == "__main__":
     print(interp(App(Lam("x", BinOp("+", Var("x"), Num(1))), Num(41)), Env()))
     print(interp(Let("y", Num(10), BinOp("*", Var("y"), Var("y"))), Env()))
 ```
 
+What each node means is the same as in your Interpreter assignment:
+
+- `Num` evaluates to a Python `float`, and `Bool` to a Python `bool`.
+- `Var` looks its name up in the environment.
+- `BinOp` evaluates both operands and applies the matching function from `OPS`.
+- `If` evaluates its condition, then only the branch it picks.
+- `Let` evaluates its value, binds it to its name in a new child scope, and evaluates its body there.
+- `Lam` evaluates to a `Closure` that remembers the current environment.
+- `App` evaluates the function to a closure and the argument to a value, then evaluates the closure's body in a child of the closure's environment, with the parameter bound to that value.
+
 > **You should see.** `42.0` and then `100.0`, from `python3 continuations.py`.
 
-The mechanical rule: wherever direct style writes `return f(x)`, CPS writes `f_k(x, env, k)`; wherever direct style writes `v = f(x); use(v)`, CPS writes `f_k(x, env, lambda v: use_k(v, env, k))`.  Case by case: `Num`, `Bool`, and `Lam` pass their value (or closure) straight to `k`.  `BinOp` evaluates the left operand, then *inside its continuation* evaluates the right operand, then applies the operator and calls the outer `k`.  `If` chooses the branch inside the condition's continuation.  `Let` and `App` chain the same way.  No case may return a value directly.
-
-```python
-# continuations.py (the CPS side; the direct-style interp and AST nodes come first)
-def interp_k(expr, env, k):
-    match expr:
-        case Num(n):
-            return k(float(n))            # the value goes to k, not to the caller
-        case BinOp(op, left, right):
-            ...  # TODO: evaluate left; inside its continuation evaluate right;
-                 # inside that continuation apply op and call k
-        # TODO: Bool, Var, Lam, If, Let, App; every case ends in a call to k
-```
-
-| `# TODO` | How to write it |
-|---|---|
-| `Bool`, `Var`, `Lam` | One line each, `return k(...)` with the boolean, `env.lookup(name)`, or `Closure(param, body, env)`. |
-| `BinOp` | `return interp_k(left, env, lambda l: interp_k(right, env, lambda r: k(...)))`, with `OPS[op](l, r)` in the innermost call. |
-| `If` | Evaluate `cond` with a continuation `lambda c: interp_k(<then or orelse>, env, k)`.  The branch gets the outer `k` unchanged, because its value is the `If`'s value. |
-| `Let` | A `lambda` cannot hold two statements, so define a small inner function `after(v)`.  It builds a child `Env`, defines `name` as `v`, and returns `interp_k(body, child, k)`.  Then `return interp_k(value, env, after)`. |
-| `App` | Two nested continuations: one receives the closure `c`, and inside it the other receives the argument `v`.  The innermost step evaluates `c.body` in a child of `c.env` with the outer `k`. |
+Next, write `interp_k(expr, env, k)` in the same file, below `interp`.  It has one case per AST node, exactly like `interp`, and it computes the same value.  The difference is the invariant: no case may return a value to its caller.  Every case ends by passing its value to `k`, or by calling `interp_k` on a smaller expression with a continuation that will.  The mechanical rule for getting there: wherever direct style evaluates a subexpression and then uses its value, CPS evaluates the subexpression with a continuation that receives the value and does the rest.
 
 **Verify equivalence:** for every test expression, `interp_k(e, env, lambda v: v)` must equal `interp(e, env)`.  Cover at least `Num`, `BinOp` (nested), `If` (both branches), `Let`, and `App`.  Reading any `interp_k` case top to bottom, the last thing it does must be a call to `k` (or to another `_k` function that will).
 
 ### B.2: Trampolining
 
-Python does not optimize tail calls, so deep recursion still overflows the stack.  Wrap every tail call in a zero-argument `Thunk` and drive execution with a loop:
+Python does not optimize tail calls, so deep recursion still overflows the stack.  Wrap every tail call in a zero-argument `Thunk` and drive execution with a loop.
 
 **You write:** `continuations.py` - `Thunk`, `trampoline`, and the `Thunk`-returning version of `interp_k`; `test_functional.py` - the 2,000-deep `Let` test.
 **You run:** `python3 test_functional.py`
 
-```python
-class Thunk:
-    def __init__(self, f): self.f = f
-
-def trampoline(result):
-    while isinstance(result, Thunk):
-        result = result.f()
-    return result
-```
+- `Thunk(f)` is a small class that holds one zero-argument function, `f`, for later.  Creating a `Thunk` runs nothing.
+- `trampoline(result)` takes either a `Thunk` or a final value.  As long as it holds a `Thunk`, it runs that thunk's function and keeps whatever comes back.  It returns the first result that is not a `Thunk`.  Because each thunk runs from inside this one loop, the Python stack never grows.
 
 > **Do this.**
-> 1. Change each tail call in `interp_k` to return `Thunk(lambda: <the call>)` instead of making the call, and wrap the top-level entry in `trampoline(...)`.
+> 1. Change each tail call in `interp_k` so that it returns a `Thunk` holding that call instead of making the call, and run the top-level entry through `trampoline`.
 > 2. Build a chain of 2,000 nested `Let` bindings (comfortably past Python's default recursion limit) and verify that it evaluates to the right answer.
 > 3. Run the same AST through the un-trampolined `interp_k` once to watch the `RecursionError` you just eliminated, and keep that comparison for your writeup.
 

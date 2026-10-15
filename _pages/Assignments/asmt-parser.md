@@ -766,64 +766,76 @@ Each statement begins with a token that tells you which rule to use.  `parse_stm
 
 *How `parse_stmt` can tell an assignment apart.*  The reference lexer's `peek()` shows you one token and has no offset argument, so you cannot look two tokens ahead to check for `IDENT EQ`.  You do not need to.  Look at the `stmt` rule in Part 1: no statement other than `assign_stmt` begins with `IDENT`, because the grammar has no expression statements.  So one token of lookahead decides it.  When `parse_stmt` peeks an `IDENT`, it calls `parse_assign_stmt`, which consumes the `IDENT` and then expects `EQ`.  If `EQ` is missing, `expect` reports it with a position.  Your readme note should say this in your own words.
 
+Every statement function reads its grammar rule from left to right, the way the worked `parse_muldiv` does.  A terminal in the rule becomes a call to `expect` with that token type.  A non-terminal becomes a call to its parsing function.  A `( ... )*` becomes a loop, and a `( ... )?` becomes an `if` on the peeked token.  Here are the signatures and docstrings; the bodies are yours.
+
 ```python
 def parse_let_stmt(lexer: Lexer):
     """Consume LET IDENT EQ, an expression, and SEMICOLON; return a Let."""
-    expect(lexer, "LET")
-    name = expect(lexer, "IDENT")
-    # TODO: expect EQ, parse the value with parse_expr, expect SEMICOLON
-    # TODO: return Let(name.value, value)
 
 def parse_assign_stmt(lexer: Lexer):
     """Consume IDENT EQ, an expression, and SEMICOLON; return an Assign."""
-    # TODO: the parse_let_stmt pattern without the LET
 
 def parse_print_stmt(lexer: Lexer):
     """Consume PRINT, an expression, and SEMICOLON; return a Print."""
-    # TODO
 
 def parse_block(lexer: Lexer):
     """Consume LBRACE, statements until RBRACE, then RBRACE; return a Block."""
-    expect(lexer, "LBRACE")
-    stmts = []
-    # TODO: loop while the next token is neither RBRACE nor EOF, appending parse_stmt(lexer)
-    expect(lexer, "RBRACE")
-    return Block(stmts)
 
 def parse_if_stmt(lexer: Lexer):
     """Consume IF, a condition, and a block; peek for ELSE, then an else-if or a block."""
-    # TODO: expect IF, parse the condition and the then-block
-    # TODO: else_branch = None; if the next token is ELSE, consume it, then peek:
-    #       IF means parse_if_stmt(lexer), anything else means parse_block(lexer)
-    # TODO: return If(condition, then_branch, else_branch)
 
 def parse_while_stmt(lexer: Lexer):
     """Consume WHILE, a condition, and a block; return a While."""
-    # TODO
 
 def parse_stmt(lexer: Lexer):
     """Peek at the first token of a statement and dispatch on its type."""
-    tok = lexer.peek()
-    if tok.type == "LET":
-        return parse_let_stmt(lexer)
-    # TODO: IDENT, PRINT, IF, WHILE, and LBRACE (a block is a statement too)
-    raise ParseError("a statement", tok.type, tok.line, tok.col)
 
 def parse_program(lexer: Lexer):
     """Parse statements until the next token is EOF; return a Program."""
-    # TODO: the parse_block loop, stopping only at EOF, then return Program(stmts)
 ```
 
-Each function whose body is only a `# TODO` needs a `pass` (or its real code) before Python will import the file.
+**`parse_let_stmt`**
 
-| `# TODO` | How to write it |
+1. `expect` a `LET`.
+2. `expect` an `IDENT`, and keep the token it returns.  Its `value` is the variable's name.
+3. `expect` an `EQ`.
+4. Parse the value with `parse_expr`.
+5. `expect` a `SEMICOLON`.
+6. Return a `Let` built from the name and the value.
+
+**`parse_assign_stmt`** is the same sequence without step 1, and it returns an `Assign`.  **`parse_print_stmt`** is `PRINT`, an expression, and `SEMICOLON`, and it returns a `Print`.  **`parse_while_stmt`** is `WHILE`, an expression for the condition, and a block from `parse_block`, and it returns a `While`.
+
+**`parse_block`**
+
+1. `expect` an `LBRACE`.
+2. Start an empty list of statements.
+3. While the next token is neither an `RBRACE` nor an `EOF`, parse one statement with `parse_stmt` and add it to the list.
+4. `expect` an `RBRACE`.
+5. Return a `Block` of the list.
+
+**`parse_if_stmt`**
+
+1. `expect` an `IF`, parse the condition with `parse_expr`, and parse the then-branch with `parse_block`.
+2. Start with no else branch (`None`).
+3. Peek.  If the token is an `ELSE`, consume it and peek again.  An `IF` there means an else-if, so the else branch is a recursive call to `parse_if_stmt`.  Anything else means the else branch is a `parse_block`.
+4. Return an `If` built from the condition, the then-branch, and the else branch.
+
+**`parse_stmt`**
+
+1. Peek at the first token.  Do not consume it: the function you dispatch to expects to see it.
+2. Dispatch on its type: `LET` to `parse_let_stmt`, `IDENT` to `parse_assign_stmt`, `PRINT` to `parse_print_stmt`, `IF` to `parse_if_stmt`, `WHILE` to `parse_while_stmt`, and `LBRACE` to `parse_block`, since a block is a statement too.  Return what that function returns.
+3. Until you write `parse_fun_stmt`, a `FUN` raises a `ParseError` whose `expected` text says that `fun` is not implemented yet.
+4. Any other token raises a `ParseError` whose `expected` is the text `a statement`, on the peeked token.
+
+**`parse_program`** is the `parse_block` loop with no braces: collect statements until the next token is `EOF`, then return a `Program` of the list.
+
+| Function | How to think about it |
 |---|---|
-| finish `parse_let_stmt` | `expect(lexer, "EQ")`, then `value = parse_expr(lexer)`, then `expect(lexer, "SEMICOLON")`.  `expect` returns the token it consumed, which is why `name.value` holds the variable's name. |
-| `parse_assign_stmt`, `parse_print_stmt`, `parse_while_stmt` | The same sequence of `expect` and `parse_...` calls, read straight off each grammar rule from left to right.  A terminal becomes `expect(lexer, "...")`; a non-terminal becomes a call. |
-| the `parse_block` loop | `while lexer.peek().type not in ("RBRACE", "EOF"):` then `stmts.append(parse_stmt(lexer))`.  Stopping at `EOF` too means an unclosed block reports `expected RBRACE, found EOF`, which names the real problem. |
-| `parse_if_stmt` | After the then-block, `if lexer.peek().type == "ELSE":`, then `lexer.advance()`, then an inner `if lexer.peek().type == "IF":` that chooses between the two calls. |
-| `parse_stmt` dispatch | One `if tok.type == "...": return parse_..._stmt(lexer)` per statement form, with `IDENT` going to `parse_assign_stmt` and `LBRACE` to `parse_block`.  Until you write `parse_fun_stmt`, add `if tok.type == "FUN":` that raises `ParseError("a statement (fun is not implemented yet)", tok.type, tok.line, tok.col)`. |
-| `parse_program` | `stmts = []`, then `while lexer.peek().type != "EOF": stmts.append(parse_stmt(lexer))`, then `return Program(stmts)`. |
+| `parse_let_stmt` | `expect` gives back the token it consumed.  That is how you get the name without peeking a second time. |
+| the `parse_block` loop | Stopping at `EOF` as well as `RBRACE` is what makes an unclosed block fail in the right place.  The loop ends, and the `expect` after it reports `expected RBRACE, found EOF`, which names the real problem. |
+| `parse_if_stmt` | The peek after `ELSE` is the only place in the statement grammar where one token picks between two productions that both follow the same keyword. |
+| `parse_stmt` | One token decides every case, because every statement form starts with a different token type.  That is the lookahead argument in the paragraph above, and your readme note. |
+| `parse_program` | `EOF` is a real token from the lexer, not the absence of one.  The loop tests for it the way the block loop tests for `RBRACE`. |
 
 > **Do this.**
 > 1. Add the statement functions and `parse_stmt()` to `parser.py`, in the order above.
@@ -948,32 +960,16 @@ Each node prints one header line at its own indent, then each child one level de
 | `Num`, `Var` | `Num(10)` or `Var(x)` | nothing |
 | `Str`, `BoolLit` | `Str('hi')` or `BoolLit(true)` | nothing |
 
-```python
-def pretty(node, indent=0):
-    """Return an indented view of the tree, two spaces per level of nesting."""
-    pad = "  " * indent
-    if isinstance(node, Program):
-        return "\n".join([pad + "Program"] + [pretty(s, indent + 1) for s in node.stmts])
-    if isinstance(node, Let):
-        return pad + f"Let {node.name}\n" + pretty(node.value, indent + 1)
-    if isinstance(node, BinOp):
-        return "\n".join([pad + f"BinOp({node.op})",
-                          pretty(node.left, indent + 1),
-                          pretty(node.right, indent + 1)])
-    if isinstance(node, Num):
-        return pad + f"Num({node.value})"
-    # TODO: Block, Assign, Print, While, If, UnaryOp, Var (and Str, BoolLit if you have them)
-    raise TypeError(f"pretty: no case for {type(node).__name__}")
-```
+The function is `pretty(node, indent=0) -> str`.  Its contract:
 
-| `# TODO` | How to write it |
-|---|---|
-| `Block` | The `Program` case with `"Block"` in the header. |
-| `Assign`, `Print` | The `Let` case.  `Print` has no name in its header, so its header is just `pad + "Print"`. |
-| `While`, `UnaryOp` | The `BinOp` shape: a list of the header and the children, joined with `"\n"`.  `UnaryOp` has one child, `node.operand`. |
-| `If` | Build `lines = [pad + "If", pretty(node.condition, indent + 1), pretty(node.then_branch, indent + 1)]`.  If `node.else_branch is not None`, append `pad + "  Else"` and `pretty(node.else_branch, indent + 2)`.  Return `"\n".join(lines)`. |
-| `Var` | `pad + f"Var({node.name})"`. |
-| the test | Store the expected text in a triple-quoted string that starts right after the quotes, `EXPECTED = """Program` on the first line, and ends with `Num(1)"""` with no newline after it.  Then `assert pretty(tree) == EXPECTED`. |
+- `indent` counts levels of nesting, and each level is two spaces in front of the header line.
+- The returned string has no newline at its start or its end.  Lines inside it are joined by single newlines.
+- A node class with no case raises a `TypeError` whose message names the class, in the form `pretty: no case for Var`.  That message tells you exactly which case is missing.
+- An empty `Program` or `Block` prints only its header line.
+
+The strategy is one recursive case per node class: print the header, then call `pretty` on each child one level deeper.
+
+For the test, store the expected text in a triple-quoted string that begins with `Program` right after the opening quotes and ends with `Num(1)` right before the closing quotes, so it has no stray newline at either end.
 
 > **You should see.** The `python3 -c` command prints exactly the fourteen lines above, from `Program` to the last `Num(1)`.
 
@@ -990,68 +986,40 @@ Write `unparse(node) -> str` in `ast_nodes.py`.  It regenerates valid source cod
 - `unparse(BinOp("*", Num(2), BinOp("+", Num(3), Num(4))))` -> `"2 * (3 + 4)"` (parentheses required).
 
 **You write:** `ast_nodes.py` - `PRECEDENCE`, `prec`, `unparse_child`, and `unparse`, below `pretty`; `test_parser.py` - `test_unparse_examples`.
-**You run:** `python3 test_parser.py`, and the `python3 -c` command after the hints.
+**You run:** `python3 test_parser.py`, and the `python3 -c` command below.
 
 > **Do this.**
 > 1. Write a precedence table (a dictionary from operator string to an integer) that mirrors the ladder in Part 1.
 > 2. Write `unparse()` so that the two examples above produce exactly the strings shown, and add both as tests.
 
-The precedence table is a plain `dict`.  A larger number binds tighter, so the numbers climb as you go down the Part 1 ladder from `or_expr` to `unary`.  The exact numbers do not matter; only their order does.  Here is the shape, with the first rows filled in:
+The four names this step defines, and what each must do:
 
-```python
-PRECEDENCE = {
-    "or": 1,
-    "and": 2,
-    "not": 3,
-    # TODO: the six comparison operators, all on one level
-    # TODO: "+" and "-" on one level, then "*" and "/" on the next
-}
-UNARY_MINUS = 7      # tighter than any binary operator
-ATOM = 100           # literals and variables never need parentheses
-COMPARISON = 4       # the comparison level, which does not chain
+| Name | Takes | Returns or holds |
+|---|---|---|
+| `PRECEDENCE` | (a module-level `dict`) | each binary operator string, plus `"not"`, mapped to an integer; a larger number binds tighter, so the numbers climb from `or` down the Part 1 ladder to `*` and `/` |
+| `prec(node)` | any expression node | how tightly the node binds: its operator's number for a `BinOp` or a `not`, a level above every binary operator for a unary minus, and a level no operator reaches for a literal or a variable |
+| `unparse_child(child, parent_prec, is_right)` | an operand, its parent's precedence, and whether it is the right operand | the operand's source text, wrapped in parentheses only when the tree needs them |
+| `unparse(node, indent=0)` | any node, and how many levels deep it sits | source code that parses back to the same tree |
 
+Only the order of the precedence numbers matters, not their values.  All six comparison operators share one level, `+` and `-` share the next, and `*` and `/` share the one after that.
 
-def prec(node):
-    """Return how tightly `node` binds, using PRECEDENCE."""
-    if isinstance(node, BinOp):
-        return PRECEDENCE[node.op]
-    if isinstance(node, UnaryOp):
-        return PRECEDENCE["not"] if node.op == "not" else UNARY_MINUS
-    return ATOM
+The parenthesization rule, in full:
 
+1. A child that binds *looser* than its parent always needs parentheses.
+2. A child at the *same* level needs them when it is the right operand, because every binary tier is left-associative.
+3. At the comparison level, a same-level child needs them on *either* side, because comparisons do not chain.  Without this case, `(a < b) < c` comes out as `a < b < c`, which does not parse.
+4. A unary operator's operand needs parentheses when it binds looser than the operator, as in `-(x + 1)`.
 
-def unparse_child(child, parent_prec, is_right):
-    """Unparse one operand, adding parentheses only when the tree needs them."""
-    text = unparse(child)
-    # TODO: decide `needs` from prec(child), parent_prec, and is_right
-    return f"({text})" if needs else text
+The text `unparse` produces for each statement:
 
+- `let x = <value>;`, `x = <value>;`, and `print <value>;`, each on one line, indented four spaces per level.
+- `-x` with no space, and `not x` with one.  The space matters: `notx` lexes as a single identifier.
+- A block opens with `{` at the end of the line that introduces it, puts each statement on its own line one level deeper, and closes with `}` back at the outer indent.
+- `while <condition> {` and `if <condition> {` start their block on the same line.  An else branch continues the closing line: `} else {`, or `} else if <condition> {`.
+- A `Program` is its statements, one per line.
+- A node class with no case raises a `TypeError` naming the class, as `pretty` does.
 
-def unparse(node, indent=0):
-    """Regenerate source code that parses back to the same tree."""
-    pad = "    " * indent
-    if isinstance(node, BinOp):
-        p = PRECEDENCE[node.op]
-        return f"{unparse_child(node.left, p, False)} {node.op} {unparse_child(node.right, p, True)}"
-    if isinstance(node, Num):
-        return str(node.value)
-    if isinstance(node, Let):
-        return f"{pad}let {node.name} = {unparse(node.value)};"
-    # TODO: Var, UnaryOp, Assign, Print, Block, If, While, Program (and Str, BoolLit)
-    raise TypeError(f"unparse: no case for {type(node).__name__}")
-```
-
-| `# TODO` | How to write it |
-|---|---|
-| comparison rows | `"<": 4, "<=": 4, ">": 4, ">=": 4, "==": 4, "!=": 4,` |
-| arithmetic rows | `"+": 5, "-": 5,` and `"*": 6, "/": 6,` |
-| `needs` | Start with `needs = prec(child) < parent_prec`.  Then, if `prec(child) == parent_prec`, set `needs = True` when `is_right` is true, or when `parent_prec == COMPARISON`.  That second case keeps `(a < b) < c` from coming out as `a < b < c`, which does not parse. |
-| `Var` | `return node.name`. |
-| `UnaryOp` | `operand = unparse(node.operand)`; wrap it in parentheses when `prec(node.operand) < prec(node)`.  Return `f"not {operand}"` or `f"-{operand}"`.  The space after `not` matters: `notx` lexes as an identifier. |
-| `Assign`, `Print` | The `Let` case, without `let` (for `Assign`) or with `print` and no name (for `Print`). |
-| `Block` | `inner = [unparse(s, indent + 1) for s in node.stmts]`, then `return "\n".join([pad + "{"] + inner + [pad + "}"])`. |
-| `While`, `If` | `f"{pad}while {unparse(node.condition)} " + unparse(node.body, indent).lstrip()`.  `If` is the same with `if`, plus `" else " + unparse(node.else_branch, indent).lstrip()` when there is an else branch.  `.lstrip()` removes the block's own indent, because the block starts on the same line. |
-| `Program` | `return "\n".join(unparse(s) for s in node.stmts)`. |
+Write one case per node class.  A `BinOp` case unparses its left and right children through `unparse_child` and joins them around the operator with single spaces.
 
 ```bash
 python3 -c "from parser import parse; from ast_nodes import unparse; print(unparse(parse(open('while_example.txt').read())))"
@@ -1072,46 +1040,32 @@ python3 -c "from parser import parse; from ast_nodes import unparse; print(unpar
 > **If it fails.**
 > - `8 - (3 - 2)` comes out as `8 - 3 - 2`: you never set `needs` for a right child at the same level.
 > - `2 + 3 * 4` comes out as `2 + (3 * 4)`: you parenthesize every `BinOp` child.  Compare precedences instead.
-> - `NameError: name 'needs' is not defined`: the `needs = ...` line is still a `# TODO`.
+> - The tree for `(a < b) < c` unparses as `a < b < c`, which raises a `ParseError` when you parse it again: you treated the comparison level as left-associative.  Rule 3 asks for parentheses on the left child too.
+> - `not x` comes out as `notx`: the space after `not` is missing, so the lexer reads one identifier.
 
 ### Step 3c: Verify the Round Trip
 
-For every test program in your test suite, verify the round-trip property:
-
-```python
-tree1 = parse(source)
-source2 = unparse(tree1)
-tree2 = parse(source2)
-assert pretty(tree1) == pretty(tree2), f"Round-trip failed on: {source}"
-```
+For every test program in your test suite, verify the round-trip property.  Parse the source to get a first tree.  Unparse that tree to get new source.  Parse the new source to get a second tree.  The property holds when the two trees pretty-print to the same text.
 
 This checks that `unparse` produces valid code and that the code means the same thing as the original.  Put the check in your test runner so that every program you add to the suite, including the worked `while` example, is verified automatically by `python3 test_parser.py`.
 
 **You write:** `test_parser.py` - a `PROGRAMS` list and `test_round_trip_fixed`.
 **You run:** `python3 test_parser.py`
 
-One way to put it in the runner is a module-level list of source strings and one test that loops over it.  Add `pretty` and `unparse` to the imports from `ast_nodes`.
+What the two names must do:
 
-```python
-PROGRAMS = [
-    "let x = 1;",
-    "print 8 - (3 - 2);",
-    "if a { print 1; } else if b { print 2; } else { print -(x); }",
-    open("while_example.txt").read(),
-    # TODO: every program your other tests parse
-]
+- `PROGRAMS` is a module-level list of source strings.  It holds at least these four provided programs, plus the source of every program your other tests parse:
 
-def test_round_trip_fixed():
-    for source in PROGRAMS:
-        tree1 = parse(source)
-        source2 = unparse(tree1)
-        tree2 = parse(source2)
-        assert pretty(tree1) == pretty(tree2), f"Round-trip failed on: {source}"
-```
+  ```text
+  let x = 1;
+  print 8 - (3 - 2);
+  if a { print 1; } else if b { print 2; } else { print -(x); }
+  (the contents of while_example.txt)
+  ```
 
-| `# TODO` | How to write it |
-|---|---|
-| more programs | Copy the source string from each `parse(...)` test into the list.  An expression test such as `expr("2 + 3 * 4")` becomes the program `"print 2 + 3 * 4;"`, because `parse` reads whole programs. |
+- `test_round_trip_fixed()` checks the property on every program in the list.  When one fails, its assertion message is `Round-trip failed on: ` followed by that program's source, so the `FAIL` line names the program that broke.
+
+An expression test such as `expr("2 + 3 * 4")` goes into the list as a whole program, such as `print 2 + 3 * 4;`, because `parse` reads programs, not bare expressions.  Add `pretty` and `unparse` to the imports from `ast_nodes`.
 
 > **You should see.** A `PASS test_round_trip_fixed` line among the others, and a final line with `0 failed`.  On a failure, the message names the program that broke, for example `FAIL test_round_trip_fixed -- Round-trip failed on: print 8 - (3 - 2);`.
 
@@ -1156,9 +1110,7 @@ for source in BROKEN:
         print(err)
 ```
 
-| `# TODO` | How to write it |
-|---|---|
-| your five programs | One string each, aimed at a different rule: an unclosed `(`, a missing `{` after `if x`, a stray `else`, `a < b < c`, or a block missing its `}` in the middle of a longer program.  Use `"\n"` inside a string to put the error on line 2 or 3, so you can see the line number change. |
+Aim each of your five programs at a different rule: an unclosed `(`, a missing `{` after `if x`, a stray `else`, `a < b < c`, or a block missing its `}` in the middle of a longer program.  Put a `"\n"` inside a string to move the error to line 2 or 3, so you can watch the line number change.
 
 > **You should see.** One message per provided program, each with a position, the expected token, and the found token:
 >
@@ -1176,6 +1128,7 @@ for source in BROKEN:
 > - A `LexError` traceback stops the script: one of your programs contains a character the lexer rejects, such as `@`.  That is a lexing error, not a parse error, so choose a program the lexer accepts.
 > - `no error?!` for a program: the parser accepted it.  Check whether the program really is invalid under your grammar before you change the parser.
 > - The column is one token too far right: that parsing function consumed the bad token before it raised.
+
 ### Step 3e: Property-Based Testing with Hypothesis
 
 Your fixed test suite in Step 3c checks the round-trip law only on the programs *you thought to write*.  The interesting bugs live in the programs you did not think of: a unary minus applied to a parenthesized subtraction, an operator at exactly the precedence boundary, a deeply right-nested chain.  [Property-based testing](https://hypothesis.readthedocs.io/) finds those for you: instead of writing examples, you write a *generator* of random ASTs and assert that the law holds for all of them, and when it fails, Hypothesis **shrinks** the counterexample to the smallest tree that still breaks it.  This step is required, and the full walkthrough is in the [Property-Based Testing tutorial]({{ site.baseurl }}/Tutorials/PropertyBasedTesting).
@@ -1185,29 +1138,21 @@ Your fixed test suite in Step 3c checks the round-trip law only on the programs 
 
 > **Do this.**
 > 1. Install Hypothesis with `uv add hypothesis` (or `pip install hypothesis`), and install pytest with `pip install pytest` if `pytest --version` reports that the command is not found.
-> 2. Write an AST generator using `hypothesis.strategies.recursive`, so that trees can nest to arbitrary depth.  Add the sketch below to `test_parser.py`.
+> 2. Write an AST generator using `hypothesis.strategies.recursive`, so that trees can nest to arbitrary depth.  Add it to `test_parser.py`, following the specification below.
 > 3. Run it with `python3 -m pytest -v test_parser.py` (pytest discovers `@given` tests automatically, and `-v` prints one line per test).  When it fails, and on a first parser it usually will, Hypothesis prints the minimal failing tree.  Fix the bug (commonly a missing parenthesization rule in `unparse`, or a precedence/associativity error in `parse`), and re-run until it passes.
 > 4. Report one shrunk counterexample you fixed in your `readme.md`: the minimal tree Hypothesis found, the one-sentence root cause, and the fix.  This is the deliverable: evidence that the property found a real bug your fixed tests missed (or a reasoned statement of why your parser was already correct, with the generator shown).
 
-```python
-from hypothesis import given, strategies as st
+The three names this step adds to `test_parser.py`, and what each must be:
 
-leaves = st.one_of(
-    st.integers(min_value=0, max_value=999).map(Num),
-    st.sampled_from(["x", "y", "z"]).map(Var),
-)
-exprs = st.recursive(
-    leaves,
-    lambda kids: st.builds(BinOp, st.sampled_from(["+", "-", "*", "/"]), kids, kids),
-    max_leaves=25,
-)
+| Name | What it is |
+|---|---|
+| `leaves` | a Hypothesis strategy that produces either a `Num` holding an integer from 0 to 999, or a `Var` named `x`, `y`, or `z` |
+| `exprs` | a strategy built with `st.recursive` from `leaves`, where each recursive step builds a `BinOp` whose operator is one of `+`, `-`, `*`, `/` and whose two operands are smaller trees; cap the size at about 25 leaves |
+| `test_round_trip(tree)` | a test that Hypothesis feeds with `exprs` through `@given`; it asserts that parsing `unparse(tree)` gives back a tree equal to `tree` |
 
-@given(exprs)
-def test_round_trip(tree):
-    assert expr(unparse(tree)) == tree   # structural equality on your AST
-```
+Import `given` and `strategies` from `hypothesis` at the top of the file.  The tutorial linked above builds a strategy of exactly this shape step by step.
 
-The generated trees are expressions, not programs, so the test re-parses them with the `expr` helper from Step 2b.  `parse` would not work here: it expects whole statements, and `x + 1` on its own is not one.  Put the sketch below the imports, and add `pretty` and `unparse` to the `from ast_nodes import ...` line if Step 3c did not already.
+The generated trees are expressions, not programs, so the test re-parses them with the `expr` helper from Step 2b.  `parse` would not work here: it expects whole statements, and `x + 1` on its own is not one.  Put the strategies below the imports, and add `pretty` and `unparse` to the `from ast_nodes import ...` line if Step 3c did not already.
 
 > **You should see.** On a passing run, one `PASSED` line per test, ending with the Hypothesis test and a summary.  With the tests from this page's examples in the file, the end of the run looks like this.  Your test names, count, and time will differ:
 >

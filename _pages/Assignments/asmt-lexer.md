@@ -357,7 +357,7 @@ def tokenize(source: str) -> Iterator[Token]:
     ...
 ```
 
-Steps 4 and 5 are the main loop's work.  Each takes a line or two:
+Steps 4 and 5 are the main loop's work, and each takes a line or two.  The table covers the steps that need the most thought:
 
 | Step | How to think about it |
 |---|---|
@@ -618,10 +618,13 @@ Extend the STRING pattern (or handle strings as a special case) to support four 
 **You run:** `python3 scratch.py`, with the self-test below.
 
 > **Do this.**
-> 1. Add the decoded-value field to `Token` (the TODO you left in Step 1b).  A token stores both the raw lexeme (e.g., `"a\nb"` with a backslash-n) in `value` and the decoded value (with a real newline) in the new field.
-> 2. Make the STRING rule match a backslash followed by any character as one unit, so `\"` does not end the string early.  Sections 1 and 3 of the walkthrough above show the shape.
-> 3. After matching, decode the four escapes into the new field with one `re.sub` and a function replacement (section 4 of the walkthrough).  Leave `value` as the raw lexeme.
-> 4. An unterminated string reaches end-of-line or end-of-file without a closing `"`.  Check for an opening quote explicitly and raise `LexError` at the *opening* quote's position, not at the end of input.  Otherwise the loop falls through to the "no rule matched" branch and reports the `"` as an unexpected character: the right position but the wrong message.
+> 1. **The field.**  Add a fifth field to `Token` for the decoded value (the TODO you left in Step 1b).  Only `STRING` tokens set it.  Give it a default of `None`, so every other token is still built with four arguments.  A token stores both the raw lexeme (e.g., `"a\nb"` with a backslash-n) in `value` and the decoded value (with a real newline) in the new field.
+> 2. **The rule.**  The `STRING` rule matches a whole double-quoted literal, quotes included, and a backslash together with the one character after it counts as a single unit.  So `\"` does not end the string early, and `"quote\"end"` is one token.
+> 3. **The decoder.**  Write `decode(body: str) -> str`.  It takes the raw text between the quotes and returns that text with each of the four escapes replaced by the character it stands for.  It works in one left-to-right pass, so `c:\\new` decodes to a backslash followed by the letter `n`, never to a newline.  The empty body decodes to the empty string.
+> 4. **The branch.**  When `tokenize` matches a `STRING`, it sets the new field to `decode` of the body and leaves `value` as the raw lexeme.
+> 5. **Unterminated strings.**  An unterminated string reaches end-of-line or end-of-file without a closing `"`.  Raise `LexError` at the *opening* quote's position, with a message that says the string is unterminated, not at the end of input.  Otherwise the loop falls through to the "no rule matched" branch and reports the `"` as an unexpected character: the right position but the wrong message.
+>
+> Sections 1, 3, and 4 of the walkthrough above show every regex move this step needs.
 
 > **You should see.** This worked example:
 
@@ -631,48 +634,6 @@ raw lexeme:    "hello\nworld"   (14 chars including quotes)
 decoded value: hello           (with a real newline between)
                world
 ```
-
-> **Building STRING in three moves.**  Work the string rule on its own with the self-test below before you move on to Step 2d.
-> 1. **Shape.**  Start from the toy `TOY_STRING` in the walkthrough: swap the single quotes for double quotes, and keep the body in one capture group so `group(0)` is the raw lexeme and `group(1)` is the body.  (If your `TOKEN_SPEC` loop only ever uses `m.group()`, you can drop the outer capture group and slice the quotes off instead.  Either way, decode only the body.)
-> 2. **Body.**  Inside the quotes, repeat "any character that is not `\"` or a backslash, *or* a backslash followed by any one character" as a single non-capturing group, exactly as section 3 does.  The second branch is what keeps `\"` from ending the string early.
-> 3. **Decode.**  Write a dictionary with your four escapes and decode the body with one `re.sub` call and a function replacement, as section 4 does.  Do not chain `str.replace` calls: the `"c:\\new"` case below is there to catch that.
->
-> Then store the raw lexeme in `value` and the decoded text in your new field.
-
-*Where each piece goes.*  Four small edits to `lexer.py` carry the whole step.  The names here (`decoded`, `ESCAPES`, `decode`) are suggestions; use your own if you prefer.
-
-```python
-@dataclass
-class Token:
-    type: str
-    value: str
-    line: int
-    col: int
-    decoded: str | None = None    # only STRING tokens set it
-
-ESCAPES = {}   # TODO: the four escapes, each mapping the letter after "\" to its character
-
-def decode(body: str) -> str:
-    # TODO: one re.sub over r"\\(.)" with a function replacement that looks up m.group(1)
-    raise NotImplementedError
-
-# Inside tokenize, where a token is about to be yielded:
-#     tok = Token(name, text, line, col)
-#     if name == "STRING":
-#         tok.decoded = decode(m.group(1))   # group 1 is the body between the quotes
-#     yield tok
-
-# Inside tokenize, in the "no rule matched" branch, before the LexError for a bad character:
-#     if source[pos] == '"':
-#         # TODO: raise LexError for an unterminated string at THIS line and col
-```
-
-| `# TODO` | How to write it |
-|---|---|
-| the field | Done above.  The `= None` default matters: every other token is still built with four arguments, `Token(name, text, line, col)`, so the new field must not be required. |
-| `ESCAPES` | `{'"': '"', "\\": "\\", "n": "\n", "t": "\t"}`.  Each key is the character after the backslash, and each value is what that escape stands for. |
-| `decode` | `return re.sub(r"\\(.)", lambda m: ESCAPES.get(m.group(1), m.group(0)), body)`.  The `.get` default leaves an unknown escape such as `\q` exactly as it was, which the walkthrough's "Now try this" asks you to think about. |
-| unterminated | Your `STRING` rule only matches a string that closes, so an unterminated one reaches the "no rule matched" branch with `source[pos]` equal to `"`.  Raise `LexError` there, with the current `line` and `col` (the opening quote's position) and a message that says "unterminated string." |
 
 Paste this self-test into `scratch.py`, set `DECODED_FIELD` to the name of your new field, and run `python3 scratch.py`.  Every line prints `ok` once the rule and the decoder are right.
 
@@ -700,8 +661,9 @@ for lexeme, expected in STRING_CASES:
 
 > **If it fails.**
 > - `MISMATCH` with type `IDENT` or a raw value that stops early (for example `"quote\"`), or a `LexError` on the escaped quote: the string ended at the escaped quote.  The backslash branch of the body is missing, or it comes *after* a branch that already accepts `\`.
-> - The `"c:\\new"` case decodes with a real newline: the decoder handled `\\` and `\n` in two separate passes.  Use one `re.sub` over `\\(.)`.
-> - `KeyError` inside the decoder: the dictionary is missing one of the four escapes, or the replacement function looked up `m.group(0)` (the backslash *and* the letter) instead of `m.group(1)` (the letter alone).
+> - The `"c:\\new"` case decodes with a real newline: the decoder handled `\\` and `\n` in two separate passes.  One pass that pairs each backslash with exactly one following character avoids this.
+> - `KeyError` inside the decoder: the table is missing one of the four escapes, or the lookup used the whole match (the backslash *and* the letter) instead of the letter alone.
+> - `TypeError` about a missing argument when an `INT` or `IDENT` token is built: the new field has no default.
 > - `decoded=None` on every line: `DECODED_FIELD` does not match the field name you added to `Token`.
 
 ### Step 2d: JSON Configuration
@@ -725,36 +687,13 @@ Move TOKEN_SPEC to a JSON file with this structure:
 
 > **Do this.**
 > 1. Create `token_spec.json` in `cs374-lexer` and copy every rule from your `TOKEN_SPEC` into it, in the same order.  JSON has its own escaping and no raw strings, so a regex backslash becomes two characters in the file: the pattern `\.` is written `"\\."`, and a regex backslash that must itself be escaped becomes `\\\\`.  The `STRING` line above shows the doubled form.
-> 2. In `Lexer.__init__`, when `config_path` is given, open it with `json.load`, compile every pattern inside a `try` block, and turn any `re.error` into a `LexError` that names the offending pattern.
-> 3. Create `token_spec_alt.json`: the same rules with `//` as the comment marker and `:=` as the assignment operator.
-> 4. In `scratch.py`, build `Lexer(program, "token_spec_alt.json")` on a short program written in that dialect and print its tokens.
+> 2. Write `load_spec(path: str) -> list`.  It reads the JSON file at `path` and returns a list of `(name, compiled pattern)` pairs, one per entry in `"tokens"`, in file order.  If a pattern does not compile, it raises a `LexError` that names the rule or the pattern, never a bare `re.error`.
+> 3. Give `tokenize` a second parameter, `spec`, that defaults to `COMPILED_SPEC`, and have it try the rules in `spec` instead of always reading the global.  Every call you already wrote still works unchanged.
+> 4. In `Lexer.__init__`, when `config_path` is given, lex with the rules from `load_spec(config_path)`.  Without it, use `COMPILED_SPEC`.
+> 5. Create `token_spec_alt.json`: the same rules with `//` as the comment marker and `:=` as the assignment operator.
+> 6. In `scratch.py`, build `Lexer(program, "token_spec_alt.json")` on a short program written in that dialect and print its tokens.
 
-*How the JSON reaches `tokenize`.*  Right now `tokenize` always reads the global `COMPILED_SPEC`.  Give it a parameter instead, so `Lexer` can hand it whichever rules it loaded:
-
-```python
-def load_spec(path: str) -> list:
-    """Read a JSON spec and return a list of (name, compiled pattern) pairs, in file order."""
-    # TODO: open the file and json.load it
-    # TODO: for each [name, pattern] in data["tokens"], compile the pattern;
-    #       turn an re.error into a LexError that names the rule and the pattern
-    raise NotImplementedError
-
-def tokenize(source: str, spec: list = COMPILED_SPEC) -> Iterator[Token]:
-    # the body from Step 1c, with "for name, regex in COMPILED_SPEC:"
-    # changed to                  "for name, regex in spec:"
-    ...
-
-# In Lexer.__init__:
-#     spec = load_spec(config_path) if config_path else COMPILED_SPEC
-#     self._tokens = tokenize(source, spec)
-```
-
-| `# TODO` | How to write it |
-|---|---|
-| load | `with open(path) as f: data = json.load(f)`.  `data["tokens"]` is then a list of two-item lists, such as `["INT", "[0-9]+"]`. |
-| compile | Start `spec = []`, loop `for name, pattern in data["tokens"]:`, and inside a `try:` append `(name, re.compile(pattern))`.  Write `except re.error as e:` and `raise LexError(...)` with `name`, `pattern`, and `e` in the message.  Return `spec`. |
-
-A JSON file has no rule order of its own beyond the order you write the lines in, and that order is still the priority.  In the alternate dialect this matters in one place: `:=` starts with `:`, so the `EQ` rule must now sit *above* `COLON`, or `:=` lexes as `COLON` followed by an `EQ` that no longer matches anything.
+A JSON file has no rule order of its own beyond the order you write the lines in, and that order is still the priority.  In the alternate dialect this matters in one place, so follow this rule: `:=` starts with `:`, so list the `EQ` rule (now `:=`) *above* `COLON` in `token_spec_alt.json`.  If `COLON` comes first, `:=` lexes as `COLON` followed by an `=` that no rule matches anymore.
 
 For example, this program in the alternate dialect:
 
@@ -802,24 +741,12 @@ while True:
 
 An exception is an ordinary class, so it can carry data the way `Token` does.  Store the three facts as attributes, then build the message from them.  Tests read the attributes, and people read the message.
 
-```python
-class LexError(Exception):
-    def __init__(self, message: str, line: int = 0, col: int = 0, text: str = ""):
-        # TODO: call super().__init__ with "LexError at line {line}, col {col}: {message}"
-        # TODO: store line, col, and text as attributes on self
-        pass
-```
-
-| `# TODO` | How to write it |
-|---|---|
-| message | `super().__init__(f"LexError at line {line}, col {col}: {message}")`.  `print(e)` and `str(e)` then show this text. |
-| attributes | `self.line = line`, `self.col = col`, `self.text = text`.  The defaults let Step 2d's bad-pattern error, which has no position, still use the same class. |
-| the `tokenize` branch | `raise LexError(f"unexpected character {source[pos]!r}", line, col, source[pos])` |
-
 > **Do this.**
-> 1. Every `LexError` must include the line number (1-indexed) and column number (1-indexed) of the offending character, and the offending text itself (the unrecognized character or the unterminated string lexeme).  Give `LexError` three attributes (`line`, `col`, `text`) set in its constructor, and build the message from them.  Tests in Step 3c assert on the attributes, not on the string.
-> 2. Fill in the `TODO (Part 3)` you left in `tokenize` so the "no rule matched" branch passes the current `line` and `col`.  Track the line by counting the `\n` characters you consume, and reset the column to 1 after each newline.
-> 3. In `scratch.py`, tokenize a three-line program with `@` on line 3 and confirm the message names line 3 and the right column.
+> 1. Every `LexError` must include the line number (1-indexed) and column number (1-indexed) of the offending character, and the offending text itself (the unrecognized character or the unterminated string lexeme).
+> 2. Give `LexError` the constructor `__init__(self, message: str, line: int = 0, col: int = 0, text: str = "")`.  It stores `line`, `col`, and `text` as attributes of the same names.  Tests in Step 3c assert on the attributes, not on the string.
+> 3. `str(e)` (and so `print(e)`) must read `LexError at line L, col C: message`, with the stored line and column in place of `L` and `C`.  The defaults let Step 2d's bad-pattern error, which has no position, use the same class.
+> 4. Fill in the `TODO (Part 3)` you left in `tokenize`, so the "no rule matched" branch passes the current line, the current column, and the offending character.  The unterminated-string error from Step 2c passes the opening quote's position the same way.
+> 5. In `scratch.py`, tokenize a three-line program with `@` on line 3 and confirm the message names line 3 and the right column.
 
 ```python
 from lexer import tokenize, LexError
@@ -841,7 +768,7 @@ except LexError as e:
 
 > **If it fails.**
 > - `line 1` on the third line: `line` never grew.  Whitespace is where newlines live, so the newline counting from Step 1c must run for skipped tokens too.
-> - `AttributeError: 'LexError' object has no attribute 'line'`: the constructor called `super().__init__` but never set `self.line`.
+> - `AttributeError: 'LexError' object has no attribute 'line'`: the constructor passed the message to `Exception` but never stored the line on the object.
 
 ### Step 3b: Two Error Modes
 
@@ -851,32 +778,11 @@ Implement two modes, chosen at construction time.  With `error_mode="fail_fast"`
 **You run:** `python3 scratch.py`, on `let @ = $;` in `collect_all` mode.
 
 > **Do this.**
-> 1. Add an `error_mode` keyword argument to `Lexer.__init__` and pass it through to `tokenize`.
-> 2. Define `LexErrorList` as an exception that carries a list of `LexError` objects.
-> 3. In `collect_all` mode, the "no rule matched" branch appends a `LexError`, advances `pos` and `col` by one, and keeps going.  Raise the `LexErrorList` only after the EOF token would have been produced.
-
-```python
-class LexErrorList(Exception):
-    def __init__(self, errors: list):
-        # TODO: call super().__init__ with a short summary such as "2 lexical errors"
-        # TODO: store the list as self.errors
-        pass
-
-# In tokenize: start with errors = [] next to pos, line, col.
-# In the "no rule matched" branch:
-#     err = LexError(...)                  # exactly as in Step 3a
-#     if error_mode == "fail_fast":
-#         raise err
-#     # TODO: collect_all: append err, then step past the bad character
-# After the while loop, before yielding EOF:
-#     # TODO: if any errors were collected, raise LexErrorList(errors)
-```
-
-| `# TODO` | How to write it |
-|---|---|
-| `LexErrorList` | `super().__init__(f"{len(errors)} lexical errors")`, then `self.errors = errors`. |
-| collect and step | `errors.append(err)`, then `pos += 1` and `col += 1`.  Without the step, the loop tries the same bad character forever. |
-| raise at the end | `if errors: raise LexErrorList(errors)`.  It goes after the loop, so every good token has already been yielded. |
+> 1. Add an `error_mode` keyword argument, defaulting to `"fail_fast"`, to both `tokenize` and `Lexer.__init__`.  `Lexer` passes its value through to `tokenize`.
+> 2. Define `LexErrorList(errors: list)`, an exception that keeps the list of `LexError` objects in an `errors` attribute.  Its message is a short summary such as `2 lexical errors`.
+> 3. In `fail_fast` mode, nothing changes from Step 3a.
+> 4. In `collect_all` mode, each unrecognized character produces one `LexError` with its own line and column, and is then skipped.  Lexing resumes at the very next character, and later columns stay correct.
+> 5. Every good token still comes out, in order.  The `LexErrorList` is raised at the point where the EOF token would have been yielded, and only if at least one error was recorded.  A clean source in `collect_all` mode ends with EOF as usual.
 
 Try it with this probe in `scratch.py`:
 
@@ -927,8 +833,8 @@ Build `test_lexer.py` with at least the test cases below.  Each test must assert
   5. A program with a valid token immediately after an error: verify recovery in collect-all mode
 
 > **Do this.**
-> 1. Create `test_lexer.py` in `cs374-lexer` from the skeleton below.  It uses `unittest` from the standard library, so there is nothing to install.
-> 2. Add one test method per case above, named after the case it covers (`test_munch_iffy`, `test_escape_tab`) so a failure tells you what broke.
+> 1. Create `test_lexer.py` in `cs374-lexer`, starting from the frame below.  It uses `unittest` from the standard library, so there is nothing to install.  The `types` helper and the one example test are given; every other test is yours.
+> 2. Add one test method per case above, grouped into test classes (for example `TestTokenTypes`, `TestMaximalMunch`, `TestStringEscapes`, and `TestErrors`), and name each method after the case it covers (`test_munch_iffy`, `test_escape_tab`) so a failure tells you what broke.
 > 3. Run `python3 test_lexer.py`.  When everything passes, save the output for your submission with `python3 test_lexer.py > test_output.txt 2>&1` (`unittest` writes its report to standard error, so you must redirect both streams).
 
 ```python
@@ -945,32 +851,12 @@ def types(source: str, **kwargs) -> list:   # token types for source, excluding 
 class TestTokenTypes(unittest.TestCase):
     def test_int(self):
         self.assertEqual(types("42"), ["INT"])
-    # TODO: one test per token type in the Step 1a table
-
-# TODO: TestMaximalMunch (iffy, whiles, <=, ==, !=) and TestStringEscapes
-#       (four cases; assert on the decoded value, not the raw lexeme)
-
-class TestErrors(unittest.TestCase):
-    def test_at_sign(self):
-        with self.assertRaises(LexError) as cm:
-            types("let x = @;")
-        # TODO: assert cm.exception.line == 1 and cm.exception.col == 9
-    # TODO: the other four deliberate error programs; the collect-all ones
-    #       expect LexErrorList and check len(cm.exception.errors)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
 ```
 
-Every test you need is built from one of these idioms.  Copy the one that fits, then change the source and the expected values:
-
-| You want to check | How to write it |
-|---|---|
-| the token types, in order | `self.assertEqual(types("a <= b"), ["IDENT", "LE", "IDENT"])` |
-| one token's value or position | `tok = Lexer("x\ny").advance()` gives the first token; call `advance()` again for the next.  Then `self.assertEqual((tok.line, tok.col), (2, 1))` |
-| a decoded string | `tok = Lexer(r'"tab\there"').advance()`, then `self.assertEqual(tok.decoded, "tab\there")`, with your field name in place of `decoded` |
-| an error and where it is | `with self.assertRaises(LexError) as cm:` around the code that should fail, then `self.assertEqual((cm.exception.line, cm.exception.col), (1, 9))` after the `with` block |
-| collect-all errors | the same shape with `LexErrorList` and `error_mode="collect_all"`, then `self.assertEqual(len(cm.exception.errors), 2)` |
+The error tests check *where* an error happened, so assert on the exception's `line` and `col` attributes, not on its message; `unittest`'s `assertRaises` documentation shows how to get the raised exception back.
 
 Write the `r` before a test's source string whenever it contains a backslash.  Without it, Python turns `"\t"` into a real tab before your lexer ever sees the backslash.
 
