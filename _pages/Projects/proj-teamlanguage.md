@@ -8,7 +8,7 @@ info:
   purpose: "To design, build, document, and present a programming language of your own, assembled from the lexer, parser, AST, environment, and evaluator components you built this semester, and to prove that those components snap together and grow."
   tilt:
     task: "In rotating-role team sprints, choose your language's direction, integrate your components into one pipeline, add a distinctive feature (going deeper via the Extensions Menu if you choose), and ship a REPL, file-runner, samples, tests, and SEMANTICS.md, then present the language at Demo Day."
-    criteria: "I assess your work on the Sprint 0 proposal, language design and documentation, implementation correctness and integration, testing, reproducibility, and the Demo Day presentation.  You submit the proposal on Thursday, November 19, and present it at the Sprint 0 kickoff on Tuesday, November 24; the rest is earned at Demo Day with the final submission.  See the course schedule for the dates, and the rubric below for the full breakdown."
+    criteria: "I assess your work on the Sprint 0 proposal, language design and documentation, implementation correctness and integration, testing, reproducibility, and the Demo Day presentation.  You submit the proposal on Thursday, November 19, and present it at the Sprint 0 kickoff on Tuesday, November 24; the rest is earned with the final submission, due on the last class day, and the presentation at Demo Day.  See the course schedule for the dates, and the rubric below for the full breakdown."
   points: 100
   goals:
     - To design a programming language with a niche, a documented grammar, and exhaustive semantics
@@ -90,7 +90,7 @@ Your team will design, build, document, and present a programming language of yo
 
 ## Milestone Timeline
 
-The project is worth **100 points**, earned at two graded milestones: the proposal (28 points) and Demo Day (72 points).  Two small checks along the way fall within Class Activities and Participation: the Sprint 1 increment check (3 points) and the Release and Review submission (6 points).  They keep the team honest without raising the stakes of a studio day.  See the course schedule for the assigned and due dates; it is the source of truth for every date below.
+The project is worth **100 points**, earned at two graded milestones: the proposal (28 points) and the Demo Day Presentations deliverable (72 points), which you submit on the last class day and present at Demo Day.  Two small checks along the way fall within Class Activities and Participation: the Sprint 1 increment check (3 points) and the Release and Review submission (6 points).  They keep the team honest without raising the stakes of a studio day.  See the course schedule for the assigned and due dates; it is the source of truth for every date below.
 
 | Milestone (see the course schedule for dates) | What is due | Pipeline stage it depends on | Points |
 |---|---|---|---|
@@ -98,9 +98,9 @@ The project is worth **100 points**, earned at two graded milestones: the propos
 | **Proposal: submitted, then presented at the Sprint 0 kickoff** | **The proposal, opening with the team roster, the niche, the design scorecard, and the signed team charter.  You submit it before the kickoff and present it at the kickoff** | Lexer, parser, and AST: grammar v0 and the node inventory describe them | **28** |
 | Sprint 1 increment check | Shown at the start of class: one running increment, what is next, and what is blocking (assessed within Class Activities and Participation) | Environments and the evaluator.  This is the build phase; the reference interpreter is released here | 3 |
 | Release and Review (Sprint Studio) | One submission: the Sprint 2 gallery walk cards and your triage, and the Sprint 3 ShipIt Release Checklist (assessed within Class Activities and Participation) | The whole pipeline, extended at each stage the feature touches, plus the test suite | 6 |
-| **Demo Day (final exam period)** | **The presentation and the final submission** | Everything above | **72** |
+| **Demo Day Presentations: submitted on the last class day, then presented at Demo Day (final exam period)** | **The final submission, due on the last class day, and the presentation at Demo Day** | Everything above | **72** |
 
-Demo Day takes place in the course's final exam period: Monday, December 14, 11:15 AM-2:15 PM, in Pfahler 012.  There is no written final exam; Demo Day is the course's terminal event, and I accept no work after it.
+Demo Day takes place in the course's final exam period: Monday, December 14, 11:15 AM-2:15 PM, in Pfahler 012.  The final submission is due earlier, on the last class day.  There is no written final exam; Demo Day is the course's terminal event, and I accept no work after it.
 
 ---
 
@@ -460,7 +460,7 @@ Sprint 3 completes the feature, hardens errors, and finishes the sample suite.  
 
 ## Milestone 5: Demo Day and Final Submission (72 points)
 
-All teams present during the final exam period (Monday, December 14, 11:15 AM-2:15 PM, Pfahler 012), and the final submission is due the same day.  There is no written final exam, and I accept no work after Demo Day.  Demo Day is external-facing: alumni, industry guests, and faculty from other departments may join the audience and Q&A, as available.  Your grade never depends on who attends.  Prepare with the [Demo Day Guide]({{ site.baseurl }}/Projects/TeamLanguage#demo-day-external-guests).
+All teams present during the final exam period (Monday, December 14, 11:15 AM-2:15 PM, Pfahler 012).  The final submission is due before that, on the last class day.  There is no written final exam, and I accept no work after Demo Day.  Demo Day is external-facing: alumni, industry guests, and faculty from other departments may join the audience and Q&A, as available.  Your grade never depends on who attends.  Prepare with the [Demo Day Guide]({{ site.baseurl }}/Projects/TeamLanguage#demo-day-external-guests).
 
 ### The Presentation (9 minutes)
 
@@ -481,7 +481,7 @@ Every teammate speaks.  The audience (your classmates) will write one Strength a
 
 ### The Final Submission
 
-Submit these four deliverables together with the presentation:
+Submit these four deliverables on the last class day, before you present:
 
 1. **The repository:** the integrated implementation, REPL and file-runner, test suite, sample programs with expected outputs, all configuration in JSON, located exception handling throughout, and a readme tested by the teammate who did not write it.  Ensure reproducibility by fixing random seeds where applicable and listing software version information.  The repository is public and recruiter-legible: run the [ShipIt self-check]({{ site.baseurl }}/Projects/TeamLanguage#shipping-your-language-the-shipit-checklist) before Demo Day; it is scored within the Documentation and Reproducibility dimension.  (Direction B: the timed-event test fixtures and, if you used bison, the automaton report ride along here.)
 2. **The language reference** (approximately four pages): teach your language to a newcomer with examples for every construct, the full grammar, the distinctive feature's guide, and a section per adopted extension.
