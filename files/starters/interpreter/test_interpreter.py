@@ -34,7 +34,7 @@ def test_bomb():
 
 
 # --- Step 2c: scopes -------------------------------------------------------
-# The shadowing program from the assignment and from the Environments lab.
+# The shadowing program from the assignment and from the Environments and Type Checking lab.
 # The inner `let` shadows; the bare assignment reaches outward.
 
 def test_shadowing_prints_51_then_2():

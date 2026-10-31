@@ -3,9 +3,10 @@
 This runs as its own pipeline stage, between parsing and evaluation, so a
 type error is reported before any of the program runs.
 
-If you did the Type Checker Starter lab, bring your checker core in here.
-Part 4 then extends it to call sites, argument types, and declared return
-types, which the lab does not cover.
+If you did Part 2 of the Environments and Type Checking lab, bring your
+checker core in here.  Part 4 then extends it to the remaining constructs,
+call sites, argument types, and declared return types, which the lab does
+not cover.
 """
 
 from ast_nodes import *

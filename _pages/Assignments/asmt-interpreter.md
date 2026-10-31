@@ -116,7 +116,7 @@ The starter kit matches this page: every signature below, including the error hi
 > - `ImportError: cannot import name 'parse'`: your parser's entry point has a different name.  Use that name here and in `mylang.py`.
 > - A `LexError` or `ParseError` on this one-line program: fix that stage first, or swap in the reference component.
 
-> **Time budget.** Part 0 takes about thirty minutes with pencil and paper.  The rest has five parts that each depend on the one before, so it rewards steady work and punishes a final-week push harder than anything else this term.  Its window is the tightest of any programming assignment this term (see the schedule in the [syllabus]({{ site.baseurl }}/) for its dates).  Two labs of about two to three hours each, which you may do with a partner, carry pieces of it for you.  The Environments and Scope lab closes before this assignment opens, so Step 2c is largely written already.  The Type Checker Starter lab falls inside this window and finishes the core of Part 4.  Start Part 1 the day the assignment goes out, and read What You Already Have below before you write anything.
+> **Time budget.** Part 0 takes about thirty minutes with pencil and paper.  The rest has five parts that each depend on the one before, so it rewards steady work and punishes a final-week push harder than anything else this term.  Its window is the tightest of any programming assignment this term (see the schedule in the [syllabus]({{ site.baseurl }}/) for its dates).  One lab of about three hours, which you may do with a partner, carries pieces of it for you.  The Environments and Type Checking lab opens with this assignment: its Part 1 writes most of Step 2c, and its Part 2 builds the core of Part 4.  Start Part 1 the day the assignment goes out, and read What You Already Have below before you write anything.
 
 ---
 
@@ -175,8 +175,8 @@ Every step below names the file it changes, but it helps to see the whole map on
 
 Three pieces of this assignment exist before you start, and the schedule put them there deliberately.  Find them first, because the window is too short to rebuild any of them.
 
-- **`Environment`, for Step 2c.**  The Environments and Scope lab closes before this assignment opens.  Copy that `Environment` class into your project on day one and wire it into the statement branches.  If the lab is still open when you reach Step 2c, finish the lab first.
-- **The checker core, for Part 4.**  The Type Checker Starter lab is due inside this window (the syllabus has the date).  Read Part 4 before that lab so you know what you are extending, then grow the lab's checker to cover call sites and return types.
+- **`Environment`, for Step 2c.**  The Environments and Type Checking lab opens with this assignment, and its Part 1 builds this class.  Do that part first, then copy the `Environment` class into your project and wire it into the statement branches.  If you reach Step 2c before the lab's Part 1 is done, finish it first.
+- **The checker core, for Part 4.**  Part 2 of the same lab builds the checker core, and the lab is due inside this window (the syllabus has the date).  Read Part 4 before you start the lab's Part 2 so you know what you are extending.  Then grow the lab's checker to cover the remaining constructs, call sites, and return types.
 - **The parser and its generator, for Parts 1 and 2e.**  Your Parser assignment supplies `parse` and your existing `ast_nodes.py`, so Step 1a reconciles nodes rather than inventing them.  That assignment's recursive expression generator is what Step 2e feeds to Hypothesis here.
 
 That leaves Parts 1, 2, 3, and 5 as the work in front of you.  Budget your time in the window against those four.
@@ -198,18 +198,18 @@ python3 -c "from parser import parse; from interpreter import Interpreter; Inter
 
 ### Suggested Pacing
 
-See the course schedule for the assigned and due dates.  Two labs (which you may do with a partner) do real work for you here, and it helps to know where each one sits.  The **Environments and Scope lab** builds the `Environment` machinery of Step 2c.  That lab closes before this assignment opens, so you arrive already holding the file.  The **Type Checker Starter lab** builds the core of Part 4's checker, and it falls partway through this window.  Neither is a detour; each one hands you a file this assignment then imports.  Part 2 is the steepest section, so climb it in the small steps below rather than in one sitting.
+See the course schedule for the assigned and due dates.  One lab (which you may do with a partner) does real work for you here, and it helps to know where it sits.  The **Environments and Type Checking lab** opens with this assignment.  Its Part 1 builds the `Environment` machinery of Step 2c, and its Part 2 builds the core of Part 4's checker.  It is due partway through this window.  It is not a detour; it hands you the code this assignment then imports.  Part 2 is the steepest section, so climb it in the small steps below rather than in one sitting.
 
 | Checkpoint | You should have |
 |------------|----------------|
 | On assignment | Part 0 done on paper, and Part 1 complete: all node dataclasses and the dispatch skeleton (Steps 1a-1b) |
 | Checkpoint 1 | Expression evaluation and short-circuit logic with the bomb test passing (Steps 2a-2b) |
-| Type Checker lab due | `Environment` and statement evaluation, imported from your earlier lab and wired in; the shadowing program prints `51` then `2` (Step 2c) |
+| Lab Part 1 done | `Environment` and statement evaluation, imported from the lab and wired in; the shadowing program prints `51` then `2` (Step 2c) |
 | Midpoint | Break/continue signals, the file runner with staged errors, and the Step 2e invariants running (Step 2d, Step 3a, Step 2e) |
 | Checkpoint 2 | REPL with persistent environment and recovery; the checker core in place from the lab (Step 3b, Part 4) |
 | Due date | Checker complete across all constructs, including call sites and return types; error hierarchy in place; Part 5 deliverable, differential programs, REPL transcript; ZIP submitted (Part 4, Steps 5a-5c) |
 
-This window is shorter than the Parser's, so two rows are worth planning around.  You submit the Environments and Scope lab before this assignment opens.  Step 2c therefore becomes a matter of importing what you built there and wiring it in, rather than writing it from scratch.  The Type Checker lab falls in the middle of the window, and Part 4 extends its checker to call sites and return types.  Read Part 4 before that lab is due and you will know what you are building toward.
+This window is shorter than the Parser's, so two rows are worth planning around.  The Environments and Type Checking lab opens with this assignment, so do its Part 1 first.  Step 2c then becomes a matter of importing what you built there and wiring it in, rather than writing it from scratch.  The lab is due partway through the window, and Part 4 extends its checker to the remaining constructs, call sites, and return types.  Read Part 4 before you start the lab's Part 2, and you will know what you are building toward.
 
 ### If the Window Gets Tight
 
@@ -784,7 +784,7 @@ Control-flow theory questions (in your readme, required in every Part 5 directio
 
 ### Step 2c: Build the Environment and Evaluate Statements
 
-An environment is the table that maps variable names to their current values.  Each block gets its own environment with a link to its parent, which is how nested scopes work.  The Environments and Scope lab builds this machinery (alone or with a partner); bring your lab code here and add the class to `interpreter.py`, above `Interpreter`.
+An environment is the table that maps variable names to their current values.  Each block gets its own environment with a link to its parent, which is how nested scopes work.  Part 1 of the Environments and Type Checking lab builds this machinery (alone or with a partner); bring your lab code here and add the class to `interpreter.py`, above `Interpreter`.
 
 **You write:** `interpreter.py` - `Environment` (from your lab), `format_value`, and the `Assign`, `Print`, `Block`, `If`, and `While` branches
 **You run:** `python3 -c "from parser import parse; from interpreter import Interpreter; Interpreter().eval_node(parse(open('shadow.ml').read()))"`
@@ -1241,13 +1241,13 @@ Lexical error at line 1, col 1: unexpected character '@'
 
 Your evaluator enforces types *dynamically*: a type error surfaces only when the offending expression is actually evaluated.  Part 4 adds a small **static type checker** that catches a useful class of those errors before evaluation begins, as its own pipeline stage: lex -> parse -> check -> evaluate.  This is deliberately not full type inference.  Annotations are required at declarations, so there is no unification; the checker verifies only what is *declared*.
 
-> **The checker is stricter than the evaluator, on purpose.**  Your evaluator has a truthiness rule, so `while 1 { ... }` and `"" or "fallback"` both mean something at run time.  A checker that requires `Bool` conditions and `Bool` operands rejects those programs before they run, even though they would have worked.  That gap is not a bug in either stage: a static checker that never accepts a program that would fail must also reject some programs that would have succeeded, and where to draw that line is a language design decision rather than a correctness question.  Decide where you draw it, implement it consistently, and say so in `SEMANTICS.md`; the Type Checker Starter lab's last reflection prompt asks you to defend exactly this choice.  Where a type is unknown (an unannotated construct you choose not to cover), document the gap in your readme rather than guessing.  The Type Checker Starter lab builds the core (alone or with a partner) before this part is due, and the Hindley-Milner direction in Part 5 grows this checker into whole-program inference, so Part 4 is a foundation, not a throwaway.
+> **The checker is stricter than the evaluator, on purpose.**  Your evaluator has a truthiness rule, so `while 1 { ... }` and `"" or "fallback"` both mean something at run time.  A checker that requires `Bool` conditions and `Bool` operands rejects those programs before they run, even though they would have worked.  That gap is not a bug in either stage: a static checker that never accepts a program that would fail must also reject some programs that would have succeeded, and where to draw that line is a language design decision rather than a correctness question.  Decide where you draw it, implement it consistently, and say so in `SEMANTICS.md`; the Environments and Type Checking lab's second reflection prompt asks you to defend exactly this choice.  Where a type is unknown (an unannotated construct you choose not to cover), document the gap in your readme rather than guessing.  The Type Checker Starter lab builds the core (alone or with a partner) before this part is due, and the Hindley-Milner direction in Part 5 grows this checker into whole-program inference, so Part 4 is a foundation, not a throwaway.
 
 ### Step 4a: Carry Type Annotations on Declarations
 
 Your language's `let` declarations and function definitions carry (or are extended to carry) type annotations: `let x: Num = 42;`, `fun f(a: Num, b: Str) -> Bool { ... }`.  The checker can only verify what the parser hands it, so the annotation has to survive lexing and parsing and land on the AST node.  Extend your lexer and parser so `let` accepts an optional `: Type` after the name (and so function definitions carry parameter and return annotations, if your language has functions), then add the annotation to the node.
 
-> **This step is yours even if you are using the reference parser.**  The reference lexer has no `COLON` token and the reference `Let` node has no annotation field, so `let x: Num = 1;` does not lex, let alone parse, against it out of the box.  That is deliberate: reading a new token, threading it through one production, and landing it on a node is the smallest end-to-end change you can make to a language pipeline, and Part 4 is the right moment to make it.  The Type Checker Starter lab walks the same extension and budgets about ten minutes for it.  Do it in whichever lexer and parser you are building on, and note in your readme which one that was.  One way is an optional field on `Let`, `type_ann: Optional[str] = None`, holding `"Num"`, `"Str"`, `"Bool"`, or `None`.  If your Type Checker Starter lab already added this field under the name `annotation`, keep that name, and read `annotation` wherever this page says `type_ann`.
+> **This step is yours even if you are using the reference parser.**  The reference lexer has no `COLON` token and the reference `Let` node has no annotation field, so `let x: Num = 1;` does not lex, let alone parse, against it out of the box.  That is deliberate: reading a new token, threading it through one production, and landing it on a node is the smallest end-to-end change you can make to a language pipeline, and Part 4 is the right moment to make it.  Extension E of the Environments and Type Checking lab walks the same change and budgets about ten minutes for it.  Do it in whichever lexer and parser you are building on, and note in your readme which one that was.  One way is an optional field on `Let`, `type_ann: Optional[str] = None`, holding `"Num"`, `"Str"`, `"Bool"`, or `None`.  If your Type Checker Starter lab already added this field under the name `annotation`, keep that name, and read `annotation` wherever this page says `type_ann`.
 
 **You write:** your lexer - a `COLON` token; `ast_nodes.py` - the `type_ann` field on `Let`; `parser.py` - the annotation in `parse_let_stmt`
 **You run:** `python3 -c "from parser import parse; print(parse('let x: Num = 42;'))"`
@@ -1295,12 +1295,12 @@ The checker walks the AST once, maintaining a type environment that mirrors your
 - Operators whose static rule is yours to set.  `and`/`or` and the conditions of `if` and `while` are where the strictness decision above becomes concrete.  Requiring `Bool` is the simpler rule and the one the lab's skeleton assumes.  Allowing any type, and letting truthiness decide at run time, keeps every program your evaluator can run.  Either is defensible; pick one, apply it to all four places, and record it.
 - Call sites.  Every function call checks arity and each argument's type against the parameter annotations, and the call expression takes the declared return type; a function whose body cannot produce its declared return type is an error.
 
-Create `typechecker.py`, starting from your Type Checker Starter lab code, and shape it around this skeleton.  Then write one ill-typed program per bullet above (three files) and one well-typed program, and add each to `test_interpreter.py`.
+Create `typechecker.py`, starting from the checker in your Environments and Type Checking lab, and shape it around this skeleton.  Then write one ill-typed program per bullet above (three files) and one well-typed program, and add each to `test_interpreter.py`.
 
 **You write:** `typechecker.py` - `TypeEnv.define`, `TypeEnv.lookup`, and one `check` branch per node class; three ill-typed programs, one well-typed program, and their tests in `test_interpreter.py`
 **You run:** the two `python3 -c` commands below the typing rules
 
-Your lab's names may differ from the skeleton's: `TypeEnvironment` for `TypeEnv`, or separate `check_stmt` and `check_expr` functions.  Keep whichever you have, provided `mylang.py` can call one function on the whole tree.
+Your lab's names differ from the skeleton's.  The lab stores types in its `Environment` class instead of a separate `TypeEnv`, and it splits the checker into `check_stmt` and `check_expr`.  Its `Var` rule catches the `LangNameError` from `lookup` and returns `None`, which is the same behavior as a `TypeEnv.lookup` that returns `None`.  Keep whichever names you prefer, provided `mylang.py` can call one function on the whole tree.
 
 ```python
 from ast_nodes import *
@@ -1431,7 +1431,7 @@ class LangZeroDivisionError(LangError): pass
 class LangRuntimeError(LangError): pass
 ```
 
-The `super().__init__(str(self))` line makes this the same class the Environments lab wrote, so you have one definition, not two.  It also stores the message as the exception's `args`, the way Python's own exceptions do.
+The `super().__init__(str(self))` line makes this the same class the Environments and Type Checking lab wrote, so you have one definition, not two.  It also stores the message as the exception's `args`, the way Python's own exceptions do.
 
 Here is the first test as a model; the other three are yours:
 
@@ -1467,7 +1467,7 @@ Then check the staged reporting end to end.  Step 3a's four error files, Step 4c
 > The other four files print exactly what Step 3a showed.  If `badname.ml` stops at the Type stage instead, your `TypeEnv.lookup` still raises for a missing name; return `None`, as the Step 4b note says.
 
 > **If it fails.**
-> - An `except LangNameError` does not catch the error your `Environment` raises: there are two copies of the class, one from the lab's `environment.py` and one in `interpreter.py`.  Delete one and import the other.
+> - An `except LangNameError` does not catch the error your `Environment` raises: there are two copies of the class, one from the lab's `scope_lab.py` and one in `interpreter.py`.  Delete one and import the other.
 > - `Runtime error at line 0`: some `raise` passes no position.  The usual culprit is the `Environment`, whose errors must be re-raised with the node's position, as in Steps 2a and 2c.
 > - `ImportError: cannot import name 'run_source' from 'mylang'`: your file runner keeps the stages inside `run_file`.  Test the stray `break` through `run_file` instead, or move the stages into a helper as Step 3a does.
 
