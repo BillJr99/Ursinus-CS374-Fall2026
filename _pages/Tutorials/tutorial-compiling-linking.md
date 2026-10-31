@@ -451,7 +451,7 @@ def fib(n):
 dis.dis(fib)
 ```
 
-CPython bytecode output for `fib`:
+CPython bytecode output for `fib` (from Python 3.10; Python 3.11 and later add a `RESUME` line and print `BINARY_OP` and `CALL` in place of `BINARY_SUBTRACT` and `CALL_FUNCTION`, so names and offsets in your listing will differ):
 
 ```
   2           0 LOAD_FAST                0 (n)
@@ -660,7 +660,7 @@ Create two `.c` files where one calls a function defined in the other.  Compile 
 
 ### Exercise 4: Python Bytecode (15 min)
 
-Use `dis.dis()` to disassemble a Python function you've written.  Identify: LOAD_FAST vs LOAD_GLOBAL, CALL_FUNCTION, and any JUMP instructions.  Map each bytecode instruction back to a line of source code.
+Use `dis.dis()` to disassemble a Python function you've written.  Identify: LOAD_FAST vs LOAD_GLOBAL, CALL_FUNCTION (CALL on Python 3.11 and later), and any JUMP instructions.  Map each bytecode instruction back to a line of source code.
 
 ### Exercise 5: Compare Memory Sizes (15 min)
 

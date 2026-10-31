@@ -339,7 +339,7 @@ print("Now add the arm and rerun. Every node should appear.")
 ```
 @LIA.eval(`["main.py"]`, `none`, `python3 main.py`)
 
-Expected output before your edit: one `Unknown:` line swallowing three nodes.  After your edit: the full tree, all seven nodes.  Remember this the next time an evaluator "works" but quietly ignores a construct.
+Expected output before your edit: one `Unknown:` line swallowing five nodes (the `Call` and the four nodes under it).  After your edit: the full tree, all seven nodes.  Remember this the next time an evaluator "works" but quietly ignores a construct.
 
 #### One Fix
 
