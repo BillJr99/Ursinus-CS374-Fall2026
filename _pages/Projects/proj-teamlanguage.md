@@ -471,13 +471,13 @@ Each team has a hard cap of **9 minutes**, plus a 1-minute transition to the nex
 3. **The candid minute:** one known limitation, disclosed with its triage rationale.
 4. **The numbers:** the test results table and one bug story with its regression test.
 
-Every teammate speaks.  The audience (your classmates) will write one Strength and one Question card per language; responding to your cards is part of the report.
+Every teammate speaks.  You answer the audience's questions, from classmates and guests alike, live at the end of your demo.
 
 > **Do this.**
 > 1. Assign each of the four segments to a speaker so that every teammate speaks, and make sure the distinctive feature's presenter is not its author.
 > 2. Time a full run-through.  Cut material rather than rushing it.
 > 3. Bring a machine with the demo rehearsed and the fallback ready.
-> 4. Collect your Strength and Question cards at the end; you answer them in the report.
+> 4. Prepare to answer the audience's questions live at the end of your demo.
 
 ### The Final Submission
 
@@ -486,7 +486,7 @@ Submit these four deliverables on the last class day, before you present:
 1. **The repository:** the integrated implementation, REPL and file-runner, test suite, sample programs with expected outputs, all configuration in JSON, located exception handling throughout, and a readme tested by the teammate who did not write it.  Ensure reproducibility by fixing random seeds where applicable and listing software version information.  The repository is public and recruiter-legible: run the [ShipIt self-check]({{ site.baseurl }}/Projects/TeamLanguage#shipping-your-language-the-shipit-checklist) before Demo Day; it is scored within the Documentation and Reproducibility dimension.  (Direction B: the timed-event test fixtures and, if you used bison, the automaton report ride along here.)
 2. **The language reference** (approximately four pages): teach your language to a newcomer with examples for every construct, the full grammar, the distinctive feature's guide, and a section per adopted extension.
 3. **`SEMANTICS.md`,** final and verified against the implementation by the differential programs (Direction B: the semantic equations, revised to match the implemented language, with a change log from the proposal).
-4. **The report** (approximately four pages): the design story with the decision log's three most contested calls, the integration experience (what snapped together, what did not, and why), the evaluation summary, limitations (your disclose bucket, verbatim), responses to your Demo Day cards, and individual contribution statements covering the rotation.  (Direction B: include the performance postmortem, what performing revealed that the test suite could not, and, if you rendered audio, the translation-layer section.)
+4. **The report** (approximately four pages): the design story with the decision log's three most contested calls, the integration experience (what snapped together, what did not, and why), the evaluation summary, limitations (your disclose bucket, verbatim), responses to the Strength, Question, and Risk cards your station received at the Release and Review gallery walk, and individual contribution statements covering the rotation.  (Direction B: include the performance postmortem, what performing revealed that the test suite could not, and, if you rendered audio, the translation-layer section.)
 
 **Deliverables checklist:**
 
@@ -494,7 +494,7 @@ Submit these four deliverables on the last class day, before you present:
 - [ ] The public repository: implementation, REPL, file-runner, tests, samples with expected outputs, JSON configuration, located exception handling, pinned versions and fixed seeds, and a readme tested by the teammate who did not write it (Direction B: timed-event fixtures and any bison automaton report).
 - [ ] The language reference (about four pages).
 - [ ] `SEMANTICS.md`, final and verified by the differential programs (Direction B: revised equations with a change log).
-- [ ] The report (about four pages), including responses to your Demo Day cards and each member's contribution statement.
+- [ ] The report (about four pages), including responses to your gallery walk cards and each member's contribution statement.
 - [ ] Each member's answers to the Reflection Prompts, inside their contribution statement.
 - [ ] Each member's drafted LinkedIn-style post from the ShipIt guide (submitting the draft is required; publishing it is optional).
 
