@@ -352,7 +352,6 @@ The reference interpreter is released with this phase at [{{ site.baseurl }}/fil
 > 3. Get the REPL and the file-runner working on the class language, from the top of the repository, with the commands below.
 > 4. Write the first failing test for the distinctive feature.  A failing test is your specification; it tells the next sprint what to build.
 > 5. Re-read the charter as a team and ask "does it still describe this team?"  File one revision if not.
-> 6. Each member sends me the confidential peer pulse (below).
 
 One repository layout that works:
 
@@ -394,8 +393,6 @@ python3 -m pytest tests/               # runs the test suite
 
 **The check.**  At the start of class on Tuesday, December 1, each team gets a short turn.  One member shows one running increment of your pipeline, live.  Then the team says, in a sentence each, what is next and what is blocking.  The check is shown or not yet, and there is no written submission.  A team that gets "not yet" on Tuesday, December 1, can show the increment at the start of class on Thursday, December 3, for half credit.
 
-**The peer pulse.**  Sprint 1 carries the project's one structured team-health pause.  Each member sends me a confidential peer pulse: rate yourself and each teammate 1-5 on contributing to the work, interacting with teammates, keeping the team on track, expecting quality, and having relevant knowledge and skills (the dimensions of CATME, the Comprehensive Assessment of Team Member Effectiveness), with a sentence of evidence for any 2 or below.  Only I read the pulse.  I never average it mechanically into a grade; I use it to calibrate individual contribution and to start a coaching conversation where self-views and peer-views diverge.
-
 **Deliverables checklist (nothing is uploaded; you show the increment at the start of class):**
 
 - [ ] One running increment shown in class, with what is next and what is blocking said aloud.
@@ -403,7 +400,6 @@ python3 -m pytest tests/               # runs the test suite
 - [ ] The README line declaring any reference component you built on.
 - [ ] A failing test for the distinctive feature, committed.
 - [ ] The charter re-read, with a revision filed if it no longer describes the team.
-- [ ] One confidential peer pulse from each member, sent to me.
 - [ ] Roles rotated for Sprint 2, recorded in the decision log.
 
 ---
