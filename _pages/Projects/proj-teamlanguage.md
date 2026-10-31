@@ -25,19 +25,19 @@ info:
       beginning: The proposal names the team and a niche, but the design scorecard or the team charter is missing, or the grammar v0, node inventory, or SEMANTICS.md v0 is missing or generic, or the merge plan and sprint plan are absent
       progressing: All checklist items are present and specific, with minor gaps such as a scorecard that states priorities without their sacrifices, a charter topic left vague, a vague risk pre-mortem, or an incomplete node inventory
       proficient: Every checklist item is complete and specific; the proposal opens with the three-member team roster, the niche in one sentence, the design scorecard with a priority and a sacrifice for each of readability, writability, reliability, and implementation cost, and the team charter covering all four topics and signed by every member; the chosen direction is declared and defended against the design scorecard; the distinctive feature (and any Extensions Menu adoptions) is scoped to fit the sprint plan; and the proposal is submitted on time and presented at the Sprint 0 kickoff
-    - weight: 17
+    - weight: 19
       description: Language Design and Documentation
       preemerging: The language has no documented grammar or semantics, or the design is the class language unchanged
       beginning: A grammar exists but diverges from the implementation, and semantics documentation is generic or incomplete
       progressing: The grammar and SEMANTICS.md are complete and largely match the implementation, with a stated niche and scorecard, and minor gaps
       proficient: The niche, scorecard, EBNF grammar, node inventory, and exhaustive SEMANTICS.md are complete, current, and verified against the implementation, with a decision log recording contested choices and their rationales
-    - weight: 20
+    - weight: 19
       description: Implementation Correctness and Integration
       preemerging: The implementation fails to run the sample programs
       beginning: The implementation runs but fails on several sample or test programs due to one or more minor issues
       progressing: The implementation passes its test suite and sample programs, with a fragile area such as error recovery or a semantics corner that diverges from the documentation
       proficient: The integrated pipeline passes a substantive test suite and all sample programs, the distinctive feature works end to end, error messages identify their stage and position, and behavior matches SEMANTICS.md throughout
-    - weight: 15
+    - weight: 14
       description: Evaluation and Testing
       preemerging: No systematic testing exists
       beginning: A minimal test suite exists without coverage of the distinctive feature or error cases
@@ -392,7 +392,7 @@ python3 -m pytest tests/               # runs the test suite
 > - A program that lexes and parses but crashes in the evaluator is a stage-boundary bug.  Write it down; it is a bug story for Demo Day.
 > - If one component is too broken to merge, swap in the reference component and keep moving.  Declare it in the README.
 
-**The check.**  At the start of class on Tuesday, December 1, each team gets a short turn.  One member shows one running increment of your pipeline, live.  Then the team says, in a sentence each, what is next and what is blocking.  The check is shown or not yet, and there is no written submission.
+**The check.**  At the start of class on Tuesday, December 1, each team gets a short turn.  One member shows one running increment of your pipeline, live.  Then the team says, in a sentence each, what is next and what is blocking.  The check is shown or not yet, and there is no written submission.  A team that gets "not yet" on Tuesday, December 1, can show the increment at the start of class on Thursday, December 3, for half credit.
 
 **The peer pulse.**  Sprint 1 carries the project's one structured team-health pause.  Each member sends me a confidential peer pulse: rate yourself and each teammate 1-5 on contributing to the work, interacting with teammates, keeping the team on track, expecting quality, and having relevant knowledge and skills (the dimensions of CATME, the Comprehensive Assessment of Team Member Effectiveness), with a sentence of evidence for any 2 or below.  Only I read the pulse.  I never average it mechanically into a grade; I use it to calibrate individual contribution and to start a coaching conversation where self-views and peer-views diverge.
 

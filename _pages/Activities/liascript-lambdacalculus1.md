@@ -50,7 +50,7 @@ Class opens with the Sprint 1 increment check, so the lambda calculus gets 65 mi
 
 | Minutes | Segment | What your team does |
 |---------|---------|---------------------|
-| 0-10 | Sprint 1 increment check | In project teams, about a minute each: one member shows one running increment of your pipeline, live, and the team says what is next and what is blocking |
+| 0-10 | Sprint 1 increment check | In project teams, about a minute each: one member shows one running increment of your pipeline, live, and the team says what is next and what is blocking.  A team that gets "not yet" today can show the increment at the start of class on Thursday, December 3, for half credit |
 | 10-15 | Roles and whiteboard rules | Move to your POGIL team, rotate roles, and agree who checks each substitution before it counts |
 | 15-27 | Part I: The Whole Language | Read the notation bridge and the three forms, then parse by eye in Model 1 and answer its questions |
 | 27-47 | Part II: Beta Reduction | Work the three worked examples at the board, then reduce by hand in Model 2 and answer its questions |
