@@ -8,7 +8,7 @@ info:
   purpose: "To design, build, document, and present a programming language of your own, assembled from the lexer, parser, AST, environment, and evaluator components you built this semester, and to prove that those components snap together and grow."
   tilt:
     task: "In rotating-role team sprints, choose your language's direction, integrate your components into one pipeline, add a distinctive feature (going deeper via the Extensions Menu if you choose), and ship a REPL, file-runner, samples, tests, and SEMANTICS.md, then present the language at Demo Day."
-    criteria: "I assess your work on the Sprint 0 proposal, language design and documentation, implementation correctness and integration, testing, reproducibility, and the Demo Day presentation.  The proposal is due at the Sprint 0 kickoff; the rest is earned at Demo Day with the final submission.  See the course schedule for the dates, and the rubric below for the full breakdown."
+    criteria: "I assess your work on the Sprint 0 proposal, language design and documentation, implementation correctness and integration, testing, reproducibility, and the Demo Day presentation.  You submit the proposal on Thursday, November 19, and present it at the Sprint 0 kickoff on Tuesday, November 24; the rest is earned at Demo Day with the final submission.  See the course schedule for the dates, and the rubric below for the full breakdown."
   points: 100
   goals:
     - To design a programming language with a niche, a documented grammar, and exhaustive semantics
@@ -19,13 +19,13 @@ info:
     - To present the language at a public Demo Day with a candid account of its limitations
     - To work in sustained team sprints with rotating roles and structured peer review
   rubric:
-    - weight: 25
-      description: Proposal (due at the Sprint 0 kickoff)
-      preemerging: The proposal is missing, or names a language with no niche, grammar, or plan
-      beginning: The proposal states a niche but the grammar v0, node inventory, or SEMANTICS.md v0 is missing or generic, or the merge plan and sprint plan are absent
-      progressing: All checklist items are present and specific, with minor gaps such as a vague risk pre-mortem or an incomplete node inventory
-      proficient: Every checklist item is complete and specific, the chosen direction is declared and defended against the design scorecard, the distinctive feature (and any Extensions Menu adoptions) is scoped to fit the sprint plan, and the proposal is delivered on time at the Sprint 0 kickoff
-    - weight: 20
+    - weight: 28
+      description: Proposal (submitted Thursday, November 19, and presented at the Sprint 0 kickoff on Tuesday, November 24)
+      preemerging: The proposal is missing, or names a language with no team roster, niche, grammar, or plan
+      beginning: The proposal names the team and a niche, but the design scorecard or the team charter is missing, or the grammar v0, node inventory, or SEMANTICS.md v0 is missing or generic, or the merge plan and sprint plan are absent
+      progressing: All checklist items are present and specific, with minor gaps such as a scorecard that states priorities without their sacrifices, a charter topic left vague, a vague risk pre-mortem, or an incomplete node inventory
+      proficient: Every checklist item is complete and specific; the proposal opens with the three-member team roster, the niche in one sentence, the design scorecard with a priority and a sacrifice for each of readability, writability, reliability, and implementation cost, and the team charter covering all four topics and signed by every member; the chosen direction is declared and defended against the design scorecard; the distinctive feature (and any Extensions Menu adoptions) is scoped to fit the sprint plan; and the proposal is submitted on time and presented at the Sprint 0 kickoff
+    - weight: 17
       description: Language Design and Documentation
       preemerging: The language has no documented grammar or semantics, or the design is the class language unchanged
       beginning: A grammar exists but diverges from the implementation, and semantics documentation is generic or incomplete
@@ -70,8 +70,8 @@ info:
       rlink: "../Tutorials/SyntaxHighlighter"
     - rtitle: "ShipIt Guide: Repo Hygiene, README, Packaging, and Your Portfolio (required self-check before Demo Day)"
       rlink: "../Projects/TeamLanguage#shipping-your-language-the-shipit-checklist"
-    - rtitle: "Demo Day Guide: External Guests and Technical Interview Practice"
-      rlink: "../Projects/TeamLanguage#demo-day-external-guests-and-technical-interview-practice"
+    - rtitle: "Demo Day Guide: External Guests"
+      rlink: "../Projects/TeamLanguage#demo-day-external-guests"
 
 tags:
   - final-project
@@ -90,17 +90,15 @@ Your team will design, build, document, and present a programming language of yo
 
 ## Milestone Timeline
 
-The project is worth **100 points**, earned at two graded milestones: the proposal and Demo Day.  Two small 3-point checkpoints along the way fall within Class Activities and Participation.  They keep the team honest without raising the stakes of a studio day.  See the course schedule for the assigned and due dates; it is the source of truth for every date below.
+The project is worth **100 points**, earned at two graded milestones: the proposal (28 points) and Demo Day (72 points).  Two small checks along the way fall within Class Activities and Participation: the Sprint 1 increment check (3 points) and the Release and Review submission (6 points).  They keep the team honest without raising the stakes of a studio day.  See the course schedule for the assigned and due dates; it is the source of truth for every date below.
 
 | Milestone (see the course schedule for dates) | What is due | Pipeline stage it depends on | Points |
 |---|---|---|---|
 | Project hand-out | Nothing is submitted.  The design phase opens: form a team of three, pick a niche, start the design scorecard and the team charter | Your lexer, and the parser and AST you are finishing | - |
-| Design-phase check | Team roster, niche, design scorecard, and the **draft team charter**, through Canvas (assessed within Class Activities and Participation) | Parser and AST: grammar v0 grows out of your parser's grammar | 3 |
-| **Sprint 0 kickoff** | **The proposal, presented in class, with the signed team charter** | Lexer, parser, and AST: grammar v0 and the node inventory describe them | **25** |
-| Sprint 1 increment checkpoint | One integrated pipeline running the class language; the charter re-read; the confidential peer pulse (assessed within Class Activities and Participation) | Environments and the evaluator.  This is the build phase; the reference interpreter is released here | 3 |
-| Sprint 2 gallery walk (Sprint Studio) | Grammar differences and the distinctive feature's skeleton; host and walk the gallery; triage every card | The whole pipeline, extended at each stage the feature touches | - |
-| Sprint 3 release hardening (the same Sprint Studio session) | The completed feature, hardened errors, the finished sample suite, and the ShipIt self-check | The whole pipeline plus the test suite | - |
-| **Demo Day (final exam period)** | **The presentation and the final submission** | Everything above | **75** |
+| **Proposal: submitted, then presented at the Sprint 0 kickoff** | **The proposal, opening with the team roster, the niche, the design scorecard, and the signed team charter.  You submit it before the kickoff and present it at the kickoff** | Lexer, parser, and AST: grammar v0 and the node inventory describe them | **28** |
+| Sprint 1 increment check | Shown at the start of class: one running increment, what is next, and what is blocking (assessed within Class Activities and Participation) | Environments and the evaluator.  This is the build phase; the reference interpreter is released here | 3 |
+| Release and Review (Sprint Studio) | One submission: the Sprint 2 gallery walk cards and your triage, and the Sprint 3 ShipIt Release Checklist (assessed within Class Activities and Participation) | The whole pipeline, extended at each stage the feature touches, plus the test suite | 6 |
+| **Demo Day (final exam period)** | **The presentation and the final submission** | Everything above | **72** |
 
 Demo Day takes place in the course's final exam period: Monday, December 14, 11:15 AM-2:15 PM, in Pfahler 012.  There is no written final exam; Demo Day is the course's terminal event, and I accept no work after it.
 
@@ -127,7 +125,7 @@ Teams are three members each, formed in the design phase from your standing POGI
 
 **Your team over the project's six weeks.**  Teams reliably pass through recognizable stages (Tuckman, 1965; the fifth stage, *adjourning*, was added by Tuckman and Jensen, 1977), and I placed this project's milestones on that map on purpose:
 
-- *Forming* is the team charter, drafted at the design-phase check and signed with the proposal.  You do it before the stakes get high.
+- *Forming* is the team charter, drafted in the design phase and signed in the proposal.  You do it before the stakes get high.
 - *Storming* is the design phase.  The argument over which niche to serve and what the design scorecard says is productive conflict, so have it out loud in your own team meeting instead of quietly in a group chat.
 - *Norming* is the Sprint 0 proposal: a signed and presented agreement about what you are building and who owns what.
 - *Performing* is the sprints, where role rotation and stand-ups carry the load and the team self-corrects without drama.
@@ -161,7 +159,7 @@ Python 3.11.2
 
 Any version 3.10 or newer is fine.  If the command is not found, follow the dev environment page before continuing.
 
-> **Time budget.**  The project runs about six weeks from the hand-out to Demo Day.  The design phase has no studio session, so budget one team meeting of your own between the hand-out and the design-phase check.  Budget about 4 hours in Sprint 3 for the ShipIt checks (cold clone-to-run, packaging, README).  The sprint studios are working sessions; arrive with a pipeline that runs.
+> **Time budget.**  The project runs about six weeks from the hand-out to Demo Day.  The design phase has no studio session, so budget one team meeting of your own early in the design phase, well before the proposal is due.  Budget about 4 hours in Sprint 3 for the ShipIt checks (cold clone-to-run, packaging, README).  The sprint studios are working sessions; arrive with a pipeline that runs.
 
 ---
 
@@ -272,7 +270,7 @@ The hand-out opens a design phase that runs outside class.  There is no studio s
 
 > **Do this.**
 > 1. Form a team of three from your standing POGIL groups.
-> 2. Put a team meeting on the calendar, before the design-phase check.  Pick one external communication channel (Discord, text, or email) and use it from now on.
+> 2. Put a team meeting on the calendar, early in the design phase.  Pick one external communication channel (Discord, text, or email) and use it from now on.
 > 3. Read the [Language Design Studio activity]({{ site.lia_viewer_url }}{{ site.raw_pages_url }}Activities/liascript-languagedesign.md) and the [Sprint Studio Protocol]({{ site.lia_viewer_url }}{{ site.raw_pages_url }}Activities/liascript-sprintstudio.md) before the meeting.
 > 4. At the meeting, argue the niche out loud.  Read Choose Your Direction above and lean toward A or B; a team direction is easier to settle now than mid-sprint.
 > 5. Start the design scorecard: readability, writability, reliability, and implementation cost, with what you prioritize and what you sacrifice.
@@ -280,29 +278,39 @@ The hand-out opens a design phase that runs outside class.  There is no studio s
 
 > **Why this matters.**  This is Tuckman's *storming*.  The argument over which niche to serve is productive conflict.  Have it now, in person, while nothing is graded yet.
 
-**Deliverables checklist (nothing is uploaded at this milestone; carry these into Milestone 2):**
+**Deliverables checklist (nothing is uploaded at this milestone; carry these into the proposal, Milestone 2):**
 
 - [ ] A team of three, with one communication channel chosen.
-- [ ] A team meeting scheduled before the design-phase check.
+- [ ] A team meeting scheduled early in the design phase.
 - [ ] A niche shortlist and a working lean toward Direction A or B.
 - [ ] A first pass at the design scorecard.
 - [ ] A shared repository with all three members as collaborators.
 
 ---
 
-## Milestone 2: Design-Phase Check (3 points)
+## Milestone 2: The Proposal (28 points): Submitted Thursday, November 19, Presented at the Sprint 0 Kickoff
 
-Submit the design-phase milestone through Canvas: your team, your niche, the design scorecard, and a draft team charter.  It is assessed within Class Activities and Participation.  It exists so that the graded proposal that follows is a refinement instead of a scramble.
+Submit the proposal through Canvas on Thursday, November 19, and present it in class at the Sprint 0 kickoff on Tuesday, November 24.  It is two to three pages, and it is the only graded deliverable before Demo Day, so treat it as the contract your team builds against.  It opens with the team: your roster, your niche, the design scorecard, and the signed team charter.  The rest is the plan.  The rubric's proficient level asks for every checklist item complete and specific, the chosen direction declared and defended against the design scorecard, the distinctive feature (and any Extensions Menu adoptions) scoped to fit the sprint plan, and the proposal submitted on time and presented at the kickoff.
 
 > **Do this.**
-> 1. Settle the niche and write it in one sentence: the kind of problem the language exists to solve.
-> 2. Finish the design scorecard.  For each of readability, writability, reliability, and implementation cost, state its priority and what you give up to get it.
-> 3. Draft the team charter (all four topics below) as a one-page document.
-> 4. Submit team, niche, scorecard, and draft charter through Canvas as one submission.
+> 1. Open with the team: list the three members.
+> 2. Settle the niche and write it in one sentence: the kind of problem the language exists to solve.
+> 3. Finish the design scorecard.  For each of readability, writability, reliability, and implementation cost, state its priority and what you give up to get it.
+> 4. Write the team charter (all four topics below), and have every member sign it.
+> 5. Write the pitch: the language name, three sentences, and your direction (A or B).
+> 6. Write grammar v0 in EBNF, starting from the class language's grammar and marking every difference.
+> 7. Build the node inventory table from your parser's AST: every node, its fields, the rule that produces it, the rule that consumes it.
+> 8. Start `SEMANTICS.md` v0 by importing the decisions you recorded during the Interpreter assignment, then add the niche feature's semantics.  Direction B: the denotational equations, the algebraic law, and the embedded/external rationale go here.
+> 9. Specify the distinctive feature: its syntax, its semantics, and which pipeline stages it touches (lexer, parser, AST, environment, evaluator).  Scope any Extensions Menu adoptions against the sprint plan; one that ships beats two that do not.
+> 10. Write the merge plan: whose lexer, parser, and evaluator seed the integration, and in what order you merge.  Reference components count; say so.
+> 11. Run the risk pre-mortem: name the most likely derailment and the smallest experiment that retires it.
+> 12. Write the sprint plan with the role rotation schedule, and check that it matches the charter's rotation plan.
+> 13. Submit the proposal through Canvas on Thursday, November 19.
+> 14. Present the proposal in class at the Sprint 0 kickoff on Tuesday, November 24.
 
 ### The Team Charter
 
-Your team writes a one-page charter it will actually use.  Draft it for the design-phase check; the signed version is part of the proposal.  All four topics are required.
+Your team writes a one-page charter it will actually use.  The signed charter is one of the proposal's first sections.  All four topics are required.
 
 **Role rotation plan.**  The project uses four roles: Coordinator (sprint planning, scope), Builder (implementation), Evaluator (testing and sample programs), and Scribe (documentation and decision log).  State how your team will rotate them, for example: "we will rotate by sprint, in alphabetical order by last name."  Every member must hold every role at least once.
 
@@ -312,35 +320,13 @@ Your team writes a one-page charter it will actually use.  Draft it for the desi
 
 **Disagreement resolution.**  State a concrete mechanism for resolving technical disagreements (for example, "we will vote; ties go to the Coordinator") and interpersonal disagreements (for example, "we will raise the issue with the Scribe, who records it in the decision log; unresolved issues go to the instructor").  Having this written before a disagreement occurs is the point.
 
-All members sign the charter (typed names suffice) for the proposal.  One charter per team.  The Sprint 1 increment checkpoint is where you re-read it and file a revision if it no longer describes your team.
+All members sign the charter (typed names suffice) in the proposal.  One charter per team.  During Sprint 1, re-read it as a team and file a revision if it no longer describes your team.
 
-**Deliverables checklist (one Canvas submission per team):**
+**Deliverables checklist (two to three pages, one Canvas submission per team, presented in class):**
 
 - [ ] Team roster (three members).
 - [ ] The niche, in one sentence.
-- [ ] The design scorecard: readability, writability, reliability, implementation cost, with priorities and sacrifices stated.
-- [ ] The draft team charter covering all four topics: role rotation, communication channel and norms, preparation norms, disagreement resolution.
-
----
-
-## Milestone 3: Sprint 0 Kickoff: The Proposal (25 points)
-
-The proposal is due at the Sprint 0 kickoff, and you present it in class.  It is two to three pages, and it is the only graded deliverable before Demo Day, so treat it as the contract your team builds against.  The rubric's proficient level asks for every checklist item complete and specific, the chosen direction declared and defended against the design scorecard, the distinctive feature (and any Extensions Menu adoptions) scoped to fit the sprint plan, and delivery on time at the kickoff.
-
-> **Do this.**
-> 1. Write the pitch first: language name, niche, three sentences, and your direction (A or B).
-> 2. Write grammar v0 in EBNF, starting from the class language's grammar and marking every difference.
-> 3. Build the node inventory table from your parser's AST: every node, its fields, the rule that produces it, the rule that consumes it.
-> 4. Start `SEMANTICS.md` v0 by importing the decisions you recorded during the Interpreter assignment, then add the niche feature's semantics.  Direction B: the denotational equations, the algebraic law, and the embedded/external rationale go here.
-> 5. Specify the distinctive feature: its syntax, its semantics, and which pipeline stages it touches (lexer, parser, AST, environment, evaluator).  Scope any Extensions Menu adoptions against the sprint plan; one that ships beats two that do not.
-> 6. Write the merge plan: whose lexer, parser, and evaluator seed the integration, and in what order you merge.  Reference components count; say so.
-> 7. Run the risk pre-mortem: name the most likely derailment and the smallest experiment that retires it.
-> 8. Write the sprint plan with the role rotation schedule, then revise the charter from the design-phase draft and have every member sign it.
-> 9. Present the proposal in class at the kickoff.
-
-**Deliverables checklist (two to three pages, presented in class):**
-
-- [ ] The language name, niche, and three-sentence pitch, with your **direction (A or B)** declared.
+- [ ] The language name and three-sentence pitch, with your **direction (A or B)** declared.
 - [ ] The design scorecard: readability, writability, reliability, and implementation cost, with priorities and sacrifices stated.
 - [ ] Grammar v0 in EBNF, with differences from the class language marked.
 - [ ] The node inventory table: every AST node, fields, producing rule, consuming rule.
@@ -349,14 +335,14 @@ The proposal is due at the Sprint 0 kickoff, and you present it in class.  It is
 - [ ] The merge plan: whose lexer, parser, and evaluator seed the integration, and the order of merging.
 - [ ] The risk pre-mortem: the most likely derailment and the smallest experiment that retires it.
 - [ ] The sprint plan with role rotation schedule.
-- [ ] The **signed team charter** (all four topics, every member's typed signature), revised from the design-phase draft.
+- [ ] The **signed team charter**: role rotation, communication channel and norms, preparation norms, and disagreement resolution, with every member's typed signature.
 - [ ] If you adopt mal as a scaffold: a citation and the list of steps you used.
 
 ---
 
-## Milestone 4: Sprint 1 Increment Checkpoint (3 points): Integrate the Pipeline
+## Milestone 3: Sprint 1 Increment Check (3 points): Integrate the Pipeline
 
-Sprint 1 is the build phase.  You integrate members' components into one pipeline that runs the class language (Direction B: the front end printing ASTs), with an in-class working-time session.  Build in sprints aligned with the studio days on the course schedule, following the sprint studio protocol: stand-ups with numbers, failing tests as specifications, current documents, and role rotation at boundaries.
+Sprint 1 is the build phase.  You integrate members' components into one pipeline that runs the class language (Direction B: the front end printing ASTs).  Build in sprints between the checks on the course schedule, following the sprint studio protocol: stand-ups with numbers, failing tests as specifications, current documents, and role rotation at boundaries.
 
 The reference interpreter is released with this phase at [{{ site.baseurl }}/files/reference/reference-interpreter.zip]({{ site.baseurl }}/files/reference/reference-interpreter.zip); it is self-contained (it includes the reference lexer and parser).  Usage policy: if your submission builds on a reference component, declare it in one line in your README, and there is no penalty and no change to your original assignment grades.
 
@@ -406,10 +392,13 @@ python3 -m pytest tests/               # runs the test suite
 > - A program that lexes and parses but crashes in the evaluator is a stage-boundary bug.  Write it down; it is a bug story for Demo Day.
 > - If one component is too broken to merge, swap in the reference component and keep moving.  Declare it in the README.
 
-**The peer pulse.**  This checkpoint carries the project's one structured team-health pause.  Each member sends me a confidential peer pulse: rate yourself and each teammate 1-5 on contributing to the work, interacting with teammates, keeping the team on track, expecting quality, and having relevant knowledge and skills (the dimensions of CATME, the Comprehensive Assessment of Team Member Effectiveness), with a sentence of evidence for any 2 or below.  Only I read the pulse.  I never average it mechanically into a grade; I use it to calibrate individual contribution and to start a coaching conversation where self-views and peer-views diverge.
+**The check.**  At the start of class on Tuesday, December 1, each team gets a short turn.  One member shows one running increment of your pipeline, live.  Then the team says, in a sentence each, what is next and what is blocking.  The check is shown or not yet, and there is no written submission.
 
-**Deliverables checklist:**
+**The peer pulse.**  Sprint 1 carries the project's one structured team-health pause.  Each member sends me a confidential peer pulse: rate yourself and each teammate 1-5 on contributing to the work, interacting with teammates, keeping the team on track, expecting quality, and having relevant knowledge and skills (the dimensions of CATME, the Comprehensive Assessment of Team Member Effectiveness), with a sentence of evidence for any 2 or below.  Only I read the pulse.  I never average it mechanically into a grade; I use it to calibrate individual contribution and to start a coaching conversation where self-views and peer-views diverge.
 
+**Deliverables checklist (nothing is uploaded; you show the increment at the start of class):**
+
+- [ ] One running increment shown in class, with what is next and what is blocking said aloud.
 - [ ] One integrated pipeline running the class language (Direction B: the front end parsing every specification example and printing ASTs with location-prefixed errors).
 - [ ] The README line declaring any reference component you built on.
 - [ ] A failing test for the distinctive feature, committed.
@@ -419,9 +408,13 @@ python3 -m pytest tests/               # runs the test suite
 
 ---
 
-## Milestone 5: Sprint 2 Studio: Gallery Walk
+## Milestone 4: Release and Review (6 points): The Sprint Studio
 
-Sprint 2 implements the grammar differences and the distinctive feature's skeleton (Direction B: the evaluator emitting timed events, by structural recursion, one case per semantic equation, each commented with the equation it implements).  The gallery walk on this studio day is mandatory.
+Sprints 2 and 3 meet in one Sprint Studio session on Tuesday, December 8.  Their work goes in one Canvas submission, **Release and Review**, due that day: your gallery walk cards and their triage, and the ShipIt Release Checklist.  It is assessed within Class Activities and Participation.
+
+### Sprint 2: The Gallery Walk
+
+Sprint 2 implements the grammar differences and the distinctive feature's skeleton (Direction B: the evaluator emitting timed events, by structural recursion, one case per semantic equation, each commented with the equation it implements).  The gallery walk at the Sprint Studio on Tuesday, December 8, is mandatory.
 
 > **Do this.**
 > 1. Implement every grammar difference you marked in grammar v0, and update `SEMANTICS.md` as you go so the documents stay current.
@@ -433,20 +426,9 @@ Sprint 2 implements the grammar differences and the distinctive feature's skelet
 
 > **Checkpoint.**  Your disclose bucket becomes, verbatim, the limitations section of your report and the candid minute of your presentation.  Do not clean it up later.
 
-**Deliverables checklist:**
+### Sprint 3: Release Hardening and the ShipIt Checklist
 
-- [ ] Grammar differences implemented and reflected in `SEMANTICS.md`.
-- [ ] The distinctive feature's skeleton running end to end on at least one program (Direction B: the evaluator emitting a timed event list).
-- [ ] The gallery walk hosted with one known failure shown.
-- [ ] Strength, Question, and Risk cards left at every other station.
-- [ ] Every card you received triaged into fix, disclose, or future work, recorded in the decision log.
-- [ ] Roles rotated for Sprint 3.
-
----
-
-## Milestone 6: Sprint 3 Studio: Release Hardening and the ShipIt Checklist
-
-Sprint 3 completes the feature, hardens errors, and finishes the sample suite.  The release-hardening studio is your last in-class working session before Demo Day.  Budget about 4 hours for the ShipIt checks (cold clone-to-run, packaging, README); they are scored in the Documentation and Reproducibility dimension.
+Sprint 3 completes the feature, hardens errors, and finishes the sample suite.  The Sprint Studio is your last in-class working session before Demo Day, and release hardening starts there, right after the gallery walk triage.  Budget about 4 hours for the ShipIt checks (cold clone-to-run, packaging, README); they are scored in the Documentation and Reproducibility dimension.
 
 > **Do this.**
 > 1. Finish the distinctive feature so it works end to end, and make every error message identify its stage and position.
@@ -455,25 +437,30 @@ Sprint 3 completes the feature, hardens errors, and finishes the sample suite.  
 > 4. Document at least three fixed bugs with their regression tests.
 > 5. Run the [ShipIt self-check]({{ site.baseurl }}/Projects/TeamLanguage#shipping-your-language-the-shipit-checklist) as a team: the secrets audit, the public flip with a license, pinned dependencies, the recruiter-legible README, the packaging path verified cold by the teammate who did not build it, and each member's portfolio entry.
 > 6. Draw lots for the Demo Day presentation order.
-> 7. Pair across teams for the mock-interview rehearsal in the [Demo Day Guide]({{ site.baseurl }}/Projects/TeamLanguage#demo-day-external-guests-and-technical-interview-practice), credited as class participation.
-> 8. Rehearse the 9-minute demo with a timer, and prepare a fallback (a recording or transcript of the REPL session).
+> 7. Rehearse the 9-minute demo with a timer, and prepare a fallback (a recording or transcript of the REPL session).
 
 > **Watch out.**  Flip the repository public only after the secrets audit.  Public means the full history is public.
 
-**Deliverables checklist (the ShipIt Release Checklist, due at this studio):**
+**Deliverables checklist (the Release and Review submission, due Tuesday, December 8):**
 
+- [ ] Grammar differences implemented and reflected in `SEMANTICS.md`.
+- [ ] The distinctive feature's skeleton running end to end on at least one program (Direction B: the evaluator emitting a timed event list).
+- [ ] The gallery walk hosted with one known failure shown.
+- [ ] Strength, Question, and Risk cards left at every other station.
+- [ ] Every card you received triaged into fix, disclose, or future work, recorded in the decision log.
+- [ ] Roles rotated for Sprint 3.
 - [ ] The distinctive feature complete, with stage-and-position error messages throughout.
 - [ ] At least five sample programs with expected outputs, one showing off the niche.
 - [ ] The test suite covering the core language, the distinctive feature, error cases, and the differential semantics programs, with results tracked across sprints.
 - [ ] At least three fixed bugs documented with regression tests.
 - [ ] The ShipIt self-check run: public repository, license, secrets audit, pinned dependencies, README, packaging verified cold, portfolio entries.
-- [ ] Presentation order drawn, mock interview completed, demo rehearsed with a fallback ready.
+- [ ] Presentation order drawn, and the demo rehearsed with a fallback ready.
 
 ---
 
-## Milestone 7: Demo Day and Final Submission (75 points)
+## Milestone 5: Demo Day and Final Submission (72 points)
 
-All teams present during the final exam period (Monday, December 14, 11:15 AM-2:15 PM, Pfahler 012), and the final submission is due the same day.  There is no written final exam, and I accept no work after Demo Day.  Demo Day is external-facing: alumni, industry guests, and faculty from other departments may join the audience and Q&A, as available.  Your grade never depends on who attends.  Prepare with the [Demo Day Guide]({{ site.baseurl }}/Projects/TeamLanguage#demo-day-external-guests-and-technical-interview-practice).
+All teams present during the final exam period (Monday, December 14, 11:15 AM-2:15 PM, Pfahler 012), and the final submission is due the same day.  There is no written final exam, and I accept no work after Demo Day.  Demo Day is external-facing: alumni, industry guests, and faculty from other departments may join the audience and Q&A, as available.  Your grade never depends on who attends.  Prepare with the [Demo Day Guide]({{ site.baseurl }}/Projects/TeamLanguage#demo-day-external-guests).
 
 ### The Presentation (9 minutes)
 
@@ -654,7 +641,7 @@ The last stage is individual.
 > **Do this.**  Each teammate:
 > 1. **Pins or links the repository** from their GitHub profile (or personal portfolio page).  If you do not have a profile README, this is the moment to create one; it is a ten-minute job with an outsized payoff.
 > 2. **Writes a project story of roughly 200 words**: the problem (what niche, why a new language), what the team built (the pipeline, the distinctive feature, any extensions), and the evidence (the repo link, the CI badge, the verified install, a test-suite number).  Name your individual contribution explicitly ("I built X"), because that is the sentence a resume bullet and an interview answer are made from.
-> 3. **Reuses the story.**  The same story is your opening move with guests at Demo Day (see the [Demo Day Guide]({{ site.baseurl }}/Projects/TeamLanguage#demo-day-external-guests-and-technical-interview-practice)) and the seed of the resume bullet you will write when you next update your materials.
+> 3. **Reuses the story.**  The same story is your opening move with guests at Demo Day (see the [Demo Day Guide]({{ site.baseurl }}/Projects/TeamLanguage#demo-day-external-guests)) and the seed of the resume bullet you will write when you next update your materials.
 > 4. **Drafts the post.**  Turn the story into a drafted LinkedIn-style post (150-250 words: the niche, what you built, one concrete number (tests passing, sample programs, the install command), and what you learned) and include the draft in the final submission.  Submitting the draft is required; **publishing it is always optional and never graded: your professional profiles are yours.**  The draft exists so that if you choose to post, the post is already written while the language still runs on your machine.
 
 ### ShipIt Frequently Asked Questions
@@ -689,14 +676,13 @@ Answer these as a team during release hardening, and individually as part of you
 
 ---
 
-## Demo Day: External Guests and Technical Interview Practice
+## Demo Day: External Guests
 
-*To prepare you to present your language to people outside the course (invited guests at Demo Day, and eventually interviewers and colleagues) by practicing the plain-language pitch, the known limitation, and the interview-style detailed walk-through of work you actually did.*
+*To prepare you to present your language to people outside the course (invited guests at Demo Day, and eventually interviewers and colleagues) by practicing the plain-language pitch, the known limitation, and the detailed walk-through of work you actually did.*
 
 ### Goals
 
 - To open your project for a non-specialist in ninety seconds: what the language is, why it exists, and what working means, without jargon
-- To practice the interview form on your own work by explaining your pipeline, defending a design decision, and telling a real bug story with its fix
 - To handle questions honestly, including redirecting a question you cannot answer and disclosing a known limitation without being asked
 - To connect the project to what comes next, whether that is a portfolio story, a resume conversation, or venues for presenting student work beyond the course
 
@@ -706,7 +692,7 @@ Answer these as a team during release hardening, and individually as part of you
 - [Team Language Project]({{ site.baseurl }}/Projects/TeamLanguage)
 - [ShipIt Guide: Repo Hygiene, README, Packaging, and Your Portfolio]({{ site.baseurl }}/Projects/TeamLanguage#shipping-your-language-the-shipit-checklist)
 
-This guide is not separately graded.  The presentation is assessed within the Team Language Project's Demo Day Presentation dimension, and the mock-interview rehearsal is credited as class participation.
+This guide is not separately graded.  The presentation is assessed within the Team Language Project's Demo Day Presentation dimension.
 
 Demo Day is not a private class ritual.  Alumni, industry guests, and faculty from other departments may be in the room as audience members and Q&A panelists, invited as available.  Your grade never depends on who attends.  The skills the day demands are exactly the ones a technical interview demands: explain a system you built, in plain language first and in full depth on request, defend your decisions, and be honest about what does not work.  This guide prepares you for both audiences at once.  Nothing here is extra work; it is rehearsal for work you already owe.
 
@@ -731,23 +717,6 @@ Have these five moves rehearsed before Demo Day:
 4. **The redirect.**  For questions you cannot answer: "I don't know, my teammate built that part, let me hand you to them," or "I don't know, but here's how I'd find out."  Both are strong answers.  Bluffing is the only weak one.
 5. **The question back.**  Prepare two real questions to ask a guest, about their work, their team's languages and tools, or their path.  Demo Day is a networking event wearing a final-exam costume; treat the conversation as two-way.
 
-### The Mock Technical Interview (Final Sprint Studios)
-
-During the final sprint studio sessions, you will pair across teams for interview rounds, credited as class participation.
-
-**Format.**  Ten minutes per round, then swap roles.  The interviewer asks from the question bank below (or invents better ones).  The interviewee answers without slides; a whiteboard or paper is allowed, and your repository is not.  Close each round with a feedback card in the gallery-walk vocabulary: one Strength, and one Question the interviewee should be ready for at Demo Day.
-
-**Question bank** (interviewers: pick three or four, follow the answers, and dig where they wobble):
-
-- Walk me through what happens when this one line of your language runs, from characters to final value, naming each stage and what it hands to the next.
-- Why an environment chain instead of one big dictionary?  What breaks in your language if you flatten it?
-- How would you add feature X (the interviewer picks something plausible: a `while` loop, string interpolation, a new operator)?  Which pipeline stages does it touch, and which one is the risky edit?
-- Tell me about a bug that lived *between* two stages, where the fix wasn't in either component but in the contract between them.
-- What design decision would you reverse with one more sprint, and what would reversing it cost now?
-- Your parser accepts a program your evaluator crashes on.  Whose bug is that, and how do you decide?
-
-**Why cross-team pairs:** explaining your language to someone who has never seen it is the whole game.  Your own teammates know too much to be useful practice, and interviewing *them* about their language teaches you what good interviewer questions feel like from the inside.
-
 ### Taking It Further
 
 The project does not have to end at Demo Day:
@@ -759,28 +728,23 @@ The project does not have to end at Demo Day:
 ### Demo Day Frequently Asked Questions
 
 **Q: Will there definitely be external guests at Demo Day?**
-A: Guests are invited as available.  Some years the room is full; some years it is classmates and faculty.  Prepare the same either way: the rubric's multi-audience expectations do not change, and the mock-interview rehearsal happens regardless.
+A: Guests are invited as available.  Some years the room is full; some years it is classmates and faculty.  Prepare the same either way: the rubric's multi-audience expectations do not change.
 
 **Q: Does talking to guests affect my grade?**
-A: The Demo Day presentation is graded by its existing rubric dimension.  Guest attendance and guest reactions are never grading conditions.  The mock-interview rehearsal is credited as ordinary class participation for the studio session it happens in.
-
-**Q: I get nervous in interview settings.  Can I opt out of the mock interview?**
-A: Talk to the instructor beforehand; the format can be adjusted (a smaller room, a written walk-through, extra prep time).  The rehearsal exists because the tenth time explaining your pipeline is calmer than the first.  We want you to spend the nervous repetitions here, where they are cheap.
+A: The Demo Day presentation is graded by its existing rubric dimension.  Guest attendance and guest reactions are never grading conditions.
 
 **Q: What should I wear / bring on Demo Day?**
 A: Whatever you present comfortably in.  Bring a machine with the demo rehearsed and a fallback (a recording or transcript of the REPL session) in case of technical trouble.  A rehearsed fallback is professional practice, and nobody will read it as doubt.
 
 ### Demo Day Reflection Prompts
 
-Answer individually after the mock-interview rehearsal:
+Answer individually after Demo Day:
 
-- Which question made you realize you understood something less well than you thought, and what did you do about it before Demo Day?
-- What did you learn from being the *interviewer* that you could not have learned as the interviewee?
+- Which question made you realize you understood something less well than you thought, and what would you do about it next time?
 
 ### Demo Day Self-Check
 
 | Criterion | Pre-Emerging | Beginning | Progressing | Proficient |
 |---|---|---|---|---|
 | Self-Check: Guest-Facing Communication | I cannot explain the project without assuming the listener took this course | I can describe the language, but my opening runs long, leans on jargon, or hides what does not work | I can open the project in about ninety seconds in plain language and disclose a limitation when asked, though my answers to unexpected questions still wobble | I can open the project in ninety seconds in plain language, volunteer one rehearsed limitation with its triage rationale, redirect a question I cannot answer honestly ("I don't know, but here is how I would find out"), and ask a guest a real question back |
-| Self-Check: Mock Technical Interview | I skipped the rehearsal or could not explain my own component | I explained my component but not how it connects to the rest of the pipeline, or I could not tell a single concrete bug story | I walked my partner through the pipeline token-to-value, defended one design decision, and told one bug story, though I leaned on notes or slides | Without slides, I explained the pipeline end to end, defended a design decision by naming the alternative we rejected and why, told a bug story with its regression test, and asked my partner at least one probing question about their language when roles reversed |
 | Self-Check: Portfolio Story | I have no way to show this project to anyone outside the course | I can point at the repository but cannot yet tell its story in a way a recruiter would follow | My 200-word project story exists and names my contribution, though it is not yet linked from anywhere or rehearsed aloud | My project story is written, linked from my profile or portfolio per the ShipIt guide, rehearsed aloud as a two-minute narrative, a drafted (publication-optional) LinkedIn-style post exists, and I can produce the evidence behind every claim in it on request |

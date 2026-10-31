@@ -39,7 +39,7 @@ These tutorials are where you go for depth on your own schedule.  They are worke
 - [Shell Skills for Language Development](ShellForLanguageDev): run, test, and debug confidently from the command line
 - [Publishing Your Language: pip, npm, and Docker](PublishingYourLanguage): release hardening and distribution
 - [ShipIt: Repo Hygiene, README, Packaging, and Your Portfolio]({{ site.baseurl }}/Projects/TeamLanguage#shipping-your-language-the-shipit-checklist), *anchors required work*, the self-check scored within the project's Documentation and Reproducibility dimension
-- [Demo Day Guide: External Guests and Technical Interview Practice]({{ site.baseurl }}/Projects/TeamLanguage#demo-day-external-guests-and-technical-interview-practice): presenting to guests, and the final-sprint-studio mock-interview rehearsal
+- [Demo Day Guide: External Guests]({{ site.baseurl }}/Projects/TeamLanguage#demo-day-external-guests): presenting your language to guests at Demo Day
 - [Build a Bytecode VM](BytecodeVM): a compilation-target extension for ambitious teams
 - [From AST to Code: Visitors and Transpilers](ASTToCode): expression-oriented design, the Visitor pattern, and transpiling your AST to Python, JavaScript, and Haskell (with source maps)
 - [Coroutines and Generators: Pausable Computation](CoroutinesAndGenerators): `yield`, `send`, and `async`/`await` built up from the idea of a frozen stack frame, ending with generator objects in your interpreter
