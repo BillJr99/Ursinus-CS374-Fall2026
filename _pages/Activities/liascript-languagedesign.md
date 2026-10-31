@@ -704,7 +704,7 @@ Expected output as written: the first two rows agree, and the last two report `D
 
 ## 8.  Exercises (Today's Deliverables)
 
-1.  *The one-pager.*  Language name, niche, the four-row scorecard, and the team's three-sentence pitch.  Post it; it is the cover page of your proposal.
+1.  *The one-pager.*  Language name, niche, the four-row scorecard, and the team's three-sentence pitch.  Post it.  It restates the opening of the proposal you submitted on Thursday, and it is what you present from today.
 2.  *Grammar v0 and node inventory.*  As specified above, committed to the team repository with the decision log.  Use the grammar-v0 builder in [The Project Language Guide](https://www.billmongan.com/Ursinus-CS374-Fall2026/Tutorials/ProjectLanguageGuide) as a starting point: edit the feature flags, run it, copy the output into your grammar file, then hand-edit the niche feature's rules.  Build the node inventory from the Model 3 script.
 3.  *Sprint 1 plan.*  The Coordinator drafts: whose lexer, whose parser, and whose evaluator seed the merge (a real decision; discuss kindly), the merge order, and each member's first task with a date.
 4.  *Risk pre-mortem.*  As a team, name the **three** technical risks most likely to derail you (the Model 4 template gives structure), rank them by probability × impact, assign the mitigation experiment for the top risk, and commit the result to your design repo as `RISKS.md`.

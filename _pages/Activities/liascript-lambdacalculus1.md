@@ -44,6 +44,23 @@ Work in your POGIL team with your rotated roles (**Manager**, **Recorder**, **Pr
 
 ---
 
+## Today's 75 Minutes
+
+Class opens with the Sprint 1 increment check, so the lambda calculus gets 65 minutes today.  Due today: the Environments and Type Checking lab.  Handed out today: the Lambda Calculus lab, which uses everything below.
+
+| Minutes | Segment | What your team does |
+|---------|---------|---------------------|
+| 0-10 | Sprint 1 increment check | In project teams, about a minute each: one member shows one running increment of your pipeline, live, and the team says what is next and what is blocking |
+| 10-15 | Roles and whiteboard rules | Move to your POGIL team, rotate roles, and agree who checks each substitution before it counts |
+| 15-27 | Part I: The Whole Language | Read the notation bridge and the three forms, then parse by eye in Model 1 and answer its questions |
+| 27-47 | Part II: Beta Reduction | Work the three worked examples at the board, then reduce by hand in Model 2 and answer its questions |
+| 47-57 | Part II: Alpha Renaming | Walk the capture example, wrong and then right, and say aloud which step renames and why |
+| 57-75 | Part III: Model 3 | Run the step tracer, read the code, and answer its questions |
+
+To make room for the increment check, the Model 3 Try It Yourself block and Models 3b, 4, and 5 are self-paced today.  Work them after class, before you start the Lambda Calculus lab.  Everything after **In-class work stops here** is self-paced as well: the Check Your Understanding questions, the exercises, and the further reading.
+
+---
+
 # Part I: The Whole Language
 
 ## Notation Bridge: Lambda Calculus vs. Python
@@ -473,6 +490,8 @@ Expected output: without renaming you get a term whose free-variable set is empt
 ---
 
 ## Model 3b: Interactive Reduction Simulator
+
+> **Self-paced today.**  Models 3b, 4, and 5 are after-class work; see Today's 75 Minutes at the top of this page.
 
 > **Intuition**: This simulator uses Python dataclasses (`Var`, `Lam`, `App`) to represent the three syntactic forms as Python objects, so the structure of each expression is explicit and easy to inspect.  Use it to check your hand reductions from Model 2: build the same expression you reduced on the whiteboard, run `normalize`, and verify that the steps match.  Note that the `subst` function here does not implement full capture-avoiding renaming.  Compare it with Model 3 to see what is missing.
 

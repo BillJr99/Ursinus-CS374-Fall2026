@@ -47,7 +47,7 @@ Project roles (rotated by sprint) are in effect: Coordinator, Builder(s), Evalua
 
 ## Today's 75 Minutes
 
-The walk and the triage come first, because the cards are only useful while there is still time to act on them.  Build time follows, and it ends on the release checklist.  Due today: the Sprint 2 Gallery Walk (your cards and your triage), the ShipIt Release Checklist, the Demo Day presentation, and the Lambda Calculus lab.
+The walk and the triage come first, because the cards are only useful while there is still time to act on them.  Build time follows, and it ends on the release checklist.  Due today: Release and Review (your gallery walk cards, your triage, and the ShipIt Release Checklist, in one submission), the Demo Day presentation, and the Lambda Calculus lab.
 
 | Minutes | Segment | What your team does |
 |---------|---------|---------------------|
