@@ -98,8 +98,8 @@ The project is worth **100 points**, earned at two graded milestones: the propos
 | Design-phase check | Team roster, niche, design scorecard, and the **draft team charter**, through Canvas (assessed within Class Activities and Participation) | Parser and AST: grammar v0 grows out of your parser's grammar | 3 |
 | **Sprint 0 kickoff** | **The proposal, presented in class, with the signed team charter** | Lexer, parser, and AST: grammar v0 and the node inventory describe them | **25** |
 | Sprint 1 increment checkpoint | One integrated pipeline running the class language; the charter re-read; the confidential peer pulse (assessed within Class Activities and Participation) | Environments and the evaluator.  This is the build phase; the reference interpreter is released here | 3 |
-| Sprint 2 studio (gallery walk) | Grammar differences and the distinctive feature's skeleton; host and walk the gallery; triage every card | The whole pipeline, extended at each stage the feature touches | - |
-| Sprint 3 studio (release hardening) | The completed feature, hardened errors, the finished sample suite, and the ShipIt self-check | The whole pipeline plus the test suite | - |
+| Sprint 2 gallery walk (Sprint Studio) | Grammar differences and the distinctive feature's skeleton; host and walk the gallery; triage every card | The whole pipeline, extended at each stage the feature touches | - |
+| Sprint 3 release hardening (the same Sprint Studio session) | The completed feature, hardened errors, the finished sample suite, and the ShipIt self-check | The whole pipeline plus the test suite | - |
 | **Demo Day (final exam period)** | **The presentation and the final submission** | Everything above | **75** |
 
 Demo Day takes place in the course's final exam period: Monday, December 14, 11:15 AM-2:15 PM, in Pfahler 012.  There is no written final exam; Demo Day is the course's terminal event, and I accept no work after it.
