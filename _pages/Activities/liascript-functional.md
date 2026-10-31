@@ -47,7 +47,7 @@ Everything in this deck is Python except Part V, which returns to the Scheme you
 
 Work in your POGIL team with your rotated roles (Manager, Recorder, Presenter, Reflector).  Think each model and question through on your own first, then talk it over with your group.  The Recorder posts your answers to the Class Activity Questions discussion board.  The Presenter reports out wherever you disagreed or found another approach.
 
-> **How today runs.**  Parts I through IV are the core.  Part V (code as data) is the goal we want to reach together, so watch the clock.  If the period runs short, read Part IV's recursive rewrites of `map`, `filter`, and `reduce` at home; Exercise 3 has you write them anyway.  Everything after *Check Your Understanding* is homework.  The Scheme extension at the end is for whoever wants more Scheme than the Scheme assignment asks for.
+> **How today runs.**  Parts I through IV are the core.  Part V (code as data) is the goal we want to reach together.  If the period runs short, read Part IV's recursive rewrites of `map`, `filter`, and `reduce` at home; Exercise 3 has you write them anyway.  Everything after *Check Your Understanding* is homework.  The Scheme extension at the end is for whoever wants more Scheme than the Scheme assignment asks for.
 
 ---
 
@@ -1136,7 +1136,7 @@ Compute the average word length of a paragraph using **exactly one expression**:
 
 # Extension: Pythonic and Declarative
 
-> Past the 75 minutes.  Nothing in class assumes it.  Model 2 showed that a comprehension and a `map`/`filter` pair compute the same thing.  This extension picks up the other question: what the comprehension *is*, why Python grew four of them, and what the declarative style costs when you pay for it.
+> Self-paced.  Nothing in class assumes it.  Model 2 showed that a comprehension and a `map`/`filter` pair compute the same thing.  This extension picks up the other question: what the comprehension *is*, why Python grew four of them, and what the declarative style costs when you pay for it.
 
 ## Four Comprehensions, One Idea
 
@@ -1271,7 +1271,7 @@ words = ["to", "be", "or", "not", "to", "be", "that", "is", "the", "question"]
 
 # Extension: Going Further with Scheme
 
-> Past the 75 minutes.  Nothing in class assumes any of it.  Read it if the Scheme assignment left you wanting more, or later in the term if your team's language takes a Lisp-shaped direction.  The Scheme cells want a real REPL; the Python cells run in the page as usual.
+> Self-paced.  Nothing in class assumes any of it.  Read it if the Scheme assignment left you wanting more, or later in the term if your team's language takes a Lisp-shaped direction.  The Scheme cells want a real REPL; the Python cells run in the page as usual.
 
 ## 9.  Where This Picks Up
 

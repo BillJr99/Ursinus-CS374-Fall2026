@@ -45,25 +45,25 @@ Project roles (rotated by sprint) are in effect: Coordinator, Builder(s), Evalua
 
 ---
 
-## Today's 75 Minutes
+## How Today Runs
 
 The walk and the triage come first, because the cards are only useful while there is still time to act on them.  Build time follows, and it ends on the release checklist.  Due today: Release and Review (your gallery walk cards, your triage, and the ShipIt Release Checklist, in one submission), the Demo Day presentation, and the Lambda Calculus lab.
 
-| Minutes | Segment | What your team does |
-|---------|---------|---------------------|
-| 0-10 | 1. Stand-Up | Each team takes two minutes at the board for the four questions; say the number |
-| 10-34 | 2. Gallery Walk | Hosts run the language live with one known failure shown; walkers leave a Strength, a Question, and a Risk card at every other station; hosts and walkers swap at minute 22 |
-| 34-49 | Model 3 and 3. Triage | The Scribe runs the Try It Yourself triage on the real cards; the team sorts every card into fix, disclose, or future work, gives each fix item an owner and a date, and rotates roles for Sprint 3 |
-| 49-69 | 4. Build Time: Sprint 3 and Release Hardening | Builders take the top fix items; the Evaluator runs the section 5 release checklist against a fresh clone and marks each failing line; the Coordinator calls the mid-studio checkpoint at minute 59 |
-| 69-75 | Wrap-up | The Scribe commits `BACKLOG.md` and the decision log; the Evaluator posts which checklist lines still fail, each with an owner |
+| Segment | What your team does |
+|---------|---------------------|
+| 1. Stand-Up | Each team takes its turn at the board for the four questions; say the number |
+| 2. Gallery Walk | Hosts run the language live with one known failure shown; walkers leave a Strength, a Question, and a Risk card at every other station; hosts and walkers swap at the midpoint |
+| Model 3 and 3. Triage | The Scribe runs the Try It Yourself triage on the real cards; the team sorts every card into fix, disclose, or future work, gives each fix item an owner and a date, and rotates roles for Sprint 3 |
+| 4. Build Time: Sprint 3 and Release Hardening | Builders take the top fix items; the Evaluator runs the section 5 release checklist against a fresh clone and marks each failing line; the Coordinator calls the mid-studio checkpoint |
+| Wrap-up | The Scribe commits `BACKLOG.md` and the decision log; the Evaluator posts which checklist lines still fail, each with an owner |
 
 If the period runs short, the worked triage simulator at the top of Model 3 moves to homework.  The walk and the triage do not, because both are due today.  Everything after **In-class work stops here** is self-paced: the critical thinking questions on triage and on the release checklist, and the Check Your Understanding questions.
 
 ---
 
-## 1.  Stand-Up (10 minutes)
+## 1.  Stand-Up
 
-Each team gets two minutes at the board to answer exactly four questions:
+Each team takes a turn at the board to answer exactly four questions:
 
 1. What runs end to end today?  Name the sample programs that pass.
 2. What is the riskiest unfinished piece of the sprint?
@@ -74,7 +74,7 @@ Say the number.  "Mostly working" is not a status.
 
 ---
 
-## 2.  Gallery Walk Protocol (24 minutes)
+## 2.  Gallery Walk Protocol
 
 Set up stations.  At each station, a team's language runs live (REPL up, sample programs ready) beside two artifacts: the grammar one-pager and the current test results table.  Half of each team hosts and half walks; swap at the midpoint.
 
@@ -237,7 +237,7 @@ Expected output: three FIX items, one DISCLOSE, one FUTURE, and an empty UNCLASS
 
 ---
 
-## 3.  Triage (15 minutes, after the walk)
+## 3.  Triage (after the walk)
 
 Cluster the cards and sort every item into exactly one bucket: Fix before Demo Day (breaks the core story), Disclose at Demo Day (real, acknowledged, out of scope), or Future work (report material).  The middle bucket is the discipline: mature engineering names its known defects.  The Scribe converts bucket one into assigned, dated backlog items before anyone leaves.
 
@@ -245,7 +245,7 @@ Cluster the cards and sort every item into exactly one bucket: Fix before Demo D
 
 > **Studio tooling moved:** sprint velocity and the red-green discipline are in [CI and TDD for Interpreters](https://www.billmongan.com/Ursinus-CS374-Fall2026/Tutorials/CITDDForInterpreters).
 
-## 4.  Build Time: Sprint 3 and Release Hardening (20 minutes)
+## 4.  Build Time: Sprint 3 and Release Hardening
 
 Each role has one job during build time.  Builders build the sprint increment.  The Evaluator extends the test suite *ahead of* the features, because a failing test is a specification.  The Scribe keeps `SEMANTICS.md` and the decision log current as choices happen, not after.  The Coordinator defends scope against good ideas that belong in the future-work list.  At the mid-studio checkpoint, the Coordinator confirms aloud that the sprint goal is still achievable, or re-scopes it *now*.
 

@@ -55,19 +55,19 @@ Then we cross from the calculus to the machine.  A **closure** is a function pac
 
 Work in your POGIL team with your rotated roles (**Manager**, **Recorder**, **Presenter**, **Reflector**).  Whiteboard day again: every claimed equality gets a stepwise reduction or a Python check, verified by a teammate.  The Recorder posts your answers to the Class Activity Questions discussion board, and the Presenter reports out wherever you disagreed or found another approach.  After class, please respond to the reflective prompt on your own in your notebook.
 
-## Today's 75 Minutes
+## How Today Runs
 
-Seven parts in one period means the reductions happen on the whiteboard and the Python checks happen fast.  Parts II and III are the material the Lambda Calculus lab asks you to reduce by hand, so protect that time first.
+The reductions happen on the whiteboard, and the Python checks stay quick.  Parts II and III are the material the Lambda Calculus lab asks you to reduce by hand, so make sure your team finishes them.
 
-| Minutes | Segment | What your team does |
-|---------|---------|---------------------|
-| 0-5 | Roles and whiteboard rules | Rotate roles; agree who verifies each reduction before it counts |
-| 5-15 | Parts I and II: Combinators and Church Booleans | Answer CTQ 1.1, run the boolean cell, and reduce CTQs 2.1-2.3 at the board |
-| 15-30 | Part III: Numbers as Repetition | Reduce `SUCC ZERO` and `PLUS TWO THREE` together, run the encodings, and answer CTQs 3.1-3.3 |
-| 30-45 | Part IV: Recursion Without Names | Walk Steps 0 through 5, run Model 4, and answer CTQ 4.1 |
-| 45-55 | Part V: Closures, the Problem and the Mechanism | Run `make_adder`, answer CTQs 5.1 and 5.2, then run Model 5 and answer CTQs 5.4-5.5 |
-| 55-67 | Part VI: Closures in Your Own Interpreter | Fill the by-hand table, run Model 6 under both settings, and answer CTQs 6.1-6.3 |
-| 67-75 | Part VII: Two Ways to Get What the Calculus Lacks | Read section 8 aloud and answer CTQs 7.1 and 7.2 |
+| Segment | What your team does |
+|---------|---------------------|
+| Roles and whiteboard rules | Rotate roles; agree who verifies each reduction before it counts |
+| Parts I and II: Combinators and Church Booleans | Answer CTQ 1.1, run the boolean cell, and reduce CTQs 2.1-2.3 at the board |
+| Part III: Numbers as Repetition | Reduce `SUCC ZERO` and `PLUS TWO THREE` together, run the encodings, and answer CTQs 3.1-3.3 |
+| Part IV: Recursion Without Names | Walk Steps 0 through 5, run Model 4, and answer CTQ 4.1 |
+| Part V: Closures, the Problem and the Mechanism | Run `make_adder`, answer CTQs 5.1 and 5.2, then run Model 5 and answer CTQs 5.4-5.5 |
+| Part VI: Closures in Your Own Interpreter | Fill the by-hand table, run Model 6 under both settings, and answer CTQs 6.1-6.3 |
+| Part VII: Two Ways to Get What the Calculus Lacks | Read section 8 aloud and answer CTQs 7.1 and 7.2 |
 
 If the period runs short, the Try It Yourself blocks and CTQs 1.2, 2.4, 3.4, 4.2-4.3, 5.3, 6.4, and 7.3 move to homework.  Everything after **In-class work stops here** is self-paced: the exercises and four extensions covering Church pairs and the predecessor, the backwards derivation of $\textbf{Y}$ and why strictness matters, the loop-variable trap, and closures compared with objects.  The pairs extension supplies the `PRED` that Part IV's factorial uses.
 
@@ -1231,7 +1231,7 @@ The core lesson above stands on its own.  Two self-paced tutorials extend today'
 
 # Extension: Pairs and the Predecessor (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it, although Part IV's factorial borrows `PRED` from here.
+> Nothing in class assumes it, although Part IV's factorial borrows `PRED` from here.
 
 > **Intuition before pairs:** A pair stores two values.  The pair itself is a function that waits for a "selector": `lambda sel: sel(a)(b)`.  FST passes `lambda x: lambda y: x` (which is TRUE, or K) to get the first element; SND passes `lambda x: lambda y: y` (which is FALSE, or KI) to get the second.  You built the selectors when you built booleans, so pairs come for free.
 
@@ -1301,7 +1301,7 @@ Recap: a pair is a function holding two values and waiting for a selector, and t
 
 # Extension: Y from the Equation, and Why Strictness Matters (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  Read it before you choose an evaluation order for your team's language.
+> Nothing in class assumes it.  Read it before you choose an evaluation order for your team's language.
 
 ## 11.  The Same Term, Derived Backwards from the Equation
 
@@ -1527,7 +1527,7 @@ Recap: a recursive function becomes a generator when it takes the rest of the re
 
 # Extension: The Loop-Variable Trap (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  You met the trap in Part V of *Binding, Scope, and Environments*; this extension draws it as boxes.
+> Nothing in class assumes it.  You met the trap in Part V of *Binding, Scope, and Environments*; this extension draws it as boxes.
 
 The loop-variable trap is one of the most common beginner bugs in Python and JavaScript alike.  It happens when every closure created in a loop captures the same variable binding instead of its own private copy.  One analogy: every worker on a factory floor shares one whiteboard for the current job number.  By the time any worker reads the board, the number has moved on to the last job.  The analogy stops at the sharing, because the fix in code is to give each closure its own board, which a factory cannot do by rewriting one line.
 
@@ -1707,7 +1707,7 @@ Two closures created by separate calls to `make_adder(5)` and `make_adder(3)` re
 
 # Extension: Closures vs. Objects (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  Read it before your team decides whether its language gets objects, closures, or both.
+> Nothing in class assumes it.  Read it before your team decides whether its language gets objects, closures, or both.
 
 Objects and closures do the same job.  Both bundle state with behavior, and both control which code can reach that state.  They look different at first: an object is a class instance with named fields, and a closure is a function bundled with hidden environment variables.  This model builds a counter both ways, side by side, so you can see the parallel directly.
 

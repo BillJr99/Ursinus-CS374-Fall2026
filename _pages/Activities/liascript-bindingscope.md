@@ -48,19 +48,19 @@ Work in your POGIL (Process Oriented Guided Inquiry Learning) team with your rot
 
 ---
 
-## Today's 75 Minutes
+## How Today Runs
 
 Rules first, then the machine that enforces them.  Parts I and II are the vocabulary; Parts III and IV are the `Environment` class your lab and your interpreter depend on; Part V is the one place where scope and lifetime come apart.
 
-| Minutes | Segment | What your team does |
-|---------|---------|---------------------|
-| 0-5 | Roles and the flat-dictionary problem | Rotate roles; the Manager states, in one sentence, what goes wrong when a block reuses an outer variable's name in your current interpreter |
-| 5-15 | Part I: Binding | Fill the Model 1 table, run its first cell, and answer CTQs 1-4 |
-| 15-30 | Part II: Scope | Run both resolvers in Model 2, answer CTQs 5-8, and commit to a prediction for Probe 1 of the Mystery Scoping Language before running it |
-| 30-45 | Part III: The Environment Chain | Run the paper machine by hand (CTQs 9-12), check it against the Model 3 code cell, and read the class (CTQs 13-15) |
-| 45-62 | Part IV: Define, Assign, and Blocks | Run Model 5 and answer CTQs 16-18, then simulate per-iteration scope in Model 6 and answer CTQs 19-20 |
-| 62-72 | Part V: Lifetime, and Your Language | Run `make_adder` and the loop-variable trap, and answer CTQs 23-25 |
-| 72-75 | Wrap-up | The Recorder posts the team's answers; everyone notes that Thursday's Environments and Type Checking lab starts from the `Environment` class built today |
+| Segment | What your team does |
+|---------|---------------------|
+| Roles and the flat-dictionary problem | Rotate roles; the Manager states, in one sentence, what goes wrong when a block reuses an outer variable's name in your current interpreter |
+| Part I: Binding | Fill the Model 1 table, run its first cell, and answer CTQs 1-4 |
+| Part II: Scope | Run both resolvers in Model 2, answer CTQs 5-8, and commit to a prediction for Probe 1 of the Mystery Scoping Language before running it |
+| Part III: The Environment Chain | Run the paper machine by hand (CTQs 9-12), check it against the Model 3 code cell, and read the class (CTQs 13-15) |
+| Part IV: Define, Assign, and Blocks | Run Model 5 and answer CTQs 16-18, then simulate per-iteration scope in Model 6 and answer CTQs 19-20 |
+| Part V: Lifetime, and Your Language | Run `make_adder` and the loop-variable trap, and answer CTQs 23-25 |
+| Wrap-up | The Recorder posts the team's answers; everyone notes that Thursday's Environments and Type Checking lab starts from the `Environment` class built today |
 
 If the period runs short, the Try It Yourself blocks (other than Probe 1) and CTQs 21-22 move to homework.  Everything after **In-class work stops here** is self-paced: the exercises and four extensions covering Python's LEGB rule, the define-when-you-meant-assign bug, a three-level chain trace, and a step-by-step storage trace.  The last two are the closest rehearsal for the lab's paper trace.
 
@@ -1085,7 +1085,7 @@ In your notebook, answer two prompts.  First: shadowing lets inner code reuse a 
 
 # Extension: Python's LEGB Rule (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  Read it before you write Python closures that assign to an enclosing variable, and before Exercise 1.
+> Nothing in class assumes it.  Read it before you write Python closures that assign to an enclosing variable, and before Exercise 1.
 
 Python does more than distinguish "local" from "global."  It has four scope layers, and it searches them in a fixed order.  This model traces that order and shows the single most common Python scope bug: assigning to a name anywhere inside a function makes Python treat that name as local throughout the entire function, even on lines before the assignment.  This behavior is surprising at first, and completely consistent once you know the rule.
 
@@ -1167,7 +1167,7 @@ print(c(), c(), c())        # 1 2 3
 
 # Extension: Define When You Meant Assign (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  Read it the first time a loop in your interpreter never terminates.
+> Nothing in class assumes it.  Read it the first time a loop in your interpreter never terminates.
 
 **Intuition for Model 8:** A `define` inside a loop body writes a fresh binding into the body's frame each time around.  The outer counter is never touched, so it never changes.  This model shows that bug in slow motion.
 
@@ -1245,7 +1245,7 @@ print(f"  outer counter at end = {glob2.lookup('counter')}")  # still 3!
 
 # Extension: A Three-Level Environment Chain Trace (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  It is the closest rehearsal for the lab's paper trace.
+> Nothing in class assumes it.  It is the closest rehearsal for the lab's paper trace.
 
 **Intuition for Model 9:** In a statically scoped language, the chain is fixed by where code appears in the source, not by who called it.  A three-level nest stacks three frames in the order the blocks enclose one another, and lookup searches innermost first.  The tracer built into `lookup` prints every hop, so you can check the counts against your own trace.
 
@@ -1355,7 +1355,7 @@ except NameError as e:
 
 # Extension: Variable Storage, A Step-by-Step Trace (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  Work it before you wire the `Environment` class into your interpreter.
+> Nothing in class assumes it.  Work it before you wire the `Environment` class into your interpreter.
 
 ## Model 10: Dictionary-Based Environment, Walking Through Every Operation
 

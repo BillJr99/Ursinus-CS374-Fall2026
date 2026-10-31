@@ -53,17 +53,17 @@ Work in your POGIL team with your rotated roles (**Manager**, **Recorder**, **Pr
 
 ---
 
-## Today's 75 Minutes
+## How Today Runs
 
-Two strategies for one problem in one session means the clock is real.  The descent half comes first because it is the code your Parser assignment asks for; the table-driven half follows because it shows where the same precedence decision lives when a generator builds the parser for you.
+The descent half comes first because it is the code your Parser assignment asks for; the table-driven half follows because it shows where the same precedence decision lives when a generator builds the parser for you.
 
-| Minutes | Segment | What your team does |
-|---------|---------|---------------------|
-| 0-5 | Roles and the problem | Rotate roles; the Manager writes `2 + 3 * 4` on the board with its two possible trees, and the team agrees on which one is correct and why |
-| 5-25 | Part I: The Ladder, Descent-Ready | Run Model 0, answer CTQs 0.1-0.3, then walk `7 - 2 - 1` through the loop by hand in Model 1 and locate associativity in one line of code |
-| 25-40 | Part II: Stress and Extend | Answer the associativity check, trace binding powers by hand, run Model 2, and answer CTQs 2.1-2.2 |
-| 40-65 | Part III: The Shift-Reduce Idea | Read the bottom-up trace of `2 + 3`, follow the worked construction of the ACTION/GOTO table, then drive the machine in Model 3 and answer CTQs 3.1-3.4 |
-| 65-75 | Part IV: Conflicts and Choices | Diagnose the dangling-else conflict, fill the technology matrix in Model 4, and draft the team's parsing-technology paragraph |
+| Segment | What your team does |
+|---------|---------------------|
+| Roles and the problem | Rotate roles; the Manager writes `2 + 3 * 4` on the board with its two possible trees, and the team agrees on which one is correct and why |
+| Part I: The Ladder, Descent-Ready | Run Model 0, answer CTQs 0.1-0.3, then walk `7 - 2 - 1` through the loop by hand in Model 1 and locate associativity in one line of code |
+| Part II: Stress and Extend | Answer the associativity check, trace binding powers by hand, run Model 2, and answer CTQs 2.1-2.2 |
+| Part III: The Shift-Reduce Idea | Read the bottom-up trace of `2 + 3`, follow the worked construction of the ACTION/GOTO table, then drive the machine in Model 3 and answer CTQs 3.1-3.4 |
+| Part IV: Conflicts and Choices | Diagnose the dangling-else conflict, fill the technology matrix in Model 4, and draft the team's parsing-technology paragraph |
 
 If the period runs short, three pieces move to homework without loss: the Try It Yourself blocks under Models 2 and 3, CTQs 2.3 and 2.4, and the item-by-item reading of Steps 1 and 2 of the worked table construction.  The [Building an LR Parser from the Grammar Up](https://www.billmongan.com/Ursinus-CS374-Fall2026/Tutorials/LRConstruction) tutorial walks the same closure, GOTO, and table-filling construction on a smaller grammar with runnable code, and it is the place to go for the full machinery.  Everything after **In-class work stops here** is self-paced: the exercises, the Allison Chapter 5 practice, and the extensions on lookahead, LL(1) tables, conflicts, and the compile-link-load pipeline.
 
@@ -1028,7 +1028,7 @@ In your notebook, answer both prompts.  First: the hardest conceptual move in th
 
 # Extension: What More Lookahead Buys, and What It Does Not (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  Read it when a conflict report tempts you to reach for a larger grammar class.
+> Nothing in class assumes it.  Read it when a conflict report tempts you to reach for a larger grammar class.
 
 A conflict tells you that your grammar sits outside a class.  Before you reach for a larger class, learn what the classes are actually worth, because lookahead does not pay off the same way for LL and for LR.
 
@@ -1054,7 +1054,7 @@ Every containment shown is strict.  The grammar block needs two rows rather than
 
 # Extension: FIRST, FOLLOW, and LL(1) Tables (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  Part III read FOLLOW sets off the page; these two models compute them, and then use them to build the top-down counterpart of the LR table: an LL(1) table and the explicit-stack parser that runs it.
+> Nothing in class assumes it.  Part III read FOLLOW sets off the page; these two models compute them, and then use them to build the top-down counterpart of the LR table: an LL(1) table and the explicit-stack parser that runs it.
 
 ## Model 5: FIRST and FOLLOW Sets
 
@@ -1405,7 +1405,7 @@ print(f"\nResult: {'ACCEPTED' if accepted else 'REJECTED'}")
 
 # Extension: Shift-Reduce Conflicts Explained (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  Part IV named the two kinds of conflict; this model shows each one on a concrete grammar, and shows how a declared precedence resolves the first kind.
+> Nothing in class assumes it.  Part IV named the two kinds of conflict; this model shows each one on a concrete grammar, and shows how a declared precedence resolves the first kind.
 
 ## Model 7: Shift-Reduce Conflicts Explained
 
@@ -1536,7 +1536,7 @@ for ctype, cause, example, fix in conflicts:
 
 # Extension: From Source to Running Program, Compile, Link, Load (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it, but the *Type Systems* extension on the file boundary builds on its three stations, so read it before that session.
+> Nothing in class assumes it, but the *Type Systems* extension on the file boundary builds on its three stations, so read it before that session.
 
 ## Model: Compile, Link, Load
 
@@ -1550,7 +1550,7 @@ The mini-notation scaffold you can build with flex and bison goes through exactl
 
 > **Watch out!**  The linker matches a hole to a tab **by name, and by nothing else**.  A symbol-table entry carries a name, a size, and a binding, and that is all: there is no type in it.  The compiler knew the types and threw them away, because types are a *per-file* idea and the linker works *between* files.  Hold on to that sentence.  In *Type Systems* we will use it to build a C program that compiles without a warning, links without a warning, and prints a number that was never in the source.
 
-**CTQ (teams, 3 minutes):** Your interpreter reports an undefined variable *while the program runs*; a C program reports an undefined function *before it ever runs*.  Which of the three stations above catches the C error, and what does that tell you about when each language *binds names*?
+**CTQ (teams):** Your interpreter reports an undefined variable *while the program runs*; a C program reports an undefined function *before it ever runs*.  Which of the three stations above catches the C error, and what does that tell you about when each language *binds names*?
 
     [[?]] Hint: the error message "undefined reference to `foo`" comes from the tool that matches tabs to holes.
 
@@ -1576,7 +1576,7 @@ A C file calls `helper()` on line 10 and defines it on line 80.  The compiler re
 
 # Extension: Multi-Pass Compilation and What the Linker Cannot Check (self-paced)
 
-> Past the 75 minutes.  Nothing in class assumes it.  Read it if the compile/link/load model left you wanting the machinery, and read it before *Binding, Scope, and Environments*, where the same `static` keyword shows up wearing a different hat.
+> Nothing in class assumes it.  Read it if the compile/link/load model left you wanting the machinery, and read it before *Binding, Scope, and Environments*, where the same `static` keyword shows up wearing a different hat.
 
 ## Why a Compiler Makes More Than One Pass
 

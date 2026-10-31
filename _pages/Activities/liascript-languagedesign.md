@@ -50,7 +50,7 @@ From today through Demo Day, your team works in **project roles**, rotated every
 
 Every member holds every role at least once before Demo Day.  The Scribe records today's rotation schedule.  After class, respond to the reflection prompt on your own in your notebook.
 
-> **How today runs.**  Parts I through III are the workshop.  They produce today's deliverables, so protect that time first.  Part IV is the feature menu.  Part V covers the one feature you will almost certainly use: pattern matching on your own AST nodes.  If the period runs out before Parts IV and V, read them at home before you write Sprint 1's evaluator.  The extension at the end holds the runnable models for the features that only got a paragraph in class.
+> **How today runs.**  Parts I through III are the workshop.  They produce today's deliverables, so they come first.  Part IV is the feature menu.  Part V covers the one feature you will almost certainly use: pattern matching on your own AST nodes.  If the period runs out before Parts IV and V, read them at home before you write Sprint 1's evaluator.  The extension at the end holds the runnable models for the features that only got a paragraph in class.
 
 ---
 
@@ -782,7 +782,7 @@ In the node inventory, a row whose evaluator column reads `TODO` means:
 
 # Extension: The Rest of the Feature Menu
 
-> Past the 75 minutes.  Four features got a paragraph each in class, and only pattern matching got a model.  These are the models for the other three, plus the Python machinery you will want while building.  Read the ones your language is going to use, and skip the rest until it does.
+> Self-paced.  Four features got a paragraph each in class, and only pattern matching got a model.  These are the models for the other three, plus the Python machinery you will want while building.  Read the ones your language is going to use, and skip the rest until it does.
 
 ## Examples: Ownership and Async, Simulated in Python
 
