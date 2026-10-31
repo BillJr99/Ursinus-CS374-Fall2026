@@ -471,11 +471,6 @@ schedule:
   title: "Control Flow and Statement Semantics (Interpretation, Day 2)"
   link: "Activities/liascript-controlflowsemantics.md"
   liapage: true
-  deliverables:
-  - dtitle: "Lab: Environments and Scope Handed Out"
-    dlink: "Assignments/EnvironmentsLab"
-    points: "15"
-    rubricpath: "_pages/Assignments/lab-environments.md"
   readings:
   - rtitle: "This session is Day 2 of tree-walking interpretation: statements change state, where expressions returned values."
     rlink: false
@@ -490,19 +485,6 @@ schedule:
   title: "Binding, Scope, and Environments"
   link: "Activities/liascript-bindingscope.md"
   liapage: true
-  deliverables:
-  - dtitle: "Team Language Project: Design-Phase Submission (team, niche, design scorecard, draft team charter) Due"
-    dlink: "Projects/TeamLanguage"
-    points: "3"
-    rubricpath: "_pages/Projects/proj-teamlanguage.md"
-  - dtitle: "Lab: Type Checker Starter Handed Out"
-    dlink: "Assignments/TypeCheckerLab"
-    points: "15"
-    rubricpath: "_pages/Assignments/lab-typechecker.md"
-  - dtitle: "Lab: Environments and Scope Due"
-    dlink: "Assignments/EnvironmentsLab"
-    points: "15"
-    rubricpath: "_pages/Assignments/lab-environments.md"
   readings:
   - rtitle: "Krishnamurthi, PLAI (3rd ed.): the Stacker and SMoL Tutor, which we step through in class, and the chapters on functions, scope, and environments"
     rlink: "https://www.plai.org/"
@@ -516,9 +498,9 @@ schedule:
   link: "Activities/liascript-types.md"
   liapage: true
   deliverables:
-  - dtitle: "Team Language Project: Proposal (with signed team charter) Due"
+  - dtitle: "Team Language Project: Proposal (team, niche, design scorecard, and signed team charter) Due"
     dlink: "Projects/TeamLanguage"
-    points: "25"
+    points: "28"
     rubricpath: "_pages/Projects/proj-teamlanguage.md"
   - dtitle: "Programming Assignment: Parser and AST Due"
     dlink: "Assignments/Parser"
@@ -528,6 +510,10 @@ schedule:
     dlink: "Assignments/Interpreter"
     points: "100"
     rubricpath: "_pages/Assignments/asmt-interpreter.md"
+  - dtitle: "Lab: Environments and Type Checking Handed Out"
+    dlink: "Assignments/EnvironmentsLab"
+    points: "30"
+    rubricpath: "_pages/Assignments/lab-environments.md"
   readings:
   - rtitle: "Typing Disciplines, going past today's quadrant into structural vs. nominal typing, type erasure, and algebraic data types"
     rlink: "Tutorials/TypingDisciplines"
@@ -541,15 +527,6 @@ schedule:
   title: "Language Design Workshop: Project Kickoff (Sprint 0)"
   link: "Activities/liascript-languagedesign.md"
   liapage: true
-  deliverables:
-  - dtitle: "Lab: Type Checker Starter Due"
-    dlink: "Assignments/TypeCheckerLab"
-    points: "15"
-    rubricpath: "_pages/Assignments/lab-typechecker.md"
-  - dtitle: "Lab: Lambda Calculus Handed Out"
-    dlink: "Assignments/LambdaCalculusLab"
-    points: "15"
-    rubricpath: "_pages/Assignments/lab-lambdacalculus.md"
   readings:
   - rtitle: "Build a Bytecode VM"
     rlink: "Tutorials/BytecodeVM"
@@ -559,10 +536,18 @@ schedule:
   link: "Activities/liascript-lambdacalculus1.md"
   liapage: true
   deliverables:
-  - dtitle: "Team Language Project: Sprint 1 Increment Checkpoint Due"
+  - dtitle: "Team Language Project: Sprint 1 Increment Check (shown at the start of class)"
     dlink: "Projects/TeamLanguage"
     points: "3"
     rubricpath: "_pages/Projects/proj-teamlanguage.md"
+  - dtitle: "Lab: Environments and Type Checking Due"
+    dlink: "Assignments/EnvironmentsLab"
+    points: "30"
+    rubricpath: "_pages/Assignments/lab-environments.md"
+  - dtitle: "Lab: Lambda Calculus Handed Out"
+    dlink: "Assignments/LambdaCalculusLab"
+    points: "15"
+    rubricpath: "_pages/Assignments/lab-lambdacalculus.md"
   readings:
   - rtitle: "Allison, Ch. 8: Turing Machines and the Church-Turing Thesis"
   - rtitle: "Lambda Calculus - Fundamentals of Lambda Calculus & Functional Programming in JavaScript (Gabriel Lebec)"
@@ -595,17 +580,13 @@ schedule:
     dlink: "Assignments/LambdaCalculusLab"
     points: "15"
     rubricpath: "_pages/Assignments/lab-lambdacalculus.md"
-  - dtitle: "Team Language Project: ShipIt Release Checklist Due"
+  - dtitle: "Team Language Project: Release and Review Due"
     dlink: "Projects/TeamLanguage"
-    points: "3"
+    points: "6"
     rubricpath: "_pages/Projects/proj-teamlanguage.md"
   - dtitle: "Team Language Project: Demo Day Presentations Due"
     dlink: "Projects/TeamLanguage"
-    points: "75"
-    rubricpath: "_pages/Projects/proj-teamlanguage.md"
-  - dtitle: "Team Language Project: Sprint 2 Gallery Walk (Strength/Question/Risk cards + triage) Due"
-    dlink: "Projects/TeamLanguage"
-    points: "3"
+    points: "72"
     rubricpath: "_pages/Projects/proj-teamlanguage.md"
   readings:
   - rtitle: "The Project Language Guide (a complete worked path for the team project)"
@@ -644,7 +625,7 @@ I write every assignment in this course to be transparent about three things, so
 
 When you open an assignment, please read the Purpose first.  It tells you what the assignment is really for, and that is the fastest way to make good decisions when the task gets ambiguous.  Every assignment also closes by asking you to reflect on what you did, what fought you, how long it took, and what grade you would give yourself against the criteria.  I count that reflection as part of the work.
 
-A note on grade categories: the **Overview** (100 points) and **Warmup** (10 points) onboarding assignments are assessed within **Class Activities and Participation**; the five programming assignments (Functional Programming with Scheme, Regular Expressions, Lexer, Parser, and Interpreter) make up the **Programming Assignments** category.  The **Labs** category comprises six short labs (BNF Workshop, Grammar and Derivations Workshop, Finite Automata Simulators, Environments and Scope, Type Checker Starter, and Lambda Calculus), each scoped to roughly two to three hours.  Labs may be completed **in pairs** (both partners submit, naming each other; both earn the same grade); the programming assignments remain individual work.  Every lab feeds the assignment it scaffolds rather than adding to your load.  Most fall mid-assignment and complete a piece of it in place: the Finite Automata Simulators lab for the Lexer, and the Type Checker Starter lab for the Interpreter's type checker.  The Environments and Scope lab is the one that closes just before its assignment goes out, so you reach the Interpreter already holding the `Environment` file it imports.  The Grammar and Derivations Workshop stands apart from both patterns: it closes out the grammars and derivations unit while that material is fresh, and the grammar you write there is the one your parser implements later in the term.  **There is no midterm or written final exam**: Demo Day, held in the final exam period (Monday, December 14, 11:15 AM-2:15 PM, Pfahler 012), is the course's terminal event, and no work is accepted after it.  Seven teams present for nine minutes each within that period, and external guests are welcome.
+A note on grade categories: the **Overview** (100 points) and **Warmup** (10 points) onboarding assignments are assessed within **Class Activities and Participation**; the five programming assignments (Functional Programming with Scheme, Regular Expressions, Lexer, Parser, and Interpreter) make up the **Programming Assignments** category.  The **Labs** category comprises five short labs (BNF Workshop, Grammar and Derivations Workshop, Finite Automata Simulators, Environments and Type Checking, and Lambda Calculus), each scoped to roughly two to three hours.  Labs may be completed **in pairs** (both partners submit, naming each other; both earn the same grade); the programming assignments remain individual work.  Every lab feeds the assignment it scaffolds rather than adding to your load.  Most fall mid-assignment and complete a piece of it in place: the Finite Automata Simulators lab for the Lexer, and the Environments and Type Checking lab for the Interpreter's `Environment` class and type checker.  The Grammar and Derivations Workshop stands apart from both patterns: it closes out the grammars and derivations unit while that material is fresh, and the grammar you write there is the one your parser implements later in the term.  **There is no midterm or written final exam**: Demo Day, held in the final exam period (Monday, December 14, 11:15 AM-2:15 PM, Pfahler 012), is the course's terminal event, and no work is accepted after it.  Seven teams present for nine minutes each within that period, and external guests are welcome.
 
 ## Generative AI Policy
 
@@ -667,4 +648,4 @@ This is a course you do rather than one you watch, and this component values the
 
 Participation takes more than one form here, and that is deliberate.  In the in-class activities your team rotates the POGIL roles (**Manager, Recorder, Presenter, and Reflector**) so that on different days you facilitate, capture the group's thinking, report out, or step back and synthesize.  In the project phase your team rotates a second set of roles: **Coordinator, Builder, Evaluator, and Scribe**.  Speaking up in whole-class discussion counts, and so does posting your team's answer to the class discussion board, asking a sharp question, or helping a teammate past a bug.  If the spoken room is hard for you, the written and role-based channels are real ways to earn this component.  Please talk with me early and we'll find the path that fits.
 
-From time to time the class agenda sets aside time for **discussion of the preparation work**.  Most assignments and labs now open with a short **Part 0: Before You Start**, a graded page or two tied to that unit's reading: write a grammar rule, hand-tokenize a line, draw two parse trees, trace an environment.  You do it before the session it names, and we work through it together in class, which is why bringing the attempt matters more than bringing the right answer.  Those sections live inside the assignment they prepare you for, so there is nothing separate to track.  The Week 14 **mock-interview rehearsal** (practicing an interview-style explanation of your own interpreter and language with a partner from another team) counts here too; see the [Demo Day Guide](Projects/TeamLanguage#demo-day-external-guests-and-technical-interview-practice).
+From time to time the class agenda sets aside time for **discussion of the preparation work**.  Most assignments and labs now open with a short **Part 0: Before You Start**, a graded page or two tied to that unit's reading: write a grammar rule, hand-tokenize a line, draw two parse trees, trace an environment.  You do it before the session it names, and we work through it together in class, which is why bringing the attempt matters more than bringing the right answer.  Those sections live inside the assignment they prepare you for, so there is nothing separate to track.
