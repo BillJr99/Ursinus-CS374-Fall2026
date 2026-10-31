@@ -14,7 +14,7 @@ link:   https://cdn.jsdelivr.net/gh/BillJr99/Ursinus-Boilerplate-Assets@main/css
 
 # Sprint Studio and Gallery Walk
 
-This deck covers two class sessions: *Sprint Studio: Sprints 1-2 and Gallery Walk*, then *Sprint Studio: Sprint 3 and Release Hardening*.
+This deck is one class session: *Sprint Studio: Sprints 1-3, Gallery Walk, and Release Hardening*.
 
 Building a programming language in a semester takes the same discipline that shipping any complex software takes.  You have to know exactly where you stand, not where you feel like you stand.  Sprint studio days replace "mostly working" with numbers, and the gallery walk replaces private uncertainty with structured peer review.  Together they help teams find their blind spots before Demo Day instead of during it.
 
@@ -35,7 +35,7 @@ By the end of this activity, you will be able to:
 >
 > If any of these feel shaky, check in with your team before the stand-up.
 
-Studio days are structured work time for the team language project: a stand-up, focused build time, and, on designated days, the formal gallery walk peer review that feeds your final sprint.  This page is the protocol for every studio day; the gallery walk sections apply on the scheduled walk day.  The protocol picks up where the *Language Design Workshop* kickoff left off: your proposal is now a backlog.  The path for today is **stand-up $\rightarrow$ build $\rightarrow$ gallery walk $\rightarrow$ triage $\rightarrow$ release checklist**.
+The studio is structured work time for the team language project: a stand-up, the formal gallery walk peer review that feeds your final sprint, triage of the cards it produces, and focused build time on Sprint 3 and release hardening.  The protocol picks up where the *Language Design Workshop* kickoff left off: your proposal is now a backlog.  The path for today is **stand-up $\rightarrow$ gallery walk $\rightarrow$ triage $\rightarrow$ build $\rightarrow$ release checklist**.
 
 ---
 
@@ -45,9 +45,19 @@ Project roles (rotated by sprint) are in effect: Coordinator, Builder(s), Evalua
 
 ---
 
-## Session 1: Sprints 1-2 and Gallery Walk
+## Today's 75 Minutes
 
-In the first session, work through sections 1 through 4 below: the stand-up, build time, the gallery walk, Model 3 (feedback triage), and the triage session.
+The walk and the triage come first, because the cards are only useful while there is still time to act on them.  Build time follows, and it ends on the release checklist.  Due today: the Sprint 2 Gallery Walk (your cards and your triage), the ShipIt Release Checklist, the Demo Day presentation, and the Lambda Calculus lab.
+
+| Minutes | Segment | What your team does |
+|---------|---------|---------------------|
+| 0-10 | 1. Stand-Up | Each team takes two minutes at the board for the four questions; say the number |
+| 10-34 | 2. Gallery Walk | Hosts run the language live with one known failure shown; walkers leave a Strength, a Question, and a Risk card at every other station; hosts and walkers swap at minute 22 |
+| 34-49 | Model 3 and 3. Triage | The Scribe runs the Try It Yourself triage on the real cards; the team sorts every card into fix, disclose, or future work, gives each fix item an owner and a date, and rotates roles for Sprint 3 |
+| 49-69 | 4. Build Time: Sprint 3 and Release Hardening | Builders take the top fix items; the Evaluator runs the section 5 release checklist against a fresh clone and marks each failing line; the Coordinator calls the mid-studio checkpoint at minute 59 |
+| 69-75 | Wrap-up | The Scribe commits `BACKLOG.md` and the decision log; the Evaluator posts which checklist lines still fail, each with an owner |
+
+If the period runs short, the worked triage simulator at the top of Model 3 moves to homework.  The walk and the triage do not, because both are due today.  Everything after **In-class work stops here** is self-paced: the critical thinking questions on triage and on the release checklist, and the Check Your Understanding questions.
 
 ---
 
@@ -64,16 +74,7 @@ Say the number.  "Mostly working" is not a status.
 
 ---
 
-
-> **Studio tooling moved:** sprint velocity and the red-green discipline are in [CI and TDD for Interpreters](https://www.billmongan.com/Ursinus-CS374-Fall2026/Tutorials/CITDDForInterpreters).
-
-## 2.  Build Time
-
-Each role has one job during build time.  Builders build the sprint increment.  The Evaluator extends the test suite *ahead of* the features, because a failing test is a specification.  The Scribe keeps `SEMANTICS.md` and the decision log current as choices happen, not after.  The Coordinator defends scope against good ideas that belong in the future-work list.  At the mid-studio checkpoint, the Coordinator confirms aloud that the sprint goal is still achievable, or re-scopes it *now*.
-
----
-
-## 3.  Gallery Walk Protocol (40 minutes, designated days)
+## 2.  Gallery Walk Protocol (24 minutes)
 
 Set up stations.  At each station, a team's language runs live (REPL up, sample programs ready) beside two artifacts: the grammar one-pager and the current test results table.  Half of each team hosts and half walks; swap at the midpoint.
 
@@ -234,23 +235,19 @@ if buckets["UNCLASSIFIED"]:
 
 Expected output: three FIX items, one DISCLOSE, one FUTURE, and an empty UNCLASSIFIED bucket.  If your own run leaves anything unclassified, that is the session's real work.
 
-### Critical Thinking Questions
-
-7.  Two items are classified as DISCLOSE: known limitations acknowledged at Demo Day rather than fixed.  Why is a well-worded disclosure *preferable* to a rushed fix made the night before?  What risks does a rushed fix introduce?
-8.  The Instructor's risk item says "SEMANTICS.md says X, but the code does Y." Which one is right?  Write the policy your team will follow when documentation and implementation disagree.
-9.  As a walker, you notice a language with much better error messages than yours.  Should you copy their approach, ask how they did it, or note it as a future-work item?  Use the triage categories to articulate the difference.
-
 ---
 
-## 4.  Triage (20 minutes, after the walk)
+## 3.  Triage (15 minutes, after the walk)
 
 Cluster the cards and sort every item into exactly one bucket: Fix before Demo Day (breaks the core story), Disclose at Demo Day (real, acknowledged, out of scope), or Future work (report material).  The middle bucket is the discipline: mature engineering names its known defects.  The Scribe converts bucket one into assigned, dated backlog items before anyone leaves.
 
 ---
 
-## Session 2: Sprint 3 and Release Hardening
+> **Studio tooling moved:** sprint velocity and the red-green discipline are in [CI and TDD for Interpreters](https://www.billmongan.com/Ursinus-CS374-Fall2026/Tutorials/CITDDForInterpreters).
 
-In the second session, run the stand-up and build time from sections 1 and 2 again, then work through section 5 below: the Demo Day release checklist.
+## 4.  Build Time: Sprint 3 and Release Hardening (20 minutes)
+
+Each role has one job during build time.  Builders build the sprint increment.  The Evaluator extends the test suite *ahead of* the features, because a failing test is a specification.  The Scribe keeps `SEMANTICS.md` and the decision log current as choices happen, not after.  The Coordinator defends scope against good ideas that belong in the future-work list.  At the mid-studio checkpoint, the Coordinator confirms aloud that the sprint goal is still achievable, or re-scopes it *now*.
 
 ---
 
@@ -347,7 +344,21 @@ else:
 ```
 @LIA.eval(`["main.py"]`, `none`, `python3 main.py`)
 
-### Critical Thinking Questions
+---
+
+# Self-Paced: After the Studio
+
+**In-class work stops here.**  Everything below is homework and going-deeper material.
+
+---
+
+### Critical Thinking Questions: Triage
+
+7.  Two items are classified as DISCLOSE: known limitations acknowledged at Demo Day rather than fixed.  Why is a well-worded disclosure *preferable* to a rushed fix made the night before?  What risks does a rushed fix introduce?
+8.  The Instructor's risk item says "SEMANTICS.md says X, but the code does Y." Which one is right?  Write the policy your team will follow when documentation and implementation disagree.
+9.  As a walker, you notice a language with much better error messages than yours.  Should you copy their approach, ask how they did it, or note it as a future-work item?  Use the triage categories to articulate the difference.
+
+### Critical Thinking Questions: The Release Checklist
 
 10.  The checklist runs automated checks, but check 6 ("every teammate can demo the distinctive feature solo") cannot be automated.  Why does this check matter, and what would a *passing* version of it look like as an observable event rather than a feeling?
 11.  Check 4 requires SEMANTICS.md to be non-trivial (>500 bytes).  Is this a good proxy for "SEMANTICS.md is complete"?  Propose a better automated check.
@@ -408,4 +419,4 @@ In your notebook: compare the feedback your team received today with the error m
 
 ---
 
-These studios are where most of the Team Language Project gets built, and they lead to Demo Day, where you present your language to its audience.
+The sprints are where most of the Team Language Project gets built, and this studio leads to Demo Day, where you present your language to its audience.
