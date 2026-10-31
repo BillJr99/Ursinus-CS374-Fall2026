@@ -30,7 +30,7 @@ By the end of this activity, you will be able to:
 - Wire the `Environment` class into a tree-walking interpreter so that block statements push and pop scopes correctly
 - Specify the scoping and binding rules for a new language design, and defend the chosen rules in terms of predictability, flexibility, and implementation complexity
 
-Your interpreter from *Tree-Walking Interpretation* stores every variable in one flat dictionary.  That design breaks as soon as two parts of a program use the same name for different things.  Today you build the vocabulary to fix it, **binding** (attaching a name to a meaning) and scope (where that attachment is visible), and then the data structure that enforces it.  The `Environment` class you build here is the one the Environments and Scope lab, handed out today, asks you to finish and test, and the one the Interpreter assignment imports unchanged.  The path for today runs from binding times, to static versus dynamic scope, to the environment chain, to the operations and blocks that use it, to lifetime and the design decisions for your own language.
+Your interpreter from *Tree-Walking Interpretation* stores every variable in one flat dictionary.  That design breaks as soon as two parts of a program use the same name for different things.  Today you build the vocabulary to fix it, **binding** (attaching a name to a meaning) and scope (where that attachment is visible), and then the data structure that enforces it.  The `Environment` class you build here is the one the Environments and Scope lab, due today, asks you to finish and test, and the one the Interpreter assignment imports unchanged.  The path for today runs from binding times, to static versus dynamic scope, to the environment chain, to the operations and blocks that use it, to lifetime and the design decisions for your own language.
 
 > **Before You Begin:** This activity assumes you can:
 > - Write and call Python functions, including nested (inner) functions
@@ -1471,4 +1471,4 @@ trace_program()
 
 ---
 
-Up next: the *Type Systems* activity asks what your interpreter should do with senseless values.  The `Environment` you built here goes into the Environments and Scope lab, due at that session, and from there straight into the Interpreter assignment.
+Up next: the *Type Systems* activity asks what your interpreter should do with senseless values.  The `Environment` you built here goes into the Environments and Scope lab, due today, and from there straight into the Interpreter assignment.
