@@ -120,7 +120,8 @@ NUMBER: 99
 %}
 
 %option yylineno
-%option noyywrap         /* don't try to open more files after EOF */
+/* noyywrap: don't try to open more files after EOF */
+%option noyywrap
 
 %%
 

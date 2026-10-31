@@ -816,6 +816,8 @@ console.log(Array.from({length: 10}, (_, i) => fib(i)));
 Haskell (lazy, the original Y works directly):
 
 ```haskell
+import Data.Function (fix)
+
 -- Haskell is lazy, so Y works without eta-expansion
 y :: (a -> a) -> a
 y f = let x = f x in x
@@ -824,7 +826,6 @@ y f = let x = f x in x
 -- But Haskell's type system rejects the standard λ-calculus Y because
 -- it would require an infinite type (α = α -> α).
 -- Instead, use fix from Data.Function:
-import Data.Function (fix)
 
 factorial :: Int -> Int
 factorial = fix (\rec n -> if n == 0 then 1 else n * rec (n - 1))

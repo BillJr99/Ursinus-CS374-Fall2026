@@ -1378,7 +1378,7 @@ void ranges_demo() {
           })
         | std::views::filter([](const std::string& w){ return w.size() > 3; });
 
-    for (auto& w : words) std::cout << w << " ";
+    for (const auto& w : words) std::cout << w << " ";
     std::cout << "\n";
 }
 
