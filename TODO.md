@@ -18,3 +18,5 @@
   - Consider an autoresearch loop: an agent that audits each notes page, tutorial, and LiaScript deck against WCAG (checked with WAVE) and the UDL principles, applies fixes, re-evaluates, and iterates until the pages pass. (added 2026-10-29)
 
 - [ ] Consider proficiency-based grading standards (for example, standards- or specifications-based grading) that reward on-time submissions and consistent, sustained effort across the term. (added 2026-10-29)
+
+- [ ] Bring back the cross-team mock technical interview next term, with its own class time instead of a slot inside a sprint studio: pair students from different teams for ten-minute rounds on their own pipeline, a design decision, and a bug story, and restore its Demo Day Guide section, self-check row, and reflection prompts. (added 2026-10-31)
