@@ -371,6 +371,12 @@ $$
 
 The two grammars accept the same strings.  The loop version builds the same left-leaning tree if your loop folds as it goes (the next module makes this concrete).  A related repair, left factoring, fixes alternations that share a prefix: `A -> xy | xz` becomes `A -> x (y | z)`, which restores one-token decidability.
 
+> **Watch out!  Flipping the rule to `E -> T + E | T` stops the loop, but it changes the tree.**
+>
+> Moving `E` to the right end makes the rule right-recursive.  Now `parse_E` consumes a `T` before it calls itself, so every call starts further along the input and the recursion ends.  But the tree leans right: `1 + 2 + 3` parses as `1 + (2 + 3)`.  Addition gives the same number either way, so the mistake hides.  Subtraction exposes it: `8 - 4 - 2` becomes `8 - (4 - 2) = 6`, not `2`.  Use the loop `E -> T { + T }` for operators that group to the left, such as `+`, `-`, `*`, and `/`.  Keep right recursion for operators that group to the right, such as exponentiation (`2 ^ 3 ^ 2` is `2 ^ (3 ^ 2)`) and assignment (`a = b = c`); *Parsing Expressions* builds that case.
+>
+> Both alternatives of `E -> T + E | T` also begin with `T`, so one token of lookahead cannot choose between them.  Left-factor it to `E -> T [ + E ]`: parse one `T`, then check whether a `+` follows.
+
 > **Watch out!  Lookahead and grammar design are linked.**
 >
 > Most recursive descent parsers look only at the current token to decide which rule to apply.  This is the LL(1) property from Part I: "Left-to-right scan, Leftmost derivation, 1 token of lookahead."
